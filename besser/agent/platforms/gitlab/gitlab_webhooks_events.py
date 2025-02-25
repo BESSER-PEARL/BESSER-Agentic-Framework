@@ -1,14 +1,12 @@
-class GitLabEvent:
+from besser.agent.core.event import Event
+
+
+class GitLabEvent(Event):
 
     def __init__(self, name, action, payload):
-        self._name: str = name
+        super().__init__(name)
         self._action: str = action
         self._payload: str = payload
-
-    @property
-    def name(self):
-        """str: The name of the event"""
-        return self._name
 
     @property
     def action(self):
@@ -19,6 +17,11 @@ class GitLabEvent:
     def payload(self):
         """str: The payload of the event"""
         return self._payload
+
+    def is_matching(self, event: 'Event') -> bool:
+        if isinstance(event, GitLabEvent):
+            return self._name == event._name and self._action == event._action
+        return False
 
 
 class IssuesClosed(GitLabEvent):

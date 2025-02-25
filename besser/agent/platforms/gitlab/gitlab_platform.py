@@ -67,11 +67,13 @@ class GitLabPlatform(Platform):
             event = sansio.Event.from_http(request.headers, body, secret=self._secret)
             if event.event == "Note Hook":
                 agent.receive_event(
-                    GitLabEvent(event.data['object_attributes']['noteable_type'] + event.event,
-                                event.data['object_attributes']['action'] or '', event.data))
+                    session_id=None,
+                    event=GitLabEvent(event.data['object_attributes']['noteable_type'] + event.event,
+                                      event.data['object_attributes']['action'] or '', event.data))
             else:
                 agent.receive_event(
-                    GitLabEvent(event.event, event.data['object_attributes']['action'] or '', event.data))
+                    session_id=None,
+                    event=GitLabEvent(event.event, event.data['object_attributes']['action'] or '', event.data))
             return web.Response(status=200)
 
         self._post_entrypoint = post_entrypoint

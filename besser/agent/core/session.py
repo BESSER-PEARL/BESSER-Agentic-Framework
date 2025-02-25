@@ -69,13 +69,13 @@ class Session:
         self._platform: 'Platform' = platform
         self._current_state: 'State' = self._agent.initial_state()
         self._dictionary: dict[str, Any] = {}
-        self._message: str or None = None
-        self._predicted_intent: IntentClassifierPrediction or None = None
-        self._file: File or None = None
+        # self._message: str or None = None
+        # self._predicted_intent: IntentClassifierPrediction or None = None
+        # self._file: File or None = None
         self._event: Any or None = None
         self.flags: dict[str, bool] = {
-            'predicted_intent': False,
-            'file': False,
+            # 'predicted_intent': False,
+            # 'file': False,
             'event': False
         }
         self.agent_connections: dict[str, WebSocketApp] = {}
@@ -278,13 +278,13 @@ class Session:
             # Wait until the connection is open
             time.sleep(0.01)
 
-    def send_message_to_websocket(self, url: str, message: str) -> None:
+    def send_message_to_websocket(self, url: str, message: Any) -> None:
         """Send a message to a WebSocket Server, generally used to send a message to an agent through the WebSocket
         platform.
 
         Args:
             url (str): the WebSocket URL (i.e., the target agent's WebSocket platform URL)
-            message (str): the message to send to the WebSocket server
+            message (Any): the message to send to the WebSocket server
         """
         logger.info(f'Sending message to {url}')
         if url not in self.agent_connections:

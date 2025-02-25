@@ -68,9 +68,9 @@ class GitHubPlatform(Platform):
             if event.event == 'gollum':
                 pages = event.data['pages']
                 for page in pages:
-                    agent.receive_event(GitHubEvent('gollum', page['action'], page))
+                    agent.receive_event(session_id=None, event=GitHubEvent('gollum', page['action'], page))
             else:
-                agent.receive_event(GitHubEvent(event.event, event.data['action'] or '', event.data))
+                agent.receive_event(session_id=None, event=GitHubEvent(event.event, event.data['action'] or '', event.data))
             return web.Response(status=200)
 
         self._post_entrypoint = post_entrypoint
@@ -88,6 +88,9 @@ class GitHubPlatform(Platform):
 
     def stop(self):
         self.running = False
+        # TODO: TERMINATE GITHUB PLATFORM!!!!!!!!!!!!
+        # sync_coro_call(self._app.shutdown())
+        # sync_coro_call(self._app.cleanup())
         logger.info(f'{self._agent.name}\'s GitHubPlatform stopped')
 
     def __getattr__(self, name: str):

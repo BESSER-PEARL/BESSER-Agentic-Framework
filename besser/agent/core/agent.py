@@ -4,6 +4,7 @@ import threading
 from configparser import ConfigParser
 from typing import Any, Callable, get_type_hints
 
+from besser.agent.core.event import Event
 from besser.agent.core.message import Message
 from besser.agent.core.transition import Transition
 from besser.agent.core.entity.entity import Entity
@@ -279,7 +280,7 @@ class Agent:
                             state.name is global_init_state[0].name for global_init_state in self.global_initial_states)
                             and state not in global_state_follow_up):
                         if state.transitions and not state.transitions[0].is_auto():
-                            state.when_intent_matched_go_to(global_state_tuple[1], global_state)
+                            state.when_intent_matched(global_state_tuple[1]).go_to(global_state)
                             self.global_state_component[global_state][-1].when_variable_matches_operation_go_to(
                                 var_name="prev_state", operation=operator.eq, target=state, dest=state)
             self.global_initial_states.clear()
@@ -305,6 +306,7 @@ class Agent:
             for session in self._sessions.values():
                 if session.events and len(session.events) != 0:
                     session.flags['event'] = True
+                    # TODO: WAIT UNTIL CURRENT STATE IS FINISHED??
                     session.current_state.receive_event(session)
             loop.call_later(1, manage_events, loop)
 
@@ -382,54 +384,28 @@ class Agent:
         return new_session
 
     def receive_message(self, session_id: str, message: str) -> None:
-        """Receive a message from a specific session.
-
-        Receiving a message starts the process of inferring the message's intent and acting properly
-        (e.g. transition to another state, store something in memory, etc.)
-
-        Args:
-            session_id (str): the session that sends the message to the agent
-            message (str): the message sent to the agent
-        """
-        session = self._sessions[session_id]
-        # TODO: Raise exception SessionNotFound
-        message = self.process(session=session, message=message, is_user_message=True)
-        session.message = message
-        logger.info(f'Received message: {message}')
-        session.predicted_intent = self._nlp_engine.predict_intent(session)
-        logger.info(f'Detected intent: {session.predicted_intent.intent.name}')
-        self._monitoring_db_insert_intent_prediction(session)
-        for parameter in session.predicted_intent.matched_parameters:
-            logger.info(f"Parameter '{parameter.name}': {parameter.value}, info = {parameter.info}")
-        session.current_state.receive_intent(session)
+        print('receive_message not implemented')
 
     def receive_file(self, session_id: str, file: File) -> None:
-        """Receive a file from a specific session.
+        print('receive_file not implemented')
 
-        Args:
-            session_id (str): the session that sends the message to the agent
-            file (File): the file sent to the agent
-        """
-        session = self._sessions[session_id]
-        # TODO: Raise exception SessionNotFound
-        # keep previous message here? 
-        file = self.process(session=session, message=file, is_user_message=True)
-        session.message = file.name
-        session.file = file
-        logger.info('Received file')
-        session.current_state.receive_file(session)
-
-    def receive_event(self, event: Any) -> None:
+    def receive_event(self, session_id: str or None, event: Event) -> None:
         """Receive an external event from a platform.
 
         Receiving an event broadcast the message to all the sessions of the agent
 
         Args:
-            event (Any): the received event
+            session_id (str or None): the session that receives the event, or None if it is a broadcasted event.
+            event (Event): the received event
         """
-        logger.info(f'Received event: {event.name}')
-        for session in self._sessions.values():
+        if session_id is None or session_id not in self._sessions:
+            # Broadcast
+            for session in self._sessions.values():
+                session.events.appendleft(event)
+        else:
+            session = self._sessions[session_id]
             session.events.appendleft(event)
+        logger.info(f'Received event: {event._name}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
         """Runs the agent processors in a message.

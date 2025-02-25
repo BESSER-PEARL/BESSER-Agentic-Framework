@@ -1,12 +1,61 @@
+import inspect
 import traceback
-from typing import Callable, TYPE_CHECKING
+from functools import partial
+from typing import Callable, TYPE_CHECKING, Union
 
+from besser.agent.core.event import Event, Condition, ReceiveMessageEvent
+from besser.agent.exceptions.exceptions import StateNotFound
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import auto, intent_matched, variable_matches_operation
+from besser.agent.library.event.event_library import variable_matches_operation, intent_matched
 
 if TYPE_CHECKING:
     from besser.agent.core.session import Session
     from besser.agent.core.state import State
+
+
+class TransitionBuilder:
+
+    def __init__(self, source: 'State', event: Event = None, condition: Condition = None):
+        self.source: 'State' = source
+        self.event: Event = event
+        self.condition: Condition = condition
+
+    def with_condition(
+            self,
+            function: Union[
+                Callable[['Session'], bool],
+                Callable[['Session', dict], bool]
+            ],
+            params: dict = None
+    ):
+        if self.condition is not None:
+            # to avoid doing: state.when_intent_matched(intent1).with_condition(...).go_to(state2)
+            raise ValueError('You are replacing the condition!!!!')
+
+        sig = inspect.signature(function)
+        func_params = list(sig.parameters.keys())
+        condition_function: Callable[['Session'], bool] = None
+        if func_params == ['session']:
+            condition_function = function
+        elif func_params == ['session', 'params'] and params:
+            condition_function = partial(function, params=params)
+        else:
+            raise ValueError('Wrong Event Condition Function Signature!')
+        self.condition = Condition(condition_function, params)
+        return self
+
+    def go_to(self, dest: 'State') -> None:
+        if dest not in self.source._agent.states:
+            raise StateNotFound(self.source._agent, dest)
+
+        self.source.transitions.append(Transition(
+            name=self.source._t_name(),
+            source=self.source,
+            dest=dest,
+            event=self.event,
+            condition=self.condition
+        ))
+        self.source._check_global_state(dest)
 
 
 class Transition:
@@ -34,14 +83,14 @@ class Transition:
             name: str,
             source: 'State',
             dest: 'State',
-            event: Callable[['Session', dict], bool],
-            event_params: dict
+            event: Event,
+            condition: Condition
     ):
         self.name: str = name
         self.source: 'State' = source
         self.dest: 'State' = dest
-        self.event: Callable[['Session', dict], bool] = event
-        self.event_params: dict = event_params
+        self.event: Event = event
+        self.condition: Condition = condition
 
     def log(self) -> str:
         """Create a log message for the transition. Useful when transitioning from one state to another to track the
@@ -52,68 +101,25 @@ class Transition:
         Returns:
             str: the log message
         """
-        if self.event == intent_matched:
-            return f"{self.event.__name__} ({self.event_params['intent'].name}): [{self.source.name}] --> " \
-                   f"[{self.dest.name}]"
-        elif self.event == auto:
-            return f"{self.event.__name__}: [{self.source.name}] --> [{self.dest.name}]"
+        if self.is_auto():
+            return f"auto: [{self.source.name}] --> [{self.dest.name}]"
+        elif self.event is None:
+            return f"({self.condition.function.__name__}): [{self.source.name}] --> [{self.dest.name}]"
+        elif self.event.is_matching(ReceiveMessageEvent()) and self.condition.function == intent_matched:
+            return f"Intent Matching ({self.condition.params['intent'].name}): [{self.source.name}] --> [{self.dest.name}]"
         elif self.event == variable_matches_operation:
             return f"({self.event_params['var_name']} " \
                    f"{self.event_params['operation'].__name__} " \
                    f"{self.event_params['target']}): " \
                    f"[{self.source.name}] --> [{self.dest.name}]"
         else:
-            return f"{self.event.__name__}: [{self.source.name}] --> [{self.dest.name}]"
+            return f"{self.event.name}: [{self.source.name}] --> [{self.dest.name}]"
 
     def is_intent_matched(self, session: 'Session') -> bool:
-        """For `intent-matching` transitions, check if the predicted intent (stored in the given session) matches with
-        the transition's expected intent (stored in the transition event parameters).
-
-        If the transition event is not `intent_matched`, return false.
-
-        Args:
-            session (Session): the session in which the to be compared value is stored
-
-        Returns:
-            bool: true if the transition's intent matches with the target one, false otherwise
-        """
-        if self.event == intent_matched:
-            return self.is_event_true(session)
-        return False
+        print('is_intent_matched not implemented')
 
     def is_variable_matching_operation(self, session: 'Session') -> bool:
-        """For `session-value-comparison` transitions, check if the given operation on a stored session 
-        value and a given target value (stored in the transition event parameters) returns true.
-
-        If the transition event is not `variable_matches_operation`, return false.
-
-        Args:
-            session (Session): the session in which the value to be compared is stored
-
-        Returns:
-            bool: true if the operation on stored and target values returns true, false otherwise
-        """
-        if self.event == variable_matches_operation:
-            return self.is_event_true(session)
-        return False
-
-    def is_event_true(self, session: 'Session') -> bool:
-        """Given a session, returns true if the event associated to the transition returns true, and false otherwise.
-        (Applicable to any event)
-
-        Args:
-            session (Session): the session in which some user data can be stored and used within the event
-
-        Returns:
-            bool: true if the transition's event returned true, false otherwise
-        """
-        try:
-            return self.event(session, self.event_params)
-        except Exception as e:
-            logger.error(f"An error occurred while executing '{self.event.__name__}' event from state "
-                          f"'{self.source.name}'. See the attached exception:")
-            traceback.print_exc()
-        return False
+        print('is_variable_matching_operation not implemented')
 
     def is_auto(self) -> bool:
         """Check if the transition event is `auto` (i.e. a transition that does not need any event to be triggered).
@@ -122,4 +128,18 @@ class Transition:
             bool: true if the transition's intent matches with the
             target one, false
         """
-        return self.event == auto
+        return self.event is None and self.condition is None
+
+    def evaluate(self, session: 'Session', target_event: Event):
+        return self.event.is_matching(target_event) and self.is_condition_true(session)
+
+    def is_condition_true(self, session: 'Session') -> bool:
+        try:
+            if self.condition is None:
+                return True
+            return self.condition.evaluate(session)
+        except Exception as e:
+            logger.error(f"An error occurred while executing '{self.condition.function.__name__}' condition from state "
+                         f"'{self.source.name}'. See the attached exception:")
+            traceback.print_exc()
+        return False

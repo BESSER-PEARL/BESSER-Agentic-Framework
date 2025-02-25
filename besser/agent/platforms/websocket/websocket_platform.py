@@ -15,6 +15,7 @@ from pandas import DataFrame
 from websockets.exceptions import ConnectionClosedError
 from websockets.sync.server import ServerConnection, WebSocketServer, serve
 
+from besser.agent.core.event import ReceiveMessageEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
 from besser.agent.exceptions.exceptions import PlatformMismatchError
@@ -90,7 +91,11 @@ class WebSocketPlatform(Platform):
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
                     if payload.action == PayloadAction.USER_MESSAGE.value:
-                        self._agent.receive_message(session.id, payload.message)
+                        event: ReceiveMessageEvent = ReceiveMessageEvent(message=payload.message, human=True)
+                        event.predict_intent(session)
+                        agent.receive_event(session_id=session.id,
+                                            event=event)
+                        # self._agent.receive_message(session.id, payload.message)
                     elif payload.action == PayloadAction.USER_VOICE.value:
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
