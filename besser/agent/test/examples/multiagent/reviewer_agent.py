@@ -5,6 +5,7 @@ import base64
 import logging
 
 from besser.agent.core.agent import Agent
+from besser.agent.core.event import ReceiveMessageEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -47,7 +48,9 @@ ok_intent = agent.new_intent('yes_intent', [
 
 # STATES BODIES' DEFINITION + TRANSITIONS
 
-initial_state.when_no_intent_matched_go_to(code_review_state)
+initial_state.when_event(ReceiveMessageEvent()) \
+             .with_condition(lambda session: not session.event.human) \
+             .go_to(code_review_state)
 
 
 def code_review_body(session: Session):

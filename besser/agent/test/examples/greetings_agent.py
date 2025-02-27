@@ -46,7 +46,7 @@ bad_intent = agent.new_intent('bad_intent', [
 # STATES BODIES' DEFINITION + TRANSITIONS
 
 
-initial_state.when_intent_matched_go_to(hello_intent, hello_state)
+initial_state.when_intent_matched(hello_intent).go_to(hello_state)
 
 
 def hello_body(session: Session):
@@ -54,8 +54,8 @@ def hello_body(session: Session):
 
 
 hello_state.set_body(hello_body)
-hello_state.when_intent_matched_go_to(good_intent, good_state)
-hello_state.when_intent_matched_go_to(bad_intent, bad_state)
+hello_state.when_intent_matched(good_intent).go_to(good_state)
+hello_state.when_intent_matched(bad_intent).go_to(bad_state)
 
 
 def good_body(session: Session):

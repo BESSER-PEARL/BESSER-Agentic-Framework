@@ -1,14 +1,13 @@
-class GitHubEvent:
+from besser.agent.core.event import Event
 
-    def __init__(self, name, action, payload):
-        self._name: str = name
+
+class GitHubEvent(Event):
+
+    def __init__(self, category, action, payload):
+        super().__init__(category + action)
+        self._category: str = category
         self._action: str = action
         self._payload: str = payload
-
-    @property
-    def name(self):
-        """str: The name of the event"""
-        return self._name
 
     @property
     def action(self):
@@ -20,6 +19,10 @@ class GitHubEvent:
         """str: The payload of the event"""
         return self._payload
 
+    def is_matching(self, event: 'Event') -> bool:
+        if isinstance(event, GitHubEvent):
+            return self._category == event._category and self._action == event._action
+        return False
 
 class StarCreated(GitHubEvent):
     def __init__(self, payload=None):

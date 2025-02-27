@@ -48,7 +48,7 @@ def s0_body(session: Session):
 
 
 s0.set_body(s0_body)
-s0.when_intent_matched_go_to(weather_intent, weather_state)
+s0.when_intent_matched(weather_intent).go_to(weather_state)
 
 
 def weather_body(session: Session):

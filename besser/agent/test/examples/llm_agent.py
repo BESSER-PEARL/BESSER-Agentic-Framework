@@ -97,11 +97,11 @@ def greetings_body(session: Session):
 
 greetings_state.set_body(greetings_body)
 # Here, we could create a state for each intent, but we keep it simple
-greetings_state.when_intent_matched_go_to(hello_intent, greetings_state)
-greetings_state.when_intent_matched_go_to(maths_intent, answer_state)
-greetings_state.when_intent_matched_go_to(physics_intent, answer_state)
-greetings_state.when_intent_matched_go_to(literature_intent, answer_state)
-greetings_state.when_intent_matched_go_to(psychology_intent, answer_state)
+greetings_state.when_intent_matched(hello_intent).go_to(greetings_state)
+greetings_state.when_intent_matched(maths_intent).go_to(answer_state)
+greetings_state.when_intent_matched(physics_intent).go_to(answer_state)
+greetings_state.when_intent_matched(literature_intent).go_to(answer_state)
+greetings_state.when_intent_matched(psychology_intent).go_to(answer_state)
 
 
 def answer_body(session: Session):

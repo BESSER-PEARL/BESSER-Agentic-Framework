@@ -7,7 +7,6 @@ import logging
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import gitlab_event_matched
 from besser.agent.platforms.gitlab.gitlab_objects import Issue
 from besser.agent.platforms.gitlab.gitlab_webhooks_events import IssuesOpened, GitLabEvent, IssueCommentCreated, IssuesUpdated
 
@@ -43,9 +42,9 @@ def idle_body(session: Session):
 
 idle.set_body(idle_body)
 # The following transitions allow to flush the events created by the actions of the agent
-idle.when_event_go_to(gitlab_event_matched, issue_state, {'event': IssuesOpened()})
-idle.when_event_go_to(gitlab_event_matched, idle, {'event': IssuesUpdated()})
-idle.when_event_go_to(gitlab_event_matched, idle, {'event': IssueCommentCreated()})
+idle.when_event(IssuesOpened()).go_to(issue_state)
+idle.when_event(IssuesUpdated()).go_to(idle)
+idle.when_event(IssueCommentCreated()).go_to(idle)
 
 
 def issue_body(session: Session):

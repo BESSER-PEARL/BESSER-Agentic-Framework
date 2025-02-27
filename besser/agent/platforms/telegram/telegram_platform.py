@@ -10,30 +10,19 @@ from telegram import Update
 from telegram.ext import Application, ApplicationBuilder, BaseHandler, CommandHandler, ContextTypes, MessageHandler, \
     filters
 
+from besser.agent.core.event import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
 from besser.agent.core.file import File
 from besser.agent.exceptions.exceptions import PlatformMismatchError
 from besser.agent.exceptions.logger import logger
+from besser.agent.library.coroutine.async_helpers import sync_coro_call
 from besser.agent.platforms import telegram
 from besser.agent.platforms.payload import Payload, PayloadAction
 from besser.agent.platforms.platform import Platform
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-
-
-def _wait_future(future: Future):
-    """
-    Wait for a future (an asynchronous coroutine) to be finished.
-
-    Args:
-        future (Future): the Future to wait for
-    """
-    event = threading.Event()
-    future.add_done_callback((lambda ft: event.set()))
-    event.wait()
-
 
 class TelegramPlatform(Platform):
     """The Telegram Platform allows an agent to interact via Telegram.
@@ -64,7 +53,12 @@ class TelegramPlatform(Platform):
             session_id = str(update.effective_chat.id)
             session = await asyncio.to_thread(self._agent.get_or_create_session, session_id, self)
             text = update.message.text
-            await asyncio.to_thread(self._agent.receive_message, session.id, text)
+            event: ReceiveMessageEvent = ReceiveMessageEvent(
+                message=text,
+                session_id=session.id,
+                human=True)
+            event.predict_intent(session)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), message, block=False)
         self._handlers.append(message_handler)
@@ -84,7 +78,12 @@ class TelegramPlatform(Platform):
             voice_file = await context.bot.get_file(update.message.voice.file_id)
             voice_data = await voice_file.download_as_bytearray()
             text = self._agent.nlp_engine.speech2text(bytes(voice_data))
-            await asyncio.to_thread(self._agent.receive_message, session.id, text)
+            event: ReceiveMessageEvent = ReceiveMessageEvent(
+                message=text,
+                session_id=session.id,
+                human=True)
+            event.predict_intent(session)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         voice_handler = MessageHandler(filters.VOICE, voice, block=False)
         self._handlers.append(voice_handler)
@@ -100,7 +99,11 @@ class TelegramPlatform(Platform):
                 file_name=update.message.document.file_name, file_type=update.message.document.mime_type,
                 file_base64=base64_data
             )
-            await asyncio.to_thread(self._agent.receive_file, session.id, file=f)
+            event: ReceiveFileEvent = ReceiveFileEvent(
+                file=f,
+                session_id=session.id,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         file_handler = MessageHandler(filters.ATTACHMENT & (~filters.PHOTO), file, block=False)
         self._handlers.append(file_handler)
@@ -116,7 +119,11 @@ class TelegramPlatform(Platform):
                 file_name=update.message.photo[-1].file_id + ".jpg", file_type="image/jpeg",
                 file_base64=base64_data
             )
-            await asyncio.to_thread(self._agent.receive_file, session.id, file=f)
+            event: ReceiveFileEvent = ReceiveFileEvent(
+                file=f,
+                session_id=session.id,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         image_handler = MessageHandler(filters.PHOTO, image, block=False)
         self._handlers.append(image_handler)
@@ -132,9 +139,7 @@ class TelegramPlatform(Platform):
             # Forward the method call to the (telegram) bot
             method = getattr(self._telegram_app.bot, name, None)
             if method:
-                future = asyncio.run_coroutine_threadsafe(method(*args, **kwargs), self._event_loop)
-                _wait_future(future)
-                return future.result()
+                return sync_coro_call(method(*args, **kwargs))
             else:
                 raise AttributeError(f"'{self._telegram_app.bot.__class__}' object has no attribute '{name}'")
         return method_proxy
@@ -167,45 +172,29 @@ class TelegramPlatform(Platform):
         session = self._agent.get_or_create_session(session_id=session_id, platform=self)
         payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         if payload.action == PayloadAction.AGENT_REPLY_STR.value:
-            future = asyncio.run_coroutine_threadsafe(
-                self._telegram_app.bot.send_message(
-                    chat_id=session_id,
-                    text=payload.message
-                ),
-                self._event_loop
-            )
+            sync_coro_call(self._telegram_app.bot.send_message(
+                chat_id=session_id,
+                text=payload.message
+            ))
         elif payload.action == PayloadAction.AGENT_REPLY_FILE.value:
-            future = asyncio.run_coroutine_threadsafe(
-                self._telegram_app.bot.send_document(
-                    chat_id=session_id,
-                    document=base64.b64decode(payload.message["base64"]),
-                    filename=payload.message["name"],
-                    caption=payload.message["caption"]
-                ),
-                self._event_loop
-            )
+            sync_coro_call(self._telegram_app.bot.send_document(
+                chat_id=session_id,
+                document=base64.b64decode(payload.message["base64"]),
+                filename=payload.message["name"],
+                caption=payload.message["caption"]
+            ))
         elif payload.action == PayloadAction.AGENT_REPLY_IMAGE.value:
-            future = asyncio.run_coroutine_threadsafe(
-                self._telegram_app.bot.send_photo(
-                    chat_id=session_id,
-                    photo=base64.b64decode(payload.message["base64"]),
-                    caption=payload.message["caption"]
-                ),
-                self._event_loop
-            )
+            sync_coro_call(self._telegram_app.bot.send_photo(
+                chat_id=session_id,
+                photo=base64.b64decode(payload.message["base64"]),
+                caption=payload.message["caption"]
+            ))
         elif payload.action == PayloadAction.AGENT_REPLY_LOCATION.value:
-            future = asyncio.run_coroutine_threadsafe(
-                self._telegram_app.bot.send_location(
-                    chat_id=session_id,
-                    latitude=payload.message['latitude'],
-                    longitude=payload.message['longitude'],
-                ),
-                self._event_loop
-            )
-        else:
-            future = None
-        if future is not None:
-            _wait_future(future)
+            sync_coro_call(self._telegram_app.bot.send_location(
+                chat_id=session_id,
+                latitude=payload.message['latitude'],
+                longitude=payload.message['longitude'],
+            ))
 
     def reply(self, session: Session, message: str) -> None:
         if session.platform is not self:

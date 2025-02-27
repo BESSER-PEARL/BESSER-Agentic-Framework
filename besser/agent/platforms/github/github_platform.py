@@ -8,6 +8,7 @@ from aiohttp import web
 from aiohttp.web_request import Request
 from gidgethub import sansio
 
+from besser.agent.library.coroutine.async_helpers import sync_coro_call
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms import github
@@ -19,19 +20,6 @@ from besser.agent.platforms.platform import Platform
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-
-
-def sync_coro_call(coro):
-    def start_event_loop(coro, returnee):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        returnee['result'] = loop.run_until_complete(coro)
-    returnee = {'result': None}
-    thread = threading.Thread(target=start_event_loop, args=[coro, returnee])
-    thread.start()
-    thread.join()
-    return returnee['result']
-
 
 class GitHubPlatform(Platform):
     """The GitHub Platform allows an agent to receive events from GitHub webhooks and make calls to its REST API
@@ -88,6 +76,8 @@ class GitHubPlatform(Platform):
 
     def stop(self):
         self.running = False
+        sync_coro_call(self._app.shutdown())
+        sync_coro_call(self._app.cleanup())
         logger.info(f'{self._agent.name}\'s GitHubPlatform stopped')
 
     def __getattr__(self, name: str):
