@@ -5,6 +5,7 @@ import base64
 import logging
 
 from besser.agent.core.agent import Agent
+from besser.agent.core.event import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.file import File
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
@@ -49,7 +50,7 @@ def initial_fallback(session: Session):
 
 
 initial_state.set_body(initial_body)
-initial_state.when_file_received_go_to(receive_code_state)
+initial_state.when_event(ReceiveFileEvent()).go_to(receive_code_state)
 initial_state.set_fallback_body(initial_fallback)
 
 
@@ -79,7 +80,7 @@ def awaiting_request_body(session: Session):
 
 
 awaiting_request_state.set_body(awaiting_request_body)
-awaiting_request_state.when_no_intent_matched_go_to(send_request_state)
+awaiting_request_state.when_event(ReceiveMessageEvent()).go_to(send_request_state)
 
 
 def send_request_body(session: Session):
@@ -94,7 +95,9 @@ def send_request_body(session: Session):
 
 
 send_request_state.set_body(send_request_body)
-send_request_state.when_no_intent_matched_go_to(final_state)
+send_request_state.when_event(ReceiveMessageEvent()) \
+                  .with_condition(lambda session: not session.event.human) \
+                  .go_to(final_state)
 
 
 def final_body(session: Session):
@@ -107,8 +110,8 @@ def final_body(session: Session):
 
 
 final_state.set_body(final_body)
-final_state.when_intent_matched_go_to(yes_intent, receive_code_state)
-final_state.when_intent_matched_go_to(no_intent, awaiting_request_state)
+final_state.when_intent_matched(yes_intent).go_to(receive_code_state)
+final_state.when_intent_matched(no_intent).go_to(awaiting_request_state)
 
 # RUN APPLICATION
 
