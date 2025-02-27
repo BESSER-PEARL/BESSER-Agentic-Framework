@@ -8,6 +8,7 @@ from typing import Any, TYPE_CHECKING
 from pandas import DataFrame
 from websocket import WebSocketApp
 
+from besser.agent.core.event import ReceiveMessageEvent
 from besser.agent.core.message import Message, MessageType, get_message_type
 from besser.agent.core.transition import Transition
 from besser.agent.core.file import File
@@ -73,11 +74,11 @@ class Session:
         # self._predicted_intent: IntentClassifierPrediction or None = None
         # self._file: File or None = None
         self._event: Any or None = None
-        self.flags: dict[str, bool] = {
-            # 'predicted_intent': False,
-            # 'file': False,
-            'event': False
-        }
+        # self.flags: dict[str, bool] = {
+        #     # 'predicted_intent': False,
+        #     # 'file': False,
+        #     'event': False
+        # }
         self.agent_connections: dict[str, WebSocketApp] = {}
         self._events: deque[Any] = deque()
 
@@ -257,8 +258,12 @@ class Session:
         def on_message(ws, payload_str):
             payload: Payload = Payload.decode(payload_str)
             if payload.action == PayloadAction.AGENT_REPLY_STR.value:
-                self._agent.receive_message(self.id, payload.message)
-
+                event: ReceiveMessageEvent = ReceiveMessageEvent(
+                    message=payload.message,
+                    session_id=self.id,
+                    human=False)
+                event.predict_intent(self)
+                self._agent.receive_event(event)
         def on_open(ws):
             nonlocal finished
             finished = True

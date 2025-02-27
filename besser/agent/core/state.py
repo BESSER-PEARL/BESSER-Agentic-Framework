@@ -3,14 +3,15 @@ import traceback
 from collections import deque
 from typing import Any, Callable, TYPE_CHECKING, Union
 
-from besser.agent.core.event import Event, Condition, ReceiveMessageEvent
+from besser.agent.core.event import Event, Condition, ReceiveMessageEvent, IntentMatcher, VariableOperationMatcher, \
+    ReceiveFileEvent
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
 from besser.agent.core.transition import Transition, TransitionBuilder
 from besser.agent.exceptions.exceptions import BodySignatureError, ConflictingAutoTransitionError, \
     DuplicatedIntentMatchingTransitionError, IntentNotFound, StateNotFound
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import intent_matched
+from besser.agent.library.event.event_library import intent_matched, file_type
 from besser.agent.library.intent.intent_library import fallback_intent
 from besser.agent.library.state.state_library import default_body, default_fallback_body
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
@@ -175,27 +176,28 @@ class State:
             ],
             params: dict = None
     ) -> TransitionBuilder:
-        return TransitionBuilder(source=self, event=None, condition=Condition(function, params))
+        # Avoid code duplication for condition creation
+        builder = TransitionBuilder(source=self, event=None)
+        return builder.with_condition(function, params)
 
     def when_intent_matched(self, intent: Intent) -> TransitionBuilder:
         if intent in self.intents:
             raise DuplicatedIntentMatchingTransitionError(self, intent)
         if intent not in self._agent.intents:
             raise IntentNotFound(self._agent, intent)
-        # for transition in self.transitions:
-        #     if transition.is_auto():
-        #         raise ConflictingAutoTransitionError(self._agent, self)
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
         self.intents.append(intent)
         event: ReceiveMessageEvent = ReceiveMessageEvent()
-        condition: Condition = Condition(
-            function=intent_matched,
-            params={'intent': intent}
-        )
+        condition: Condition = IntentMatcher(intent)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
         return transition_builder
 
     def when_event_go_to(self, event: Callable[[Session, dict], bool], dest: 'State', event_params: dict) -> None:
-        print('when_event_go_to not implemented')
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self)
+        transition_builder.with_condition(event, event_params)
+        transition_builder.go_to(dest)
 
 
     def go_to(self, dest: 'State') -> None:
@@ -225,10 +227,16 @@ class State:
             target: Any,
             dest: 'State'
     ) -> None:
-        print('when_variable_matches_operation_go_to not implemented')
+        condition: Condition = VariableOperationMatcher(var_name, operation, target)
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
+        transition_builder.go_to(dest)
+
 
     def when_file_received_go_to(self, dest: 'State', allowed_types: list[str] or str = None) -> None:
-        print('when_file_received_go_to not implemented')
+        event = ReceiveFileEvent()
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
+        transition_builder.with_condition(function=file_type, params={'allowed_types':allowed_types})
+        transition_builder.go_to(dest)
 
     def receive_intent(self, session: Session) -> None:
         print('receive_intent not implemented')
@@ -249,16 +257,14 @@ class State:
         # TODO: Decide policy to remove events
         fallback_deque = deque()
         while session.events:
-            target_event: Event = session.events.pop()
+            # TODO: find a better way to share the event with the condition
+            session.event = session.events.pop()
             for transition in self.transitions:
-                if transition.evaluate(session, target_event):
-                    session.event = target_event
-                    session.flags['event'] = False
+                if transition.evaluate(session, session.event):
                     session.move(transition)
                     return
-            fallback_deque.appendleft(target_event)
+            fallback_deque.appendleft(session.event)
         session.events.extend(fallback_deque)
-        session.flags['event'] = False
 
         # When no transition is activated and the event not broadcasted, run the fallback body of the state
         # logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
@@ -283,11 +289,7 @@ class State:
             return
 
         for next_transition in self.transitions:
-            if next_transition.event == intent_matched:
-                # TODO: Think about this behavior
-                # If the next transition is an intent_matched, we return to await the user message
-                return
-            elif next_transition.event is None and next_transition.is_condition_true(session):
+            if next_transition.event is None and next_transition.is_condition_true(session):
                 session.move(next_transition)
                 return
 
@@ -305,4 +307,6 @@ class State:
             logger.error(f"An error occurred while executing '{self._body.__name__}' of state '{self._name}' in agent '"
                           f"{self._agent.name}'. See the attached exception:")
             traceback.print_exc()
+        #reset current event
+        session.event = None
         self._check_next_transition(session)

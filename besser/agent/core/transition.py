@@ -4,7 +4,7 @@ from functools import partial
 from typing import Callable, TYPE_CHECKING, Union
 
 from besser.agent.core.event import Event, Condition, ReceiveMessageEvent
-from besser.agent.exceptions.exceptions import StateNotFound
+from besser.agent.exceptions.exceptions import StateNotFound, ConflictingAutoTransitionError
 from besser.agent.exceptions.logger import logger
 from besser.agent.library.event.event_library import variable_matches_operation, intent_matched
 
@@ -30,11 +30,13 @@ class TransitionBuilder:
     ):
         if self.condition is not None:
             # to avoid doing: state.when_intent_matched(intent1).with_condition(...).go_to(state2)
+            # why we do not make a conjunction ?
             raise ValueError('You are replacing the condition!!!!')
 
         sig = inspect.signature(function)
         func_params = list(sig.parameters.keys())
         condition_function: Callable[['Session'], bool] = None
+        # shouldn't we use Parameter type annotations for that ?
         if func_params == ['session']:
             condition_function = function
         elif func_params == ['session', 'params'] and params:
@@ -47,6 +49,10 @@ class TransitionBuilder:
     def go_to(self, dest: 'State') -> None:
         if dest not in self.source._agent.states:
             raise StateNotFound(self.source._agent, dest)
+
+        for transition in self.source.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self.source._agent, self.source)
 
         self.source.transitions.append(Transition(
             name=self.source._t_name(),
@@ -104,16 +110,11 @@ class Transition:
         if self.is_auto():
             return f"auto: [{self.source.name}] --> [{self.dest.name}]"
         elif self.event is None:
-            return f"({self.condition.function.__name__}): [{self.source.name}] --> [{self.dest.name}]"
-        elif self.event.is_matching(ReceiveMessageEvent()) and self.condition.function == intent_matched:
-            return f"Intent Matching ({self.condition.params['intent'].name}): [{self.source.name}] --> [{self.dest.name}]"
-        elif self.event == variable_matches_operation:
-            return f"({self.event_params['var_name']} " \
-                   f"{self.event_params['operation'].__name__} " \
-                   f"{self.event_params['target']}): " \
-                   f"[{self.source.name}] --> [{self.dest.name}]"
-        else:
+            return f"({self.condition}): [{self.source.name}] --> [{self.dest.name}]"
+        elif self.condition is None:
             return f"{self.event.name}: [{self.source.name}] --> [{self.dest.name}]"
+        else:
+            return f"{self.event.name} ({self.condition}): [{self.source.name}] --> [{self.dest.name}]"
 
     def is_intent_matched(self, session: 'Session') -> bool:
         print('is_intent_matched not implemented')
@@ -137,7 +138,7 @@ class Transition:
         try:
             if self.condition is None:
                 return True
-            return self.condition.evaluate(session)
+            return self.condition(session)
         except Exception as e:
             logger.error(f"An error occurred while executing '{self.condition.function.__name__}' condition from state "
                          f"'{self.source.name}'. See the attached exception:")

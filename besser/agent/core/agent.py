@@ -305,8 +305,8 @@ class Agent:
         def manage_events(loop: asyncio.AbstractEventLoop) -> None:
             for session in self._sessions.values():
                 if session.events and len(session.events) != 0:
-                    session.flags['event'] = True
                     # TODO: WAIT UNTIL CURRENT STATE IS FINISHED??
+                    # It should be the case as state.receive_event is synchronous
                     session.current_state.receive_event(session)
             loop.call_later(1, manage_events, loop)
 
@@ -389,21 +389,19 @@ class Agent:
     def receive_file(self, session_id: str, file: File) -> None:
         print('receive_file not implemented')
 
-    def receive_event(self, session_id: str or None, event: Event) -> None:
+    def receive_event(self, event: Event) -> None:
         """Receive an external event from a platform.
 
-        Receiving an event broadcast the message to all the sessions of the agent
+        Receiving an event and send it to all the applicable sessions of the agent
 
         Args:
-            session_id (str or None): the session that receives the event, or None if it is a broadcasted event.
             event (Event): the received event
         """
-        if session_id is None or session_id not in self._sessions:
-            # Broadcast
+        if event.is_broadcasted():
             for session in self._sessions.values():
                 session.events.appendleft(event)
         else:
-            session = self._sessions[session_id]
+            session = self._sessions[event.session_id]
             session.events.appendleft(event)
         logger.info(f'Received event: {event._name}')
 
