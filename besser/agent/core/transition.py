@@ -43,7 +43,7 @@ class TransitionBuilder:
             condition_function = partial(function, params=params)
         else:
             raise ValueError('Wrong Event Condition Function Signature!')
-        self.condition = Condition(condition_function, params)
+        self.condition = Condition(condition_function)
         return self
 
     def go_to(self, dest: 'State') -> None:

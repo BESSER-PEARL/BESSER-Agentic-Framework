@@ -8,8 +8,6 @@ value, trigger the transitions.
 from typing import Any, Callable, TYPE_CHECKING
 
 from besser.agent.core.intent.intent import Intent
-from besser.agent.platforms.github.github_webhooks_events import GitHubEvent
-from besser.agent.platforms.gitlab.gitlab_webhooks_events import GitLabEvent
 
 if TYPE_CHECKING:
     from besser.agent.core.session import Session
