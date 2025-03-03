@@ -25,8 +25,17 @@ function renderChatWidget(args) {
           </div>
           -->
           <div id="chat-input">
-            <input type="text" id="message-input" placeholder="${messageInputPlaceHolder}">
-            <button onclick="sendMessage()" style="background-color:${themeColor}">Send</button>
+              <div class="btn-group dropup">
+                  <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color:${themeColor}">
+                      <i class="bi bi-paperclip"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" onclick="uploadFile()">Upload file</a></li>
+                      <!--<li><a class="dropdown-item" href="#" onclick="uploadImage()">Upload image</a></li>-->
+                  </ul>
+              </div>     
+              <input type="text" id="message-input" placeholder="${messageInputPlaceHolder}">
+              <button onclick="sendMessage()" style="background-color:${themeColor}">Send</button>
           </div>
         </div>
         
@@ -67,6 +76,38 @@ function renderChatWidget(args) {
         sendMessage();
       }
     });
+}
+
+function uploadFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '*/*';
+    input.onchange = function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const simplifiedType = file.name.split('.').pop().toLowerCase();
+          const lastDotIndex = file.name.lastIndexOf(".");
+          const message = {
+            name: file.name,
+            type: file.type,
+            base64: e.target.result.split(',')[1] // Extract base64 data
+          }
+          const payload = {
+            action: 'user_file',
+            message: message
+          };
+          displayMessage(payload, 'user-message');
+          ws.send(JSON.stringify({
+            action: 'user_file',
+            message: JSON.stringify(message)
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
 }
 
 function sendMessage() {
@@ -361,7 +402,7 @@ function displayMessage(payload, className) {
     else if (payload.action === 'agent_reply_image' && payload.message) {
         messageElement = getMessageImage(payload.message);
     }
-    else if (payload.action === 'agent_reply_file' && payload.message) {
+    else if (['agent_reply_file', 'user_file'].includes(payload.action) && payload.message) {
         messageElement = getMessageFile(payload.message);
     }
     else if (payload.action === 'agent_reply_dataframe' && payload.message) {
