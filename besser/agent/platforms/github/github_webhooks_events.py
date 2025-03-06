@@ -7,7 +7,7 @@ class GitHubEvent(Event):
         super().__init__(category + action)
         self._category: str = category
         self._action: str = action
-        self._payload: str = payload
+        self._payload = payload
 
     @property
     def action(self):
@@ -16,7 +16,7 @@ class GitHubEvent(Event):
 
     @property
     def payload(self):
-        """str: The payload of the event"""
+        """Any: The payload of the event"""
         return self._payload
 
     def is_matching(self, event: 'Event') -> bool:
