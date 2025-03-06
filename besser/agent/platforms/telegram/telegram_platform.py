@@ -16,13 +16,25 @@ from besser.agent.core.session import Session
 from besser.agent.core.file import File
 from besser.agent.exceptions.exceptions import PlatformMismatchError
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.coroutine.async_helpers import sync_coro_call
 from besser.agent.platforms import telegram
 from besser.agent.platforms.payload import Payload, PayloadAction
 from besser.agent.platforms.platform import Platform
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
+
+
+def _wait_future(future: Future):
+    """
+    Wait for a future (an asynchronous coroutine) to be finished.
+
+    Args:
+        future (Future): the Future to wait for
+    """
+    event = threading.Event()
+    future.add_done_callback((lambda ft: event.set()))
+    event.wait()
+
 
 class TelegramPlatform(Platform):
     """The Telegram Platform allows an agent to interact via Telegram.
@@ -139,7 +151,9 @@ class TelegramPlatform(Platform):
             # Forward the method call to the (telegram) bot
             method = getattr(self._telegram_app.bot, name, None)
             if method:
-                return sync_coro_call(method(*args, **kwargs))
+                future = asyncio.run_coroutine_threadsafe(method(*args, **kwargs), self._event_loop)
+                _wait_future(future)
+                return future.result()
             else:
                 raise AttributeError(f"'{self._telegram_app.bot.__class__}' object has no attribute '{name}'")
         return method_proxy
@@ -172,29 +186,45 @@ class TelegramPlatform(Platform):
         session = self._agent.get_or_create_session(session_id=session_id, platform=self)
         payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         if payload.action == PayloadAction.AGENT_REPLY_STR.value:
-            sync_coro_call(self._telegram_app.bot.send_message(
-                chat_id=session_id,
-                text=payload.message
-            ))
+            future = asyncio.run_coroutine_threadsafe(
+                self._telegram_app.bot.send_message(
+                    chat_id=session_id,
+                    text=payload.message
+                ),
+                self._event_loop
+            )
         elif payload.action == PayloadAction.AGENT_REPLY_FILE.value:
-            sync_coro_call(self._telegram_app.bot.send_document(
-                chat_id=session_id,
-                document=base64.b64decode(payload.message["base64"]),
-                filename=payload.message["name"],
-                caption=payload.message["caption"]
-            ))
+            future = asyncio.run_coroutine_threadsafe(
+                self._telegram_app.bot.send_document(
+                    chat_id=session_id,
+                    document=base64.b64decode(payload.message["base64"]),
+                    filename=payload.message["name"],
+                    caption=payload.message["caption"]
+                ),
+                self._event_loop
+            )
         elif payload.action == PayloadAction.AGENT_REPLY_IMAGE.value:
-            sync_coro_call(self._telegram_app.bot.send_photo(
-                chat_id=session_id,
-                photo=base64.b64decode(payload.message["base64"]),
-                caption=payload.message["caption"]
-            ))
+            future = asyncio.run_coroutine_threadsafe(
+                self._telegram_app.bot.send_photo(
+                    chat_id=session_id,
+                    photo=base64.b64decode(payload.message["base64"]),
+                    caption=payload.message["caption"]
+                ),
+                self._event_loop
+            )
         elif payload.action == PayloadAction.AGENT_REPLY_LOCATION.value:
-            sync_coro_call(self._telegram_app.bot.send_location(
-                chat_id=session_id,
-                latitude=payload.message['latitude'],
-                longitude=payload.message['longitude'],
-            ))
+            future = asyncio.run_coroutine_threadsafe(
+                self._telegram_app.bot.send_location(
+                    chat_id=session_id,
+                    latitude=payload.message['latitude'],
+                    longitude=payload.message['longitude'],
+                ),
+                self._event_loop
+            )
+        else:
+            future = None
+        if future is not None:
+            _wait_future(future)
 
     def reply(self, session: Session, message: str) -> None:
         if session.platform is not self:
