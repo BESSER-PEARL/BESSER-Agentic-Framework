@@ -83,7 +83,7 @@ psychology_intent = agent.new_intent(
 # STATES BODIES' DEFINITION + TRANSITIONS
 
 def global_fallback_body(session: Session):
-    answer = gpt.predict(f"You are being used within an intent-based agent. The agent triggered the fallback mechanism because no intent was recognized from the user input. Generate a message similar to 'Sorry, I don't know the answer', based on the user message: {session.message}")
+    answer = gpt.predict(f"You are being used within an intent-based agent. The agent triggered the fallback mechanism because no intent was recognized from the user input. Generate a message similar to 'Sorry, I don't know the answer', based on the user message: {session.event.text}")
     session.reply(answer)
 
 
@@ -105,7 +105,7 @@ greetings_state.when_intent_matched(psychology_intent).go_to(answer_state)
 
 
 def answer_body(session: Session):
-    answer = gpt.predict(session.message)
+    answer = gpt.predict(session.event.text)
     session.reply(answer)
 
 

@@ -5,7 +5,7 @@ import base64
 import logging
 
 from besser.agent.core.agent import Agent
-from besser.agent.core.event import ReceiveMessageEvent
+from besser.agent.core.event import ReceiveTextEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -48,13 +48,13 @@ ok_intent = agent.new_intent('yes_intent', [
 
 # STATES BODIES' DEFINITION + TRANSITIONS
 
-initial_state.when_event(ReceiveMessageEvent()) \
+initial_state.when_event(ReceiveTextEvent()) \
              .with_condition(lambda session: not session.event.human) \
              .go_to(code_review_state)
 
 
 def code_review_body(session: Session):
-    code: str = session.message
+    code: str = session.event.text
     answer: str = gpt.predict(
         message=f"You are a code reviewer. Given the following code, try to find if there are syntax errors.\n"
                 f"If you think there are no errors, just reply 'ok'.\n\n"

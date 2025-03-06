@@ -73,6 +73,7 @@ def initial_body(session: Session):
 
 
 initial_state.set_body(initial_body)
+# TODO : fix no_intent_matched
 initial_state.when_no_intent_matched_go_to(rag_state)
 
 
