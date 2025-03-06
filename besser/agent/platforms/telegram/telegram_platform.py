@@ -65,9 +65,9 @@ class TelegramPlatform(Platform):
             session_id = str(update.effective_chat.id)
             session = await asyncio.to_thread(self._agent.get_or_create_session, session_id, self)
             text = update.message.text
-            event: ReceiveMessageEvent = ReceiveMessageEvent(
+            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                 message=text,
-                session_id=session.id,
+                session=session,
                 human=True)
             event.predict_intent(session)
             await asyncio.to_thread(self._agent.receive_event, event)
@@ -90,9 +90,9 @@ class TelegramPlatform(Platform):
             voice_file = await context.bot.get_file(update.message.voice.file_id)
             voice_data = await voice_file.download_as_bytearray()
             text = self._agent.nlp_engine.speech2text(bytes(voice_data))
-            event: ReceiveMessageEvent = ReceiveMessageEvent(
+            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                 message=text,
-                session_id=session.id,
+                session=session,
                 human=True)
             event.predict_intent(session)
             await asyncio.to_thread(self._agent.receive_event, event)

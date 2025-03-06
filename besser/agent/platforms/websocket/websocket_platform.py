@@ -91,9 +91,9 @@ class WebSocketPlatform(Platform):
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
                     if payload.action == PayloadAction.USER_MESSAGE.value:
-                        event: ReceiveMessageEvent = ReceiveMessageEvent(
+                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=payload.message,
-                            session_id=session.id,
+                            session=session,
                             human=True)
                         event.predict_intent(session)
                         self._agent.receive_event(event)
@@ -101,9 +101,9 @@ class WebSocketPlatform(Platform):
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
                         message = self._agent.nlp_engine.speech2text(audio_bytes)
-                        event: ReceiveMessageEvent = ReceiveMessageEvent(
+                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=message,
-                            session_id=session.id,
+                            session=session,
                             human=True)
                         event.predict_intent(session)
                         self._agent.receive_event(event)
@@ -114,9 +114,9 @@ class WebSocketPlatform(Platform):
                             human=True)
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.AGENT_REPLY_STR.value:
-                        event: ReceiveMessageEvent = ReceiveMessageEvent(
+                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=payload.message,
-                            session_id=session.id,
+                            session=session,
                             human=False)
                         event.predict_intent(session)
                         self._agent.receive_event(event)

@@ -3,8 +3,8 @@ import traceback
 from collections import deque
 from typing import Any, Callable, TYPE_CHECKING, Union
 
-from besser.agent.core.event import Event, Condition, ReceiveMessageEvent, IntentMatcher, VariableOperationMatcher, \
-    ReceiveFileEvent
+from besser.agent.core.event import Event, Condition, IntentMatcher, VariableOperationMatcher, \
+    ReceiveFileEvent, ReceiveTextEvent
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
 from besser.agent.core.transition import Transition, TransitionBuilder
@@ -189,7 +189,7 @@ class State:
             if transition.is_auto():
                 raise ConflictingAutoTransitionError(self._agent, self)
         self.intents.append(intent)
-        event: ReceiveMessageEvent = ReceiveMessageEvent()
+        event: ReceiveTextEvent = ReceiveTextEvent()
         condition: Condition = IntentMatcher(intent)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
         return transition_builder

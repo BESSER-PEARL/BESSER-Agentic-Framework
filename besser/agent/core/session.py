@@ -8,7 +8,7 @@ from typing import Any, TYPE_CHECKING
 from pandas import DataFrame
 from websocket import WebSocketApp
 
-from besser.agent.core.event import ReceiveMessageEvent
+from besser.agent.core.event import ReceiveMessageEvent, Event
 from besser.agent.core.message import Message, MessageType, get_message_type
 from besser.agent.core.transition import Transition
 from besser.agent.core.file import File
@@ -73,14 +73,14 @@ class Session:
         # self._message: str or None = None
         # self._predicted_intent: IntentClassifierPrediction or None = None
         # self._file: File or None = None
-        self._event: Any or None = None
+        self._event: Event = None
         # self.flags: dict[str, bool] = {
         #     # 'predicted_intent': False,
         #     # 'file': False,
         #     'event': False
         # }
         self.agent_connections: dict[str, WebSocketApp] = {}
-        self._events: deque[Any] = deque()
+        self._events: deque[Event] = deque()
 
     @property
     def id(self):
@@ -97,71 +97,71 @@ class Session:
         """State: The current agent state of the session."""
         return self._current_state
 
-    @property
-    def message(self):
-        """str: The last message sent to the agent."""
-        return self._message
-
-    @message.setter
-    def message(self, message):
-        """
-        Set the last message sent to the agent.
-        Args:
-            message (str): the message to set in the session
-        """
-        # TODO: IF STORE_CHAT_HISTORY...
-        self.save_message(Message(t=MessageType.STR, content=message, is_user=True, timestamp=datetime.now()))
-        self._message = message
-        
-    @property
-    def file(self):
-        """str: The last file sent to the agent."""
-        return self._file
-
-    @file.setter
-    def file(self, file: File):
-        """
-        Set the last file sent to the agent.
-        Args:
-            file (File): the file to set in the session
-        """
-        # TODO: Files are not stored in the DB
-        self._file = file
-        self.flags['file'] = True
+    # @property
+    # def message(self):
+    #     """str: The last message sent to the agent."""
+    #     return self._message
+    #
+    # @message.setter
+    # def message(self, message):
+    #     """
+    #     Set the last message sent to the agent.
+    #     Args:
+    #         message (str): the message to set in the session
+    #     """
+    #     # TODO: IF STORE_CHAT_HISTORY...
+    #     self.save_message(Message(t=MessageType.STR, content=message, is_user=True, timestamp=datetime.now()))
+    #     self._message = message
+    #
+    # @property
+    # def file(self):
+    #     """str: The last file sent to the agent."""
+    #     return self._file
+    #
+    # @file.setter
+    # def file(self, file: File):
+    #     """
+    #     Set the last file sent to the agent.
+    #     Args:
+    #         file (File): the file to set in the session
+    #     """
+    #     # TODO: Files are not stored in the DB
+    #     self._file = file
+    #     self.flags['file'] = True
 
     @property
     def event(self):
-        """str: The last event matched by the agent."""
+        """Event: The last event matched by the agent."""
         return self._event
 
     @event.setter
-    def event(self, event: Any):
+    def event(self, event: Event):
         """
         Set the last event matched by the agent.
         Args:
-            event (Any): the event to set in the session
+            event (Event): the event to set in the session
         """
         # TODO: Event are not stored in the DB
         self._event = event
 
-    @property
-    def predicted_intent(self):
-        """str: The last predicted intent for this session."""
-        return self._predicted_intent
-
-    @predicted_intent.setter
-    def predicted_intent(self, predicted_intent: IntentClassifierPrediction):
-        """Set the last predicted intent for this session.
-
-        Args:
-            predicted_intent (File): the last predicted intent
-        """
-        self._predicted_intent = predicted_intent
-        self.flags['predicted_intent'] = True
+    # @property
+    # def predicted_intent(self):
+    #     """str: The last predicted intent for this session."""
+    #     return self._predicted_intent
+    #
+    # @predicted_intent.setter
+    # def predicted_intent(self, predicted_intent: IntentClassifierPrediction):
+    #     """Set the last predicted intent for this session.
+    #
+    #     Args:
+    #         predicted_intent (File): the last predicted intent
+    #     """
+    #     self._predicted_intent = predicted_intent
+    #     self.flags['predicted_intent'] = True
 
     @property
     def events(self):
-        """str: The queue of pending events for this session"""
+        """dequeue[Event]: The queue of pending events for this session"""
         return self._events
 
     def get_chat_history(self, n: int = None) -> list[Message]:
@@ -258,9 +258,9 @@ class Session:
         def on_message(ws, payload_str):
             payload: Payload = Payload.decode(payload_str)
             if payload.action == PayloadAction.AGENT_REPLY_STR.value:
-                event: ReceiveMessageEvent = ReceiveMessageEvent(
+                event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                     message=payload.message,
-                    session_id=self.id,
+                    session=self,
                     human=False)
                 event.predict_intent(self)
                 self._agent.receive_event(event)
