@@ -1,11 +1,10 @@
 # You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
 # import sys
 # sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
-import base64
 import logging
 
 from besser.agent.core.agent import Agent
-from besser.agent.core.event import ReceiveTextEvent
+from besser.agent.library.transition.event import ReceiveTextEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI

@@ -1,7 +1,7 @@
 """
-The collection of preexisting events.
+The collection of preexisting condition functions.
 
-Events are functions embedded in :class:`~besser.agent.core.transition.Transition` that, when called and return a `True`
+Functions embedded in :class:`~besser.agent.core.transition.condition.Condition` that, when called and return a `True`
 value, trigger the transitions.
 """
 
@@ -15,13 +15,12 @@ if TYPE_CHECKING:
 
 def intent_matched(session: 'Session', params: dict) -> bool:
     target_intent: Intent = params['intent']
-    predicted_intent = session.get('predicted_intent')
-    # TODO: USE FLAG!!!!!!!!!!
-    # TODO :Why though, it differentiate from files based on the event right ?
+    predicted_intent = session.get('predicted_intent')  # TODO : GET PRED INTENT FROM EVENT
     if predicted_intent is not None:
         matched_intent: Intent = session.get('predicted_intent').intent
         return target_intent.name == matched_intent.name
     return False
+
 
 def variable_matches_operation(session: 'Session', event_params: dict) -> bool:
     """This event checks if for a specific comparison operation, using a stored session value

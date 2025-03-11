@@ -4,7 +4,7 @@
 import logging
 
 from besser.agent.core.agent import Agent
-from besser.agent.core.event import ReceiveJSONEvent
+from besser.agent.library.transition.event import ReceiveJSONEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI

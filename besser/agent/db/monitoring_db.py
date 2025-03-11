@@ -9,11 +9,11 @@ from sqlalchemy.orm import declarative_base
 from besser.agent.core.message import Message
 from besser.agent.core.session import Session
 from besser.agent.core.state import State
-from besser.agent.core.transition import Transition
+from besser.agent.core.transition.transition import Transition
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING_DIALECT, DB_MONITORING_PORT, DB_MONITORING_HOST, DB_MONITORING_DATABASE, \
     DB_MONITORING_USERNAME, DB_MONITORING_PASSWORD
-from besser.agent.library.event.event_library import intent_matched, variable_matches_operation
+from besser.agent.library.transition.condition_functions import intent_matched, variable_matches_operation
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
 
 if TYPE_CHECKING:
@@ -192,9 +192,9 @@ class MonitoringDB:
         """
         table = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        if transition.event == intent_matched:
+        if transition.event == intent_matched:  # TODO: DEPRECATED
             transition_info = transition.event_params['intent'].name
-        elif transition.event == variable_matches_operation:
+        elif transition.event == variable_matches_operation:  # TODO: DEPRECATED
             transition_info = f'{transition.event_params["var_name"]} {transition.event_params["operation"].__name__} {transition.event_params["target"]}'
         else:
             transition_info = ''

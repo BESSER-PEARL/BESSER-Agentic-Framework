@@ -4,9 +4,8 @@ import threading
 from configparser import ConfigParser
 from typing import Any, Callable, get_type_hints
 
-from besser.agent.core.event import Event
+from besser.agent.core.transition.event import Event
 from besser.agent.core.message import Message
-from besser.agent.core.transition import Transition
 from besser.agent.core.entity.entity import Entity
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.intent.intent_parameter import IntentParameter
@@ -15,6 +14,7 @@ from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
 from besser.agent.core.state import State
 from besser.agent.core.file import File
+from besser.agent.core.transition.transition import Transition
 from besser.agent.db import DB_MONITORING
 from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
@@ -308,6 +308,8 @@ class Agent:
                     # TODO: WAIT UNTIL CURRENT STATE IS FINISHED??
                     # It should be the case as state.receive_event is synchronous
                     session.current_state.receive_event(session)
+                # check also transitions without event, only condition
+                #CHANGE: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
             loop.call_later(1, manage_events, loop)
 
         def start_event_loop():

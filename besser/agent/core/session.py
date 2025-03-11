@@ -2,19 +2,17 @@ import json
 import threading
 import time
 from collections import deque
-from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
 from pandas import DataFrame
 from websocket import WebSocketApp
 
-from besser.agent.core.event import ReceiveMessageEvent, Event
-from besser.agent.core.message import Message, MessageType, get_message_type
-from besser.agent.core.transition import Transition
-from besser.agent.core.file import File
+from besser.agent.core.transition.event import Event
+from besser.agent.core.transition.transition import Transition
+from besser.agent.library.transition.event import ReceiveMessageEvent
+from besser.agent.core.message import Message, get_message_type
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING
-from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 from besser.agent.nlp.rag.rag import RAGMessage
 from besser.agent.platforms.payload import PayloadEncoder, Payload, PayloadAction
 

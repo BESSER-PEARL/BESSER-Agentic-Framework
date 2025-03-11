@@ -1,4 +1,4 @@
-from besser.agent.core.event import Event
+from besser.agent.core.transition.event import Event
 
 
 class GitLabEvent(Event):

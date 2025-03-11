@@ -3,20 +3,21 @@ import traceback
 from collections import deque
 from typing import Any, Callable, TYPE_CHECKING, Union
 
-from besser.agent.core.event import Event, Condition, IntentMatcher, VariableOperationMatcher, \
-    ReceiveFileEvent, ReceiveTextEvent
+from besser.agent.core.transition.event import Event
+from besser.agent.core.transition.transition import Transition
+from besser.agent.core.transition.transition_builder import TransitionBuilder
+from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
+from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
+from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
-from besser.agent.core.transition import Transition, TransitionBuilder
 from besser.agent.exceptions.exceptions import BodySignatureError, ConflictingAutoTransitionError, \
-    DuplicatedIntentMatchingTransitionError, IntentNotFound, StateNotFound
+    DuplicatedIntentMatchingTransitionError, IntentNotFound
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import intent_matched, file_type
-from besser.agent.library.intent.intent_library import fallback_intent
+from besser.agent.library.transition.condition_functions import file_type
 from besser.agent.library.state.state_library import default_body, default_fallback_body
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
-from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -194,11 +195,6 @@ class State:
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
         return transition_builder
 
-    def when_event_go_to(self, event: Callable[[Session, dict], bool], dest: 'State', event_params: dict) -> None:
-        transition_builder: TransitionBuilder = TransitionBuilder(source=self)
-        transition_builder.with_condition(event, event_params)
-        transition_builder.go_to(dest)
-
 
     def go_to(self, dest: 'State') -> None:
         """Create a new `auto` transition on this state.
@@ -218,6 +214,7 @@ class State:
         transition_builder.go_to(dest)
 
     def when_no_intent_matched_go_to(self, dest: 'State') -> None:
+        # REMOVE GO TO
         print('when_no_intent_matched_go_to not implemented')
 
     def when_variable_matches_operation_go_to(
@@ -227,16 +224,18 @@ class State:
             target: Any,
             dest: 'State'
     ) -> None:
+        # REMOVE GO TO
         condition: Condition = VariableOperationMatcher(var_name, operation, target)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
         transition_builder.go_to(dest)
 
 
     def when_file_received_go_to(self, dest: 'State', allowed_types: list[str] or str = None) -> None:
+        # REMOVE GO TO
         event = ReceiveFileEvent()
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
         transition_builder.with_condition(function=file_type, params={'allowed_types':allowed_types})
-        transition_builder.go_to(dest)
+        #transition_builder.go_to(dest)
 
     def receive_intent(self, session: Session) -> None:
         print('receive_intent not implemented')
@@ -259,6 +258,10 @@ class State:
         while session.events:
             # TODO: find a better way to share the event with the condition
             session.event = session.events.pop()
+            # if it is receive text, we predict intent.
+            # and store it in session.event
+            # (intent prediction will be re-run when receiving a new event, because the current state will change)
+            # (if the current state didn't change, we don't want to re-run, so we need to keep a reference to the state where it was predicted)
             for transition in self.transitions:
                 if transition.evaluate(session, session.event):
                     session.move(transition)

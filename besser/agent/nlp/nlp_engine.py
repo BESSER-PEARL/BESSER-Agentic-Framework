@@ -124,6 +124,7 @@ class NLPEngine:
         if not session.current_state.intents:
             return fallback_intent
         intent_classifier = self._intent_classifiers[session.current_state]
+        # TODO: check if state is different to run prediction
         intent_classifier_predictions: list[IntentClassifierPrediction] = intent_classifier.predict(message)
         best_intent_prediction = self.get_best_intent_prediction(intent_classifier_predictions)
         if best_intent_prediction is None:

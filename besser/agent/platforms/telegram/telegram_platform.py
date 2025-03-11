@@ -10,7 +10,7 @@ from telegram import Update
 from telegram.ext import Application, ApplicationBuilder, BaseHandler, CommandHandler, ContextTypes, MessageHandler, \
     filters
 
-from besser.agent.core.event import ReceiveMessageEvent, ReceiveFileEvent
+from besser.agent.library.transition.event import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
 from besser.agent.core.file import File
