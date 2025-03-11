@@ -24,6 +24,7 @@ class GitHubEvent(Event):
             return self._category == event._category and self._action == event._action
         return False
 
+
 class StarCreated(GitHubEvent):
     def __init__(self, payload=None):
         super().__init__('star', 'created', payload)

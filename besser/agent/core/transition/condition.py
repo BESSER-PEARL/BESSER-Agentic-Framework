@@ -1,7 +1,5 @@
 from typing import Callable, TYPE_CHECKING
 
-from besser.agent.core.session import Session
-
 if TYPE_CHECKING:
     from besser.agent.core.session import Session
 

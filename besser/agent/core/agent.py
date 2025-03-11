@@ -305,11 +305,8 @@ class Agent:
         def manage_events(loop: asyncio.AbstractEventLoop) -> None:
             for session in self._sessions.values():
                 if session.events and len(session.events) != 0:
-                    # TODO: WAIT UNTIL CURRENT STATE IS FINISHED??
-                    # It should be the case as state.receive_event is synchronous
                     session.current_state.receive_event(session)
-                # check also transitions without event, only condition
-                #CHANGE: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
+                # TODO: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
             loop.call_later(1, manage_events, loop)
 
         def start_event_loop():

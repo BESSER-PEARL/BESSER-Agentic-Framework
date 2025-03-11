@@ -62,12 +62,6 @@ class Transition:
         else:
             return f"{self.event.name} ({self.condition}): [{self.source.name}] --> [{self.dest.name}]"
 
-    def is_intent_matched(self, session: 'Session') -> bool:
-        print('is_intent_matched not implemented')
-
-    def is_variable_matching_operation(self, session: 'Session') -> bool:
-        print('is_variable_matching_operation not implemented')
-
     def is_auto(self) -> bool:
         """Check if the transition event is `auto` (i.e. a transition that does not need any event to be triggered).
 

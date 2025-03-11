@@ -119,7 +119,7 @@ class NLPEngine:
         Returns:
             IntentClassifierPrediction: the intent prediction
         """
-        message: str = session.get('message')
+        message: str = session.event.message
         fallback_intent = fallback_intent_prediction(message)
         if not session.current_state.intents:
             return fallback_intent
@@ -129,6 +129,7 @@ class NLPEngine:
         best_intent_prediction = self.get_best_intent_prediction(intent_classifier_predictions)
         if best_intent_prediction is None:
             best_intent_prediction = fallback_intent
+        best_intent_prediction.state = session.current_state.name
         return best_intent_prediction
 
     def get_best_intent_prediction(

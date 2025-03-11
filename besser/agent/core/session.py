@@ -260,7 +260,6 @@ class Session:
                     message=payload.message,
                     session=self,
                     human=False)
-                event.predict_intent(self)
                 self._agent.receive_event(event)
         def on_open(ws):
             nonlocal finished

@@ -95,7 +95,6 @@ class WebSocketPlatform(Platform):
                             message=payload.message,
                             session=session,
                             human=True)
-                        event.predict_intent(session)
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.USER_VOICE.value:
                         # Decode the base64 string to get audio bytes
@@ -105,7 +104,6 @@ class WebSocketPlatform(Platform):
                             message=message,
                             session=session,
                             human=True)
-                        event.predict_intent(session)
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.USER_FILE.value:
                         event: ReceiveFileEvent = ReceiveFileEvent(
@@ -118,7 +116,6 @@ class WebSocketPlatform(Platform):
                             message=payload.message,
                             session=session,
                             human=False)
-                        event.predict_intent(session)
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)

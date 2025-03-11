@@ -69,7 +69,6 @@ class TelegramPlatform(Platform):
                 message=text,
                 session=session,
                 human=True)
-            event.predict_intent(session)
             await asyncio.to_thread(self._agent.receive_event, event)
 
         message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), message, block=False)
@@ -94,7 +93,6 @@ class TelegramPlatform(Platform):
                 message=text,
                 session=session,
                 human=True)
-            event.predict_intent(session)
             await asyncio.to_thread(self._agent.receive_event, event)
 
         voice_handler = MessageHandler(filters.VOICE, voice, block=False)

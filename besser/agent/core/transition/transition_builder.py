@@ -2,8 +2,6 @@ import inspect
 from functools import partial
 from typing import Union, Callable, TYPE_CHECKING
 
-from besser.agent.core.session import Session
-from besser.agent.core.state import State
 from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.transition.transition import Transition
@@ -28,7 +26,7 @@ class TransitionBuilder:
                 Callable[['Session', dict], bool]
             ],
             params: dict = None
-    ):
+    ) -> 'TransitionBuilder':
         if self.condition is not None:
             # todo: why we do not make a conjunction ?
             raise ValueError('You are replacing the condition!')

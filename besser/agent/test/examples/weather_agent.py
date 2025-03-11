@@ -52,7 +52,7 @@ s0.when_intent_matched(weather_intent).go_to(weather_state)
 
 
 def weather_body(session: Session):
-    predicted_intent: IntentClassifierPrediction = session.get('predicted_intent')
+    predicted_intent: IntentClassifierPrediction = session.event.predicted_intent
     city = predicted_intent.get_parameter('city1')
     temperature = round(random.uniform(0, 30), 2)
     if city.value is None:

@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 
 def intent_matched(session: 'Session', params: dict) -> bool:
     target_intent: Intent = params['intent']
-    predicted_intent = session.get('predicted_intent')  # TODO : GET PRED INTENT FROM EVENT
+    predicted_intent = session.event.predicted_intent
     if predicted_intent is not None:
-        matched_intent: Intent = session.get('predicted_intent').intent
+        matched_intent: Intent = predicted_intent.intent
         return target_intent.name == matched_intent.name
     return False
 

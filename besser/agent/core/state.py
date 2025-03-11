@@ -6,6 +6,7 @@ from typing import Any, Callable, TYPE_CHECKING, Union
 from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
+from besser.agent.library.intent.intent_library import fallback_intent
 from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
 from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
@@ -167,6 +168,9 @@ class State:
                 self.agent.global_state_component[global_state].append(dest)
 
     def when_event(self, event: Event) -> TransitionBuilder:
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
         return TransitionBuilder(source=self, event=event)
 
     def when_condition(
@@ -177,9 +181,11 @@ class State:
             ],
             params: dict = None
     ) -> TransitionBuilder:
-        # Avoid code duplication for condition creation
-        builder = TransitionBuilder(source=self, event=None)
-        return builder.with_condition(function, params)
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
+        transition_builder = TransitionBuilder(source=self, event=None)
+        return transition_builder.with_condition(function, params)
 
     def when_intent_matched(self, intent: Intent) -> TransitionBuilder:
         if intent in self.intents:
@@ -195,7 +201,6 @@ class State:
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
         return transition_builder
 
-
     def go_to(self, dest: 'State') -> None:
         """Create a new `auto` transition on this state.
 
@@ -209,39 +214,40 @@ class State:
         """
 
         if self.transitions:
-           raise ConflictingAutoTransitionError(self._agent, self)
+            raise ConflictingAutoTransitionError(self._agent, self)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=None, condition=None)
         transition_builder.go_to(dest)
 
-    def when_no_intent_matched_go_to(self, dest: 'State') -> None:
-        # REMOVE GO TO
-        print('when_no_intent_matched_go_to not implemented')
+    def when_no_intent_matched_go_to(self) -> TransitionBuilder:
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
+        event: ReceiveTextEvent = ReceiveTextEvent()
+        condition: Condition = IntentMatcher(fallback_intent)
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
+        return transition_builder
 
-    def when_variable_matches_operation_go_to(
+    def when_variable_matches_operation(
             self,
             var_name: str,
             operation: Callable[[Any, Any], bool],
             target: Any,
-            dest: 'State'
-    ) -> None:
-        # REMOVE GO TO
+    ) -> TransitionBuilder:
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
         condition: Condition = VariableOperationMatcher(var_name, operation, target)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
-        transition_builder.go_to(dest)
+        return transition_builder
 
-
-    def when_file_received_go_to(self, dest: 'State', allowed_types: list[str] or str = None) -> None:
-        # REMOVE GO TO
+    def when_file_received(self, allowed_types: list[str] or str = None) -> TransitionBuilder:
+        for transition in self.transitions:
+            if transition.is_auto():
+                raise ConflictingAutoTransitionError(self._agent, self)
         event = ReceiveFileEvent()
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
-        transition_builder.with_condition(function=file_type, params={'allowed_types':allowed_types})
-        #transition_builder.go_to(dest)
-
-    def receive_intent(self, session: Session) -> None:
-        print('receive_intent not implemented')
-
-    def receive_file(self, session: Session) -> None:
-        print('receive_file not implemented')
+        transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
+        return transition_builder
 
     def receive_event(self, session: Session) -> None:
         """Receive an event from a user session.
@@ -258,10 +264,8 @@ class State:
         while session.events:
             # TODO: find a better way to share the event with the condition
             session.event = session.events.pop()
-            # if it is receive text, we predict intent.
-            # and store it in session.event
-            # (intent prediction will be re-run when receiving a new event, because the current state will change)
-            # (if the current state didn't change, we don't want to re-run, so we need to keep a reference to the state where it was predicted)
+            if isinstance(session.event, ReceiveTextEvent):
+                session.event.predict_intent(session)
             for transition in self.transitions:
                 if transition.evaluate(session, session.event):
                     session.move(transition)
@@ -310,6 +314,6 @@ class State:
             logger.error(f"An error occurred while executing '{self._body.__name__}' of state '{self._name}' in agent '"
                           f"{self._agent.name}'. See the attached exception:")
             traceback.print_exc()
-        #reset current event
+        # Reset current event
         session.event = None
         self._check_next_transition(session)

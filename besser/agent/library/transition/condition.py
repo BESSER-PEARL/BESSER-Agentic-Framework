@@ -13,20 +13,23 @@ class IntentMatcher(Condition):
         self._intent = intent
 
     def __str__(self):
-        return f"Intent Matching ({self._intent.name}):"
+        return f"Intent Matching - {self._intent.name}"
 
 
 class VariableOperationMatcher(Condition):
 
-    def __init__(self, var_name: str,
+    def __init__(
+            self,
+            var_name: str,
             operation: Callable[[Any, Any], bool],
-            target: Any):
+            target: Any
+    ):
         super().__init__(partial(variable_matches_operation, params={'var_name': var_name, 'operation': operation, 'target': target}))
         self._var_name = var_name
         self._operation = operation
         self._target = target
 
     def __str__(self):
-        return f"({self._var_name} " \
+        return f"{self._var_name} " \
                f"{self._operation.__name__} " \
-               f"{self._target}): "
+               f"{self._target}"
