@@ -9,7 +9,8 @@ from websocket import WebSocketApp
 
 from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
-from besser.agent.library.transition.event import ReceiveMessageEvent
+from besser.agent.library.transition.condition import IntentMatcher
+from besser.agent.library.transition.event import ReceiveMessageEvent, ReceiveTextEvent
 from besser.agent.core.message import Message, get_message_type
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING
@@ -95,38 +96,6 @@ class Session:
         """State: The current agent state of the session."""
         return self._current_state
 
-    # @property
-    # def message(self):
-    #     """str: The last message sent to the agent."""
-    #     return self._message
-    #
-    # @message.setter
-    # def message(self, message):
-    #     """
-    #     Set the last message sent to the agent.
-    #     Args:
-    #         message (str): the message to set in the session
-    #     """
-    #     # TODO: IF STORE_CHAT_HISTORY...
-    #     self.save_message(Message(t=MessageType.STR, content=message, is_user=True, timestamp=datetime.now()))
-    #     self._message = message
-    #
-    # @property
-    # def file(self):
-    #     """str: The last file sent to the agent."""
-    #     return self._file
-    #
-    # @file.setter
-    # def file(self, file: File):
-    #     """
-    #     Set the last file sent to the agent.
-    #     Args:
-    #         file (File): the file to set in the session
-    #     """
-    #     # TODO: Files are not stored in the DB
-    #     self._file = file
-    #     self.flags['file'] = True
-
     @property
     def event(self):
         """Event: The last event matched by the agent."""
@@ -141,21 +110,6 @@ class Session:
         """
         # TODO: Event are not stored in the DB
         self._event = event
-
-    # @property
-    # def predicted_intent(self):
-    #     """str: The last predicted intent for this session."""
-    #     return self._predicted_intent
-    #
-    # @predicted_intent.setter
-    # def predicted_intent(self, predicted_intent: IntentClassifierPrediction):
-    #     """Set the last predicted intent for this session.
-    #
-    #     Args:
-    #         predicted_intent (File): the last predicted intent
-    #     """
-    #     self._predicted_intent = predicted_intent
-    #     self.flags['predicted_intent'] = True
 
     @property
     def events(self):
@@ -231,6 +185,9 @@ class Session:
         """
         logger.info(transition.log())
         self._agent._monitoring_db_insert_transition(self, transition)
+        if isinstance(transition.event, ReceiveTextEvent) and isinstance(transition.condition, IntentMatcher):
+            self._agent._monitoring_db_insert_intent_prediction(self)
+        # TODO: STORE EVENT IN DB (CALL event.store_in_db())
         if any(transition.dest is global_state for global_state in self._agent.global_state_component):
             self.set("prev_state", self.current_state)
         self._current_state = transition.dest
@@ -299,12 +256,11 @@ class Session:
                           message=message)
         ws.send(json.dumps(payload, cls=PayloadEncoder))
 
-    def run_rag(self, message: str = None, llm_prompt: str = None, llm_name: str = None, k: int = None, num_previous_messages: int = None) -> RAGMessage:
+    def run_rag(self, message: str, llm_prompt: str = None, llm_name: str = None, k: int = None, num_previous_messages: int = None) -> RAGMessage:
         """Run the RAG engine.
 
         Args:
-            message (str): the input query for the RAG engine. If none is provided, the last user message will be used
-                by default
+            message (str): the input query for the RAG engine
             llm_prompt (str): the prompt containing the instructions for the LLM to generate an answer from the
                 retrieved content. If none is provided, the RAG's default value will be used
             llm_name (str): the name of the LLM to use. If none is provided, the RAG's default value will be used
@@ -319,4 +275,4 @@ class Session:
         """
         if self._agent.nlp_engine._rag is None:
             raise ValueError('Attempting to run RAG in an agent with no RAG engine.')
-        return self._agent.nlp_engine._rag.run(self, message, llm_prompt, llm_name, k, num_previous_messages)
+        return self._agent.nlp_engine._rag.run(message, self, llm_prompt, llm_name, k, num_previous_messages)

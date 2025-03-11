@@ -181,8 +181,6 @@ class TelegramPlatform(Platform):
         logger.info(f'{self._agent.name}\'s TelegramPlatform stopped')
 
     def _send(self, session_id: str, payload: Payload) -> None:
-        session = self._agent.get_or_create_session(session_id=session_id, platform=self)
-        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         if payload.action == PayloadAction.AGENT_REPLY_STR.value:
             future = asyncio.run_coroutine_threadsafe(
                 self._telegram_app.bot.send_message(
@@ -230,6 +228,7 @@ class TelegramPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_file(self, session: Session, file: File, message: str = None) -> None:
@@ -250,6 +249,7 @@ class TelegramPlatform(Platform):
             file_dict["caption"] = ""
         payload = Payload(action=PayloadAction.AGENT_REPLY_FILE,
                           message=file_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_image(self, session: Session, file: File, message: str = None) -> None:
@@ -270,6 +270,7 @@ class TelegramPlatform(Platform):
             file_dict["caption"] = ""
         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE,
                           message=file_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_location(self, session: Session, latitude: float, longitude: float) -> None:
@@ -286,6 +287,7 @@ class TelegramPlatform(Platform):
         session.save_message(Message(t=MessageType.LOCATION, content=location_dict, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_LOCATION,
                           message=location_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def add_handler(self, handler: BaseHandler) -> None:

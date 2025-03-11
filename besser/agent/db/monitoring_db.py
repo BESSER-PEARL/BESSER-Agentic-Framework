@@ -13,7 +13,7 @@ from besser.agent.core.transition.transition import Transition
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING_DIALECT, DB_MONITORING_PORT, DB_MONITORING_HOST, DB_MONITORING_DATABASE, \
     DB_MONITORING_USERNAME, DB_MONITORING_PASSWORD
-from besser.agent.library.transition.condition_functions import intent_matched, variable_matches_operation
+from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
 
 if TYPE_CHECKING:
@@ -152,7 +152,7 @@ class MonitoringDB:
         """
         table = Table(TABLE_INTENT_PREDICTION, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        if state not in session._agent.nlp_engine._intent_classifiers and session.predicted_intent.intent.name == 'fallback_intent':
+        if state not in session._agent.nlp_engine._intent_classifiers and session.event.predicted_intent.intent.name == 'fallback_intent':
             intent_classifier = 'None'
         elif isinstance(session._agent.nlp_engine._intent_classifiers[state], LLMIntentClassifier):
             intent_classifier = state.ic_config.llm_name
@@ -160,11 +160,11 @@ class MonitoringDB:
             intent_classifier = session._agent.nlp_engine._intent_classifiers[state].__class__.__name__,
         stmt = insert(table).values(
             session_id=int(session_entry['id'][0]),
-            message=session.message,
+            message=session.event.message,
             timestamp=datetime.now(),
             intent_classifier=intent_classifier,
-            intent=session.predicted_intent.intent.name,
-            score=float(session.predicted_intent.score)
+            intent=session.event.predicted_intent.intent.name,
+            score=float(session.event.predicted_intent.score)
         )
         result = self.conn.execute(stmt.returning(table.c.id))  # Not committed until all parameters have been inserted
         intent_prediction_id = int(result.fetchone()[0])
@@ -175,7 +175,7 @@ class MonitoringDB:
                 'name': matched_parameter.name,
                 'value': matched_parameter.value,
                 'info': str(matched_parameter.info),
-            } for matched_parameter in session.predicted_intent.matched_parameters
+            } for matched_parameter in session.event.predicted_intent.matched_parameters
         ]
         if rows_to_insert:
             stmt = insert(table).values(rows_to_insert)
@@ -192,10 +192,10 @@ class MonitoringDB:
         """
         table = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        if transition.event == intent_matched:  # TODO: DEPRECATED
-            transition_info = transition.event_params['intent'].name
-        elif transition.event == variable_matches_operation:  # TODO: DEPRECATED
-            transition_info = f'{transition.event_params["var_name"]} {transition.event_params["operation"].__name__} {transition.event_params["target"]}'
+        if isinstance(transition.condition, IntentMatcher):
+            transition_info = transition.condition._intent.name
+        elif isinstance(transition.condition, VariableOperationMatcher):
+            transition_info = f'{transition.condition._var_name} {transition.condition._operation.__name__} {transition.condition._target}'
         else:
             transition_info = ''
         stmt = insert(table).values(
@@ -203,6 +203,7 @@ class MonitoringDB:
             source_state=transition.source.name,
             dest_state=transition.dest.name,
             event=transition.event.__name__,
+            # TODO: Update this table, we need to store event and condition
             info=transition_info,
             timestamp=datetime.now(),
         )

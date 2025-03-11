@@ -74,11 +74,11 @@ def initial_body(session: Session):
 
 initial_state.set_body(initial_body)
 # TODO : fix no_intent_matched
-initial_state.when_no_intent_matched_go_to(rag_state)
+initial_state.when_no_intent_matched().go_to(rag_state)
 
 
 def rag_body(session: Session):
-    rag_message: RAGMessage = session.run_rag()
+    rag_message: RAGMessage = session.run_rag(session.event.message)
     websocket_platform.reply_rag(session, rag_message)
 
 

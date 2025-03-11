@@ -218,7 +218,7 @@ class State:
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=None, condition=None)
         transition_builder.go_to(dest)
 
-    def when_no_intent_matched_go_to(self) -> TransitionBuilder:
+    def when_no_intent_matched(self) -> TransitionBuilder:
         for transition in self.transitions:
             if transition.is_auto():
                 raise ConflictingAutoTransitionError(self._agent, self)

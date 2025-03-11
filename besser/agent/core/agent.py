@@ -402,7 +402,7 @@ class Agent:
         else:
             session = self._sessions[event.session_id]
             session.events.appendleft(event)
-        logger.info(f'Received event: {event._name}')
+        logger.info(f'Received event: {event.log()}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
         """Runs the agent processors in a message.

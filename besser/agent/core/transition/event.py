@@ -10,16 +10,14 @@ class Event(ABC):
     def __init__(self, name: str, session_id: str = None):
         self._name: str = name
         self._session_id: str = session_id
+        # TODO: ADD NEW PARAMETER TIMESTAMP (DATE OF CREATION)?
 
     @property
     def name(self):
         """str: The name of the event"""
         return self._name
 
-
     def is_matching(self, event: 'Event') -> bool:
-        # TODO: Actually check on the payload
-        # TODO: Make abstract to force specific implem for each event type ?
         if isinstance(event, self.__class__):
             return self._name == event._name
 
@@ -30,6 +28,10 @@ class Event(ABC):
     def session_id(self):
         return self._session_id
 
+    def log(self) -> str:
+        return self._name
+
     def store_in_db(self):
         pass
         # implement on each event
+        # TODO: Create new DB table for events

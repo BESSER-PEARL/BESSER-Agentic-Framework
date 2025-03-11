@@ -189,8 +189,8 @@ class RAG:
 
     def run(
             self,
+            message: str,
             session: 'Session' = None,
-            message: str = None,
             llm_prompt: str = None,
             llm_name: str = None,
             k: int = None,
@@ -200,9 +200,8 @@ class RAG:
 
         Args:
             session (Session): the session of the user that started this request. Must be provided if the chat history
-                wants to be added as context to the LLM prompt. Mandatory if ``message`` argument is ``None`` (in this
-                case, the last user message will be used as RAG query instead)
-            message (str): the message to be used as RAG query. Mandatory if ``session`` argument is ``None``
+                wants to be added as context to the LLM prompt.
+            message (str): the message to be used as RAG query
             llm_prompt (str): the prompt containing the detailed instructions for the answer generation by the LLM. If
                 none is provided, the RAG's default value will be used
             llm_name (str): the name of the LLM to use. If none is provided, the RAG's default value will be used
@@ -218,8 +217,6 @@ class RAG:
             raise ValueError('RAG Run: Must provide either a message or a session')
         if not llm_name:
             llm_name = self.llm_name
-        if not message:
-            message = session.message
         if not num_previous_messages:
             num_previous_messages = self.num_previous_messages
         if session and num_previous_messages > 0:

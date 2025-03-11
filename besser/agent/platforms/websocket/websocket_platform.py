@@ -173,8 +173,6 @@ class WebSocketPlatform(Platform):
         logger.info(f'{self._agent.name}\'s WebSocketPlatform stopped')
 
     def _send(self, session_id, payload: Payload) -> None:
-        session = self._agent.get_or_create_session(session_id=session_id, platform=self)
-        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         if session_id in self._connections:
             conn = self._connections[session_id]
             conn.send(json.dumps(payload, cls=PayloadEncoder))
@@ -185,6 +183,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_markdown(self, session: Session, message: str) -> None:
@@ -199,6 +198,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.MARKDOWN, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_MARKDOWN,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_html(self, session: Session, message: str) -> None:
@@ -213,6 +213,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.HTML, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_HTML,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
         
     def reply_file(self, session: Session, file: File) -> None:
@@ -227,6 +228,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.FILE, content=file.get_json_string(), is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_FILE,
                           message=file.to_dict())
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_image(self, session: Session, img: np.ndarray) -> None:
@@ -246,6 +248,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.FILE, content=base64_img, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE,
                           message=base64_img)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_dataframe(self, session: Session, df: DataFrame) -> None:
@@ -262,6 +265,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.DATAFRAME, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_DF,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_options(self, session: Session, options: list[str]):
@@ -281,6 +285,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.OPTIONS, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_OPTIONS,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_plotly(self, session: Session, plot: plotly.graph_objs.Figure) -> None:
@@ -296,6 +301,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.PLOTLY, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_PLOTLY,
                           message=message)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_location(self, session: Session, latitude: float, longitude: float) -> None:
@@ -312,6 +318,7 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.LOCATION, content=location_dict, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_LOCATION,
                           message=location_dict)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
     def reply_rag(self, session: Session, rag_message: RAGMessage) -> None:
@@ -327,4 +334,5 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.RAG_ANSWER, content=rag_message_dict, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_RAG,
                           message=rag_message_dict)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
