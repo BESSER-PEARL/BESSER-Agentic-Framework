@@ -72,7 +72,7 @@ class GitHubPlatform(Platform):
         logger.info(f'{self._agent.name}\'s GitHubPlatform starting')
         self._agent.get_or_create_session("GitHub_Session_" + str(self.__hash__()), self)
         self.running = True
-        web.run_app(self._app, port=self._port)
+        web.run_app(self._app, port=self._port, handle_signals=False)
 
     def stop(self):
         self.running = False

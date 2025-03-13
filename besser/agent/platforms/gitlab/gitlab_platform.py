@@ -73,7 +73,7 @@ class GitLabPlatform(Platform):
         logger.info(f'{self._agent.name}\'s GitLabPlatform starting')
         self._agent.get_or_create_session("GitLab_Session_" + str(self._event_loop.__hash__()), self)
         self.running = True
-        web.run_app(self._app, port=self._port)
+        web.run_app(self._app, port=self._port, handle_signals=False)
 
     def stop(self):
         self.running = False
