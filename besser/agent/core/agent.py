@@ -303,7 +303,9 @@ class Agent:
         self._event_loop = asyncio.new_event_loop()
 
         def manage_events(loop: asyncio.AbstractEventLoop) -> None:
-            for session in self._sessions.values():
+            for session in self._sessions.values(): # TODO: RUN ONE THREAD FOR EACH SESSION
+                # iterate over session's current state's transitions
+                # if a transition has an event, we check if it is in the events queue
                 if session.events and len(session.events) != 0:
                     session.current_state.receive_event(session)
                 # TODO: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
@@ -489,6 +491,7 @@ class Agent:
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
         self._monitoring_db_insert_session(session)
+        # ADD LOOP TO CHECK TRANSITIONS HERE
         session.current_state.run(session)
         return session
 

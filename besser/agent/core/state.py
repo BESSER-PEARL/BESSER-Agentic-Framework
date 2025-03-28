@@ -273,6 +273,11 @@ class State:
             fallback_deque.appendleft(session.event)
         session.events.extend(fallback_deque)
 
+        # TODO: FALLBACK IS ONLY RUN WHEN ReceiveMessage comes but no transition is satisfied, only for user messages (not agent messages)
+        # FOR THE REST, THERE IS NO FALLBACK
+        # when fallback is run we want to remove the receive message event from the queue
+        # when fallback is run, finish loop. In next iteration, re-evaluate all events
+
         # When no transition is activated and the event not broadcasted, run the fallback body of the state
         # logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
         # try:
@@ -281,7 +286,11 @@ class State:
         #     logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
         #                   f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
 
+    def check_transitions(self):
+        pass
+
     def _check_next_transition(self, session: Session) -> None:
+        # TODO: REMOVE THIS FUNCTION
         """Check whether the first defined transition of the state is an `auto` transition, and if so, move to its
         destination state.
 
@@ -316,4 +325,5 @@ class State:
             traceback.print_exc()
         # Reset current event
         session.event = None
+        # TODO REMOVE CHECK NEXT TRANSITION
         self._check_next_transition(session)
