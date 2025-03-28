@@ -281,8 +281,8 @@ class Agent:
                             and state not in global_state_follow_up):
                         if state.transitions and not state.transitions[0].is_auto():
                             state.when_intent_matched(global_state_tuple[1]).go_to(global_state)
-                            self.global_state_component[global_state][-1].when_variable_matches_operation_go_to(
-                                var_name="prev_state", operation=operator.eq, target=state, dest=state)
+                            self.global_state_component[global_state][-1].when_variable_matches_operation(
+                                var_name="prev_state", operation=operator.eq, target=state).go_to(state)
             self.global_initial_states.clear()
 
     def _run_platforms(self) -> None:
