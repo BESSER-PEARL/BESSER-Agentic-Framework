@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from besser.agent import nlp
-from besser.agent.core.entity.entity import Entity
+from besser.agent.core.entity.text.text_entity import TextEntity
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.intent.intent_parameter import IntentParameter
 from besser.agent.core.state import State
@@ -39,7 +39,7 @@ def get_custom_entity_values_dict(
         dict[str, tuple[list[IntentParameter], str]]: the dictionary
     """
     all_entity_values: dict[str, tuple[list[IntentParameter], str]] = {}
-    intent_parameters_dict: dict[Entity, list[IntentParameter]] = {}
+    intent_parameters_dict: dict[TextEntity, list[IntentParameter]] = {}
     for intent_parameter in intent.parameters:
         if intent_parameter.entity in intent_parameters_dict:
             intent_parameters_dict[intent_parameter.entity].append(intent_parameter)
@@ -131,7 +131,7 @@ class SimpleNER(NER):
         super().__init__(nlp_engine, agent)
 
     def train(self) -> None:
-        for entity in self._agent.entities:
+        for entity in self._agent.text_entities:
             entity.process_entity_entries(self._nlp_engine)
 
     def predict(self, state: State, message: str) -> NERPrediction:

@@ -1,4 +1,4 @@
-class EntityEntry:
+class TextEntityEntry:
     """Each one of the entries an entity consists of.
 
     Args:

@@ -34,31 +34,31 @@ class DuplicatedStateError(Exception):
         super().__init__(message)
 
 
-class DuplicatedEntityError(Exception):
+class DuplicatedTextEntityError(Exception):
 
     def __init__(self, agent, entity):
-        message = f"Agent '{agent.name}' already contains an entity with name '{entity.name}'"
+        message = f"Agent '{agent.name}' already contains a text entity with name '{entity.name}'"
         super().__init__(message)
 
 
-class DuplicatedImageEntityError(Exception):
+class DuplicatedConcreteEntityError(Exception):
 
-    def __init__(self, agent, image_entity):
-        message = f"Agent '{agent.name}' already contains an image entity with name '{image_entity.name}'"
+    def __init__(self, agent, concrete_entity):
+        message = f"Agent '{agent.name}' already contains a concrete image entity with name '{concrete_entity.name}'"
         super().__init__(message)
 
 
-class DuplicatedImagePropertyError(Exception):
+class DuplicatedAbstractEntityError(Exception):
 
-    def __init__(self, agent, image_property):
-        message = f"Agent '{agent.name}' already contains an image property with name '{image_property.name}'"
+    def __init__(self, agent, abstract_entity):
+        message = f"Agent '{agent.name}' already contains an abstract image property with name '{abstract_entity.name}'"
         super().__init__(message)
 
 
-class DuplicatedScenarioError(Exception):
+class DuplicatedRequirementError(Exception):
 
     def __init__(self, agent, scenario):
-        message = f"Agent '{agent.name}' already contains a scenario with name '{scenario.name}'"
+        message = f"Agent '{agent.name}' already contains a requirement with name '{scenario.name}'"
         super().__init__(message)
 
 

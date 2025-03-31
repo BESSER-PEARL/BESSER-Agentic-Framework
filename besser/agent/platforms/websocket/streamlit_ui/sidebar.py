@@ -11,7 +11,7 @@ from besser.agent.core.file import File
 from besser.agent.core.message import MessageType, Message
 from besser.agent.platforms.payload import PayloadEncoder, PayloadAction, Payload
 from besser.agent.platforms.websocket.streamlit_ui.vars import WEBSOCKET, HISTORY, QUEUE, SUBMIT_AUDIO, SUBMIT_FILE, IMG, \
-    VIDEO_INPUT_ENABLED, VIDEO_INPUT, VIDEO_INPUT_INTERVAL
+    VIDEO_INPUT_ENABLED, VIDEO_INPUT, VIDEO_INPUT_INTERVAL, IMG_PROPERTIES
 from besser.agent.platforms.websocket.streamlit_ui.video_input import video_input
 
 
@@ -32,6 +32,8 @@ def sidebar():
         if IMG in st.session_state:
             st.subheader('Video Input')
             st.image(st.session_state[IMG], channels='BGR')
+            if IMG_PROPERTIES in st.session_state:
+                st.json(st.session_state[IMG_PROPERTIES])
 
         if reset_button := st.button(label="Reset agent"):
             st.session_state[HISTORY] = []

@@ -51,13 +51,14 @@ class VLLMOpenAI(VLLM):
     def predict_image_properties(self, img: np.ndarray, parameters: dict = None) -> list[ImagePropertyPrediction]:
         retval, buffer = cv2.imencode('.jpg', img)  # Encode as JPEG
         base64_img = base64.b64encode(buffer).decode('utf-8')
+        # TODO: Make the prompt to be an argument
         prompt = "Analyze the following image and return a JSON containing a key for each of the following property " \
                  "names and a float value between 0 and 1 indicating the score or probability of that property to be" \
                  "satisfied in the image (some properties may provide a description).\n"
-        for image_property in self._cv_engine._agent.image_properties:
-            image_property_string = f"- {image_property.name}"
-            if image_property.has_attribute('description'):
-                image_property_string += f": {image_property.get_attribute_value('description')}"
+        for abstract_entity in self._cv_engine._agent.abstract_entities:
+            image_property_string = f"- {abstract_entity.name}"
+            if abstract_entity.has_attribute('description'):
+                image_property_string += f": {abstract_entity.get_attribute_value('description')}"
             prompt += image_property_string + "\n"
         messages = [{
             "role": "user",

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from besser.agent.core.image.image_property import ImageProperty
+from besser.agent.core.entity.image.abstract_entity import AbstractEntity
 from besser.agent.cv.prediction.image_prediction import ImagePropertyPrediction
 from besser.agent.exceptions.logger import logger
 
@@ -85,8 +85,8 @@ class VLLM(ABC):
         """
         image_property_predictions: list[ImagePropertyPrediction] = []
         for property_name, score in response_json.items():
-            image_property: ImageProperty or None = self._cv_engine._agent.get_image_property(property_name)
-            if image_property is not None:
+            abstract_entity: AbstractEntity or None = self._cv_engine._agent.get_abstract_entity(property_name)
+            if abstract_entity is not None:
                 score = min(max(score, 0), 1)  # Force to be between 0 and 1
-                image_property_predictions.append(ImagePropertyPrediction(image_property=image_property, score=score))
+                image_property_predictions.append(ImagePropertyPrediction(abstract_entity=abstract_entity, score=score))
         return image_property_predictions

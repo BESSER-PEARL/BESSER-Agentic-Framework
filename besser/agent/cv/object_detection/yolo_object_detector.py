@@ -5,7 +5,7 @@ import numpy as np
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
 
-from besser.agent.core.image.image_entity import ImageEntity
+from besser.agent.core.entity.image.concrete_entity import ConcreteEntity
 from besser.agent.cv.prediction.image_prediction import ImageObjectPrediction
 from besser.agent.cv.object_detection.object_detector import ObjectDetector
 
@@ -49,10 +49,10 @@ class YOLOObjectDetector(ObjectDetector):
                 score = math.ceil((box.conf[0] * 100)) / 100
                 cls = box.cls[0]
                 name = self.yolo.names[int(cls)]
-                image_entity: ImageEntity = self._cv_engine._agent.get_image_entity(name)
-                if image_entity:
+                concrete_entity: ConcreteEntity = self._cv_engine._agent.get_concrete_entity(name)
+                if concrete_entity:
                     image_object_prediction: ImageObjectPrediction = ImageObjectPrediction(
-                        image_entity=image_entity,
+                        concrete_entity=concrete_entity,
                         score=score,
                         model_name=self.name,
                         x1=x1, y1=y1, x2=x2, y2=y2

@@ -8,10 +8,9 @@ value, trigger the transitions.
 from typing import Any, Callable, TYPE_CHECKING
 
 from besser.agent.core.intent.intent import Intent
-from besser.agent.core.image.image_entity import ImageEntity
 
 if TYPE_CHECKING:
-    from besser.agent.core.scenario.scenario import Scenario
+    from besser.agent.core.requirement.requirement import RequirementDefinition
     from besser.agent.core.session import Session
 
 
@@ -82,29 +81,8 @@ def file_received(session: 'Session', event_params: dict) -> bool:
     return False
 
 
-def image_entity_detected(session: 'Session', event_params: dict) -> bool:
-    """This event checks if a specific ImageEntity was detected in an Object Detection Prediction with a minimum
-    confidence score.
-
-    Args:
-        session (Session): the current user session
-        event_params (dict): the event parameters
-
-    Returns:
-        bool: True if the target ImageEntity was detected in the Object Detection, with a score higher than the
-            specified in the event parameters
-    """
-    if session.flags['image_prediction']:
-        target_image_entity: ImageEntity = event_params['image_entity']
-        target_score: float = event_params['score']
-        for image_object_prediction in session.image_prediction.image_object_predictions:
-            if image_object_prediction.image_entity == target_image_entity and image_object_prediction.score >= target_score:
-                return True
-    return False
-
-
 def scenario_matched(session: 'Session', event_params: dict) -> bool:
-    """This event checks if a specific scenario is matched in a user session.
+    """This event checks if a specific requirement is matched in a user session.
 
     Args:
         session (Session): the current user session
@@ -114,5 +92,5 @@ def scenario_matched(session: 'Session', event_params: dict) -> bool:
         bool: True if the target Scenario was matched, false otherwise
     """
     # TODO: Flag???
-    target_scenario: 'Scenario' = event_params['scenario']
-    return target_scenario.evaluate(session)
+    requirement_def: 'RequirementDefinition' = event_params['requirement']
+    return requirement_def.requirement.evaluate(session)

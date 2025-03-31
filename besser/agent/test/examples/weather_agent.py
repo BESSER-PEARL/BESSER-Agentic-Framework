@@ -26,7 +26,7 @@ weather_state = agent.new_state('weather_state')
 
 # ENTITIES
 
-city_entity = agent.new_entity('city_entity', entries={
+city_entity = agent.new_text_entity('city_entity', entries={
     'Barcelona': ['BCN', 'barna'],
     'Madrid': [],
     'Luxembourg': ['LUX']

@@ -2,17 +2,17 @@ import inspect
 import traceback
 from typing import Any, Callable, TYPE_CHECKING
 
+from besser.agent.core.entity.image.concrete_entity import ConcreteEntity
 from besser.agent.core.intent.intent import Intent
-from besser.agent.core.scenario.scenario import Scenario
+from besser.agent.core.requirement.requirement import RequirementDefinition
 from besser.agent.core.session import Session
 from besser.agent.core.transition import Transition
-from besser.agent.core.image.image_entity import ImageEntity
 from besser.agent.cv.prediction.image_prediction import ImagePrediction
 from besser.agent.exceptions.exceptions import BodySignatureError, ConflictingAutoTransitionError, \
     DuplicatedIntentMatchingTransitionError, EventSignatureError, IntentNotFound, StateNotFound
 from besser.agent.exceptions.logger import logger
 from besser.agent.library.event.event_library import auto, intent_matched, variable_matches_operation, file_received, \
-    image_entity_detected, scenario_matched
+    scenario_matched
 from besser.agent.library.event.event_template import event_template
 from besser.agent.library.intent.intent_library import fallback_intent
 from besser.agent.library.state.state_library import default_body, default_fallback_body
@@ -281,36 +281,15 @@ class State:
         self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=variable_matches_operation,
                                            event_params=event_params))
 
-    def when_image_entity_detected_go_to(
+    def when_requirement_matched_go_to(
             self,
-            image_entity: ImageEntity,
-            score: float,
+            requirement: RequirementDefinition,
             dest: 'State'
     ) -> None:
-        """Create a new `image entity detected` transition on this state.
-
-        When the agent is in a state and receives an image, the CVEngine will be in charge of detecting entities.
-        If the transition event is to receive a specific image entity that was detected by the agent, it will move to the
-        transition's destination state.
+        """Create a new `requirement matched` transition on this state.
 
         Args:
-            image_entity (ImageEntity): the image entity
-            score (float): the minimum confidence score of the detected image entity
-            dest (State): the destination state
-        """
-        event_params = {'image_entity': image_entity, 'score': score}
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=image_entity_detected,
-                                           event_params=event_params))
-
-    def when_scenario_matched_go_to(
-            self,
-            scenario: Scenario,
-            dest: 'State'
-    ) -> None:
-        """Create a new `scenario matched` transition on this state.
-
-        Args:
-            scenario (Scenario): the scenario to be matched
+            requirement (RequirementDefinition): the requirement to be matched
             dest (State): the destination state
         """
         if dest not in self._agent.states:
@@ -318,7 +297,7 @@ class State:
         for transition in self.transitions:
             if transition.is_auto():
                 raise ConflictingAutoTransitionError(self._agent, self)
-        event_params = {'scenario': scenario}
+        event_params = {'requirement': requirement}
         self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=scenario_matched,
                                            event_params=event_params))
 
@@ -377,8 +356,8 @@ class State:
         """Receive the image prediction (generated after an image is sent to the agent) from a user session.
 
         When receiving the image prediction it looks for the state's transition whose trigger event is to match
-        a scenario based on the image prediction.
-        The fallback body is run when the received image prediction does not match any transition scenario
+        a requirement based on the image prediction.
+        The fallback body is run when the received image prediction does not match any transition requirement
         (i.e. fallback).
 
         Args:

@@ -5,13 +5,13 @@ from typing import Any, Callable, get_type_hints
 
 import numpy as np
 
-from besser.agent.core.image.image_property import ImageProperty
+from besser.agent.core.entity.image.abstract_entity import AbstractEntity
+from besser.agent.core.entity.image.concrete_entity import ConcreteEntity
 from besser.agent.core.message import Message
-from besser.agent.core.scenario.scenario import Scenario
+from besser.agent.core.requirement.requirement import RequirementDefinition
 from besser.agent.core.transition import Transition
-from besser.agent.core.image.image_entity import ImageEntity
 from besser.agent.cv.cv_engine import CVEngine
-from besser.agent.core.entity.entity import Entity
+from besser.agent.core.entity.text.text_entity import TextEntity
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.intent.intent_parameter import IntentParameter
 from besser.agent.core.property import Property
@@ -21,9 +21,9 @@ from besser.agent.core.state import State
 from besser.agent.core.file import File
 from besser.agent.db import DB_MONITORING
 from besser.agent.db.monitoring_db import MonitoringDB
-from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
-    DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound, DuplicatedImageEntityError, \
-    DuplicatedScenarioError, DuplicatedImagePropertyError
+from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedTextEntityError, DuplicatedInitialStateError, \
+    DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound, DuplicatedConcreteEntityError, \
+    DuplicatedRequirementError, DuplicatedAbstractEntityError
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
@@ -54,14 +54,14 @@ class Agent:
             usage information for later visualization or analysis
         states (list[State]): The agent states
         intents (list[Intent]): The agent intents
-        entities (list[Entity]): The agent entities
-        image_entities (list[ImageEntity]): The agent image entities
-        image_properties (list[ImageProperty]): The agent image properties
+        text_entities (list[TextEntity]): The agent text entities
+        concrete_entities (list[ConcreteEntity]): The agent concrete image entities
+        abstract_entities (list[AbstractEntity]): The agent abstract image entities
         global_initial_states (list[State, Intent]): List of tuples of initial global states and their triggering intent
         global_state_component (dict[State, list[State]]): Dictionary of global state components, where key is initial
             global state and values is set of states in corresponding global component
         processors (list[Processors]): List of processors used by the agent
-        scenarios (list[Scenario]): List of scenarios used by the agent
+        requirements (list[RequirementDefinition]): List of scenarios used by the agent
     """
 
     def __init__(self, name: str):
@@ -77,10 +77,10 @@ class Agent:
         self._monitoring_db: MonitoringDB = None
         self.states: list[State] = []
         self.intents: list[Intent] = []
-        self.entities: list[Entity] = []
-        self.image_entities: list[ImageEntity] = []
-        self.image_properties: list[ImageProperty] = []
-        self.scenarios: list[Scenario] = []
+        self.text_entities: list[TextEntity] = []
+        self.concrete_entities: list[ConcreteEntity] = []
+        self.abstract_entities: list[AbstractEntity] = []
+        self.requirements: list[RequirementDefinition] = []
         self.global_initial_states: list[tuple[State, Intent]] = []
         self.global_state_component: dict[State, list[State]] = dict()
         self.processors: list[Processor] = []
@@ -224,27 +224,27 @@ class Agent:
         self.intents.append(new_intent)
         return new_intent
 
-    def add_entity(self, entity: Entity) -> Entity:
-        """Add an entity to the agent.
+    def add_text_entity(self, entity: TextEntity) -> TextEntity:
+        """Add a text entity to the agent.
 
         Args:
-            entity (Entity): the entity to add
+            entity (TextEntity): the entity to add
 
         Returns:
-            Entity: the added entity
+            TextEntity: the added entity
         """
-        if entity in self.entities:
-            raise DuplicatedEntityError(self, entity)
-        self.entities.append(entity)
+        if entity in self.text_entities:
+            raise DuplicatedTextEntityError(self, entity)
+        self.text_entities.append(entity)
         return entity
 
-    def new_entity(self,
-                   name: str,
-                   base_entity: bool = False,
-                   entries: dict[str, list[str]] or None = None,
-                   description: str or None = None
-                   ) -> Entity:
-        """Create a new entity in the agent.
+    def new_text_entity(self,
+                        name: str,
+                        base_entity: bool = False,
+                        entries: dict[str, list[str]] or None = None,
+                        description: str or None = None
+                        ) -> TextEntity:
+        """Create a new text entity in the agent.
 
         Args:
             name (str): the entity name. It must be unique in the agent
@@ -253,86 +253,86 @@ class Agent:
             description (str or None): a description of the entity, optional
 
         Returns:
-            Entity: the entity
+            TextEntity: the entity
         """
-        new_entity = Entity(name, base_entity, entries, description)
-        if new_entity in self.entities:
-            raise DuplicatedEntityError(self, new_entity)
-        self.entities.append(new_entity)
+        new_entity = TextEntity(name, base_entity, entries, description)
+        if new_entity in self.text_entities:
+            raise DuplicatedTextEntityError(self, new_entity)
+        self.text_entities.append(new_entity)
         return new_entity
 
-    def new_image_entity(self, name: str, attributes: dict[str, Any] = {}) -> ImageEntity:
-        """Create a new image entity in the agent.
+    def new_concrete_entity(self, name: str, attributes: dict[str, Any] = {}) -> ConcreteEntity:
+        """Create a new concrete image entity in the agent.
 
         Args:
-            name (str): the image entity name. It must be unique in the agent
+            name (str): the entity name. It must be unique in the agent
 
         Returns:
-            ImageEntity: the image entity
+            ConcreteEntity: the entity
         """
-        new_image_entity = ImageEntity(name, attributes)
-        if new_image_entity in self.image_entities:
-            raise DuplicatedImageEntityError(self, new_image_entity)
-        self.image_entities.append(new_image_entity)
-        return new_image_entity
+        new_entity = ConcreteEntity(name, attributes)
+        if new_entity in self.concrete_entities:
+            raise DuplicatedConcreteEntityError(self, new_entity)
+        self.concrete_entities.append(new_entity)
+        return new_entity
 
-    def get_image_entity(self, name: str) -> ImageEntity or None:
-        """Get an image entity of the agent.
+    def get_concrete_entity(self, name: str) -> ConcreteEntity or None:
+        """Get a concrete image entity of the agent.
 
         Args:
-            name (str): the image entity name
+            name (str): the concrete image entity name
 
         Returns:
-            ImageEntity or None: the image entity, or None if it does not exist
+            ImageEntity or None: the entity, or None if it does not exist
         """
-        for image_entity in self.image_entities:
-            if image_entity.name == name:
-                return image_entity
+        for concrete_entity in self.concrete_entities:
+            if concrete_entity.name == name:
+                return concrete_entity
         return None
 
-    def new_image_property(self, name: str, attributes: dict[str, Any] = {}) -> ImageProperty:
-        """Create a new image property in the agent.
+    def new_abstract_entity(self, name: str, attributes: dict[str, Any] = {}) -> AbstractEntity:
+        """Create a new abstract image entity in the agent.
 
         Args:
-            name (str): the image property name. It must be unique in the agent
+            name (str): the abstract image entity name. It must be unique in the agent
 
         Returns:
-            ImageProperty: the image property
+            AbstractEntity: the entity
         """
-        new_image_property = ImageProperty(name, attributes)
-        if new_image_property in self.image_properties:
-            raise DuplicatedImagePropertyError(self, new_image_property)
-        self.image_properties.append(new_image_property)
-        return new_image_property
+        new_abstract_entity = AbstractEntity(name, attributes)
+        if new_abstract_entity in self.abstract_entities:
+            raise DuplicatedAbstractEntityError(self, new_abstract_entity)
+        self.abstract_entities.append(new_abstract_entity)
+        return new_abstract_entity
 
-    def get_image_property(self, name: str) -> ImageProperty or None:
-        """Get an image property of the agent.
+    def get_abstract_entity(self, name: str) -> AbstractEntity or None:
+        """Get an abstract image entity of the agent.
 
         Args:
-            name (str): the image property name
+            name (str): the abstract image entity name
 
         Returns:
-            ImageProperty or None: the image property, or None if it does not exist
+            AbstractEntity or None: the entity, or None if it does not exist
         """
-        for image_property in self.image_properties:
-            if image_property.name == name:
-                return image_property
+        for abstract_entity in self.abstract_entities:
+            if abstract_entity.name == name:
+                return abstract_entity
         return None
 
-    def new_scenario(self, name: str) -> Scenario:
-        """Create a new scenario in the agent.
+    def new_requirement(self, name: str) -> RequirementDefinition:
+        """Create a new requirement in the agent.
 
         Args:
-            name (str): the scenario name. It must be unique in the agent
+            name (str): the requirement name. It must be unique in the agent
 
         Returns:
-            Scenario: the scenario
+            RequirementDefinition: the requirement definition
         """
-        new_scenario = Scenario(name)
-        if new_scenario in self.scenarios:
-            raise DuplicatedScenarioError(self, new_scenario)
-        self.scenarios.append(new_scenario)
-        return new_scenario
+        new_requirement_definition = RequirementDefinition(name)
+        if new_requirement_definition in self.requirements:
+            raise DuplicatedRequirementError(self, new_requirement_definition)
+        self.requirements.append(new_requirement_definition)
+        return new_requirement_definition
 
     def initial_state(self) -> State or None:
         """Get the agent's initial state. It can be None if it has not been set.

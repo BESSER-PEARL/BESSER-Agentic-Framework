@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from besser.agent.core.entity.entity import Entity
+from besser.agent.core.entity.text.text_entity import TextEntity
 from besser.agent.core.intent.intent_parameter import IntentParameter
 from besser.agent.exceptions.exceptions import DuplicatedIntentParameterError
 from besser.agent.nlp.preprocessing.text_preprocessing import process_text
@@ -58,7 +58,7 @@ class Intent:
     def __hash__(self):
         return hash(self.name)
 
-    def parameter(self, name: str, fragment: str, entity: Entity) -> 'Intent':
+    def parameter(self, name: str, fragment: str, entity: TextEntity) -> 'Intent':
         """Add a parameter to the list of intent parameters.
 
         This method creates an :class:`IntentParameter` instance with the provided
@@ -68,7 +68,7 @@ class Intent:
         Args:
             name (str): The name of the parameter.
             fragment (str): A description or fragment associated with the parameter.
-            entity (Entity): The entity that this parameter is related to.
+            entity (TextEntity): The entity that this parameter is related to.
 
         Returns:
             Intent: Returns the instance of :class:`Intent` it was called on (i.e., self).

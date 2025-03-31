@@ -12,7 +12,7 @@ from besser.agent.core.message import MessageType, Message
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.payload import PayloadAction, Payload
 from besser.agent.platforms.websocket.streamlit_ui.session_management import get_streamlit_session
-from besser.agent.platforms.websocket.streamlit_ui.vars import QUEUE, IMG, LAST_IMG
+from besser.agent.platforms.websocket.streamlit_ui.vars import QUEUE, IMG, LAST_IMG, IMG_PROPERTIES
 
 try:
     import cv2
@@ -72,6 +72,8 @@ def on_message(ws, payload_str):
     elif payload.action == PayloadAction.AGENT_REPLY_IMAGE_PREDICTION.value:
         # Draw labelled bounding boxes in the camera screen
         image_object_predictions = json.loads(payload.message)['image_object_predictions']
+        image_property_predictions = json.loads(payload.message)['image_property_predictions']
+        streamlit_session._session_state[IMG_PROPERTIES] = image_property_predictions
         img = streamlit_session._session_state[LAST_IMG]
         for image_object_prediction in image_object_predictions:
             x1 = image_object_prediction['x1']

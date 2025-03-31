@@ -1,6 +1,6 @@
 from enum import Enum
 
-from besser.agent.core.entity.entity import Entity
+from besser.agent.core.entity.text.text_entity import TextEntity
 
 _PREFIX = 'base.'
 
@@ -27,21 +27,21 @@ ordered_base_entities = [
 an intent with a number and a date-time parameter, the number is searched after date-times have been searched since a
 date-time can contain numbers and matching first a number would interfere in the date-time entity."""
 
-number_entity = Entity(
+number_entity = TextEntity(
     name=BaseEntities.NUMBER.value,
     base_entity=True,
     description='An entity that matches any number'
 )
 """The `number` base entity."""
 
-datetime_entity = Entity(
+datetime_entity = TextEntity(
     name=BaseEntities.DATETIME.value,
     base_entity=True,
     description='An entity that matches any date, time or datetime value'
 )
 """The `date-time` base entity."""
 
-any_entity = Entity(
+any_entity = TextEntity(
     name=BaseEntities.ANY.value,
     base_entity=True,
     description='An entity that matches any text'

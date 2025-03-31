@@ -1,4 +1,4 @@
-from besser.agent.core.entity.entity import Entity
+from besser.agent.core.entity.text.text_entity import TextEntity
 
 
 class IntentParameter:
@@ -12,15 +12,15 @@ class IntentParameter:
     Args:
         name (str): the intent parameter name
         fragment (str): the fragment the intent's training sentences that is expected to match with the entity
-        entity (Entity): the entity to be matched in this parameter
+        entity (TextEntity): the entity to be matched in this parameter
 
     Attributes:
         name (str): The intent parameter name
         fragment (str): The fragment the intent's training sentences that is expected to match with the entity
-        entity (Entity): The entity to be matched in this parameter
+        entity (TextEntity): The entity to be matched in this parameter
     """
 
-    def __init__(self, name: str, fragment: str, entity: Entity):
+    def __init__(self, name: str, fragment: str, entity: TextEntity):
         self.name: str = name
         self.fragment: str = fragment
-        self.entity: Entity = entity
+        self.entity: TextEntity = entity
