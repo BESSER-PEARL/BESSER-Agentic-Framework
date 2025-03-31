@@ -10,7 +10,7 @@ from besser.agent.cv.prediction.image_prediction import ImagePropertyPrediction
 class AbstractRequirementAttribute(Attribute):
 
     dictionary = {
-        'score': float,
+        'confidence': float,
     }
 
     def __init__(self, name: str, value: Any):
@@ -30,7 +30,7 @@ class AbstractRequirement(SimpleRequirement):
             attributes: dict[str, Any]
     ):
 
-        super().__init__(name, attributes['score'])
+        super().__init__(name, attributes['confidence'])
         self.abstract_entity: AbstractEntity = abstract_entity
         self.attributes: list[AbstractRequirementAttribute] = []
         for attr_name, attr_value in attributes.items():
@@ -46,8 +46,8 @@ class AbstractRequirement(SimpleRequirement):
         if session.image_prediction is None:
             return False
         image_property_predictions: list[ImagePropertyPrediction] = session.image_prediction.image_property_predictions
-        score = self.get_attribute_value('score')
+        confidence = self.get_attribute_value('confidence')
         for image_property_prediction in image_property_predictions:
-            if image_property_prediction.abstract_entity == self.abstract_entity and image_property_prediction.score >= score:
+            if image_property_prediction.abstract_entity == self.abstract_entity and image_property_prediction.score >= confidence:
                 return True
         return False

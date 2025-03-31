@@ -10,7 +10,7 @@ from besser.agent.cv.prediction.image_prediction import ImageObjectPrediction
 class ConcreteEntityAttribute(Attribute):
 
     dictionary = {
-        'score': float,
+        'confidence': float,
         'min': int,
         'max': int,
     }
@@ -34,7 +34,7 @@ class ConcreteRequirement(SimpleRequirement):
             attributes: dict[str, Any]
     ):
 
-        super().__init__(name, attributes['score'])
+        super().__init__(name, attributes['confidence'])
         self.concrete_entity: ConcreteEntity = concrete_entity
         self.attributes: list[ConcreteEntityAttribute] = []
         for attr_name, attr_value in attributes.items():
@@ -61,11 +61,11 @@ class ConcreteRequirement(SimpleRequirement):
             return False
         _min = self.get_attribute_value('min')
         _max = self.get_attribute_value('max')
-        score = self.get_attribute_value('score')
+        confidence = self.get_attribute_value('confidence')
         image_object_predictions: list[ImageObjectPrediction] = session.image_prediction.image_object_predictions
         filtered_image_object_predictions = [
             image_object_prediction for image_object_prediction in image_object_predictions
-            if image_object_prediction.concrete_entity == self.concrete_entity and image_object_prediction.score >= score
+            if image_object_prediction.concrete_entity == self.concrete_entity and image_object_prediction.score >= confidence
         ]
         num_predictions = len(filtered_image_object_predictions)
         if num_predictions == 0:

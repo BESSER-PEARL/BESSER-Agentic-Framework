@@ -20,11 +20,6 @@ agent.load_properties('config.ini')
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True, video_input=True)
 
-yolo_model = YOLOWorldObjectDetector(agent=agent, name='yolov8l-worldv2', model_path='yolo_weights/yolov8l-worldv2.pt', parameters={
-    'classes': [image_entity.name for image_entity in agent.concrete_entities]
-})
-vllm = VLLMOpenAI(agent, 'gpt-4o', {})
-
 # Image entities
 
 person = agent.new_concrete_entity('person')
@@ -34,13 +29,17 @@ bottle = agent.new_concrete_entity('bottle')
 indoors = agent.new_abstract_entity(name='indoors', attributes={'description': 'The picture is taken in an indoor environment (i.e., not outdoors)'})
 iphone = agent.new_abstract_entity(name='iphone', attributes={'description': 'The phone in the image (if there is one) is an iPhone (Apple)'})
 
+yolo_model = YOLOWorldObjectDetector(agent=agent, name='yolov8l-worldv2', model_path='yolo_weights/yolov8l-worldv2.pt', parameters={
+    'classes': [image_entity.name for image_entity in agent.concrete_entities]
+})
+vllm = VLLMOpenAI(agent, 'gpt-4o', {})
 
 requirement = agent.new_requirement('scenario1')
 requirement.set(
     AND([
-        AbstractRequirement(name='iphone', abstract_entity=iphone, attributes={'score': 0.5}),  # LINK TO OBJECT
-        ConcreteRequirement(name='person', concrete_entity=person, attributes={'max': 3, 'score': 0.3}),  # choose which model to use at property level or requirement level
-        ConcreteRequirement(name='phone', concrete_entity=phone, attributes={'score': 0.5})
+        AbstractRequirement(name='iphone', abstract_entity=iphone, attributes={'confidence': 0.5}),
+        ConcreteRequirement(name='person', concrete_entity=person, attributes={'max': 3, 'confidence': 0.3}),  # choose which model to use at property level or requirement level
+        ConcreteRequirement(name='phone', concrete_entity=phone, attributes={'confidence': 0.5})
     ])
 )
 initial_state = agent.new_state('initial_state', initial=True)
