@@ -7,7 +7,7 @@ from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
 from besser.agent.library.intent.intent_library import fallback_intent
-from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
+from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent, ReceiveMessageEvent
 from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
@@ -249,65 +249,44 @@ class State:
         transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
         return transition_builder
 
-    def receive_event(self, session: Session) -> None:
-        """Receive an event from a user session.
+    def check_transitions(self, session: Session):
+        """Check the transition and triggers the one that match
 
-        When receiving an event it looks for the state's transition whose trigger event matches the first event.
-        If not we pop the current event and check for the next one.
-        The passed items are discarded, unless no transition is made.
-
-        Args:
-            session (Session): the user session that received the event
-        """
-        # TODO: Decide policy to remove events
-        fallback_deque = deque()
-        while session.events:
-            # TODO: find a better way to share the event with the condition
-            session.event = session.events.pop()
-            if isinstance(session.event, ReceiveTextEvent):
-                session.event.predict_intent(session)
-            for transition in self.transitions:
-                if transition.evaluate(session, session.event):
-                    session.move(transition)
-                    return
-            fallback_deque.appendleft(session.event)
-        session.events.extend(fallback_deque)
-
-        # TODO: FALLBACK IS ONLY RUN WHEN ReceiveMessage comes but no transition is satisfied, only for user messages (not agent messages)
-        # FOR THE REST, THERE IS NO FALLBACK
-        # when fallback is run we want to remove the receive message event from the queue
-        # when fallback is run, finish loop. In next iteration, re-evaluate all events
-
-        # When no transition is activated and the event not broadcasted, run the fallback body of the state
-        # logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
-        # try:
-        #     self._fallback_body(session)
-        # except Exception as _:
-        #     logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
-        #                   f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
-
-    def check_transitions(self):
-        pass
-
-    def _check_next_transition(self, session: Session) -> None:
-        # TODO: REMOVE THIS FUNCTION
-        """Check whether the first defined transition of the state is an `auto` transition, and if so, move to its
-        destination state.
-
-        This method is intended to be called after running the body of a state.
+        When checking transition, the priority is based on transition order.
+        For a given transition expecting an event to happen, the first event matching will be used.
+        If a user message event is received but does not match the transition, run the fallback body
+        Finally, all events preceding a matching event will be flushed.
 
         Args:
-            session (Session): the user session
+            session (Session): the current session
         """
-        # Check auto transition
-        if self.transitions[0].is_auto():
-            session.move(self.transitions[0])
-            return
-
         for next_transition in self.transitions:
-            if next_transition.event is None and next_transition.is_condition_true(session):
-                session.move(next_transition)
+            if next_transition.is_event():
+                # TODO: Decide policy to remove events
+                fallback_deque = deque()
+                while session.events:
+                    # TODO: find a better way to share the event with the condition
+                    session.event = session.events.pop()
+                    if isinstance(session.event, ReceiveTextEvent):
+                        session.event.predict_intent(session)
+                    if next_transition.evaluate(session, session.event):
+                        session.move(next_transition)
+                        return
+                    elif isinstance(session.event, ReceiveMessageEvent) and session.event.human:
+                        logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
+                        try:
+                            self._fallback_body(session)
+                        except Exception as _:
+                            logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
+                                          f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+                    else:
+                        fallback_deque.appendleft(session.event)
+                session.events.extend(fallback_deque)
                 return
+            else:
+                if next_transition.is_condition_true(session):
+                    session.move(next_transition)
+                    return
 
     def run(self, session: Session) -> None:
         """Run the state (i.e. its body). After running the body, check if the first defined transition of the state is
@@ -325,5 +304,3 @@ class State:
             traceback.print_exc()
         # Reset current event
         session.event = None
-        # TODO REMOVE CHECK NEXT TRANSITION
-        self._check_next_transition(session)

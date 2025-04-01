@@ -71,6 +71,14 @@ class Transition:
         """
         return self.event is None and self.condition is None
 
+    def is_event(self) -> bool:
+        """Check if the transition wait for an event.
+
+        Returns:
+            bool: true if the transition's event is not None
+        """
+        return self.event is not None
+
     def evaluate(self, session: 'Session', target_event: Event):
         return self.event.is_matching(target_event) and self.is_condition_true(session)
 

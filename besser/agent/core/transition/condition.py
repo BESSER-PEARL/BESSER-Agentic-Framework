@@ -14,3 +14,15 @@ class Condition:
 
     def __str__(self):
         return self.function.__name__
+
+
+class Conjunction(Condition):
+
+    def __init__(self, cond1: Condition, cond2: Condition):
+        def conjunction(session: Session) -> bool:
+            return cond1.function(session) and cond2.function(session)
+        super().__init__(conjunction)
+        self.log: str = f"{cond1} and {cond2}"
+
+    def __str__(self):
+        return self.log

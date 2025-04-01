@@ -63,8 +63,8 @@ class Agent:
         self._name: str = name
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
-        self._event_loop: asyncio.AbstractEventLoop or None = None
-        self._event_thread: threading.Thread or None = None
+        # self._event_loop: asyncio.AbstractEventLoop or None = None
+        # self._event_thread: threading.Thread or None = None
         self._nlp_engine = NLPEngine(self)
         self._config: ConfigParser = ConfigParser()
         self._default_ic_config: IntentClassifierConfiguration = SimpleIntentClassifierConfiguration()
@@ -298,36 +298,36 @@ class Agent:
             thread.join()
         self._platforms_threads = []
 
-    def _run_event_thread(self) -> None:
-        """Start the thread managing external events"""
-        self._event_loop = asyncio.new_event_loop()
-
-        def manage_events(loop: asyncio.AbstractEventLoop) -> None:
-            for session in self._sessions.values(): # TODO: RUN ONE THREAD FOR EACH SESSION
-                # iterate over session's current state's transitions
-                # if a transition has an event, we check if it is in the events queue
-                if session.events and len(session.events) != 0:
-                    session.current_state.receive_event(session)
-                # TODO: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
-            loop.call_later(1, manage_events, loop)
-
-        def start_event_loop():
-            logger.debug('Starting Event Loop')
-            asyncio.set_event_loop(self._event_loop)
-            asyncio.get_event_loop().call_soon(manage_events, self._event_loop)
-            self._event_loop.run_forever()
-            logger.debug('Event Loop stopped')
-
-        thread = threading.Thread(target=start_event_loop)
-        self._event_thread = thread
-        thread.start()
-
-    def _stop_event_thread(self) -> None:
-        """Stop the thread managing external events"""
-        self._event_loop.stop()
-        self._event_thread.join()
-        self._event_loop = None
-        self._event_thread = None
+    # def _run_event_thread(self) -> None:
+    #     """Start the thread managing external events"""
+    #     self._event_loop = asyncio.new_event_loop()
+    #
+    #     def manage_events(loop: asyncio.AbstractEventLoop) -> None:
+    #         for session in self._sessions.values(): # TODO: RUN ONE THREAD FOR EACH SESSION
+    #             # iterate over session's current state's transitions
+    #             # if a transition has an event, we check if it is in the events queue
+    #             if session.events and len(session.events) != 0:
+    #                 session.current_state.receive_event(session)
+    #             # TODO: WE ITERATE ON THE TRANSITIONS, BECAUSE THE TRANSITION ORDER DEFINES THE PRIORITY
+    #         loop.call_later(1, manage_events, loop)
+    #
+    #     def start_event_loop():
+    #         logger.debug('Starting Event Loop')
+    #         asyncio.set_event_loop(self._event_loop)
+    #         asyncio.get_event_loop().call_soon(manage_events, self._event_loop)
+    #         self._event_loop.run_forever()
+    #         logger.debug('Event Loop stopped')
+    #
+    #     thread = threading.Thread(target=start_event_loop)
+    #     self._event_thread = thread
+    #     thread.start()
+    #
+    # def _stop_event_thread(self) -> None:
+    #     """Stop the thread managing external events"""
+    #     self._event_loop.stop()
+    #     self._event_thread.join()
+    #     self._event_loop = None
+    #     self._event_thread = None
 
     def run(self, train: bool = True, sleep: bool = True) -> None:
         """Start the execution of the agent.
@@ -347,7 +347,7 @@ class Agent:
             if self._monitoring_db.connected:
                 self._monitoring_db.initialize_db()
         self._run_platforms()
-        self._run_event_thread()
+        # self._run_event_thread()
         if sleep:
             idle = threading.Event()
             while True:
@@ -362,9 +362,11 @@ class Agent:
         """Stop the agent execution."""
         logger.info(f'Stopping agent {self._name}')
         self._stop_platforms()
-        self._stop_event_thread()
+        # self._stop_event_thread()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
+        for session in self._sessions.values():
+            session._stop_event_thread()
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.

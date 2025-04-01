@@ -1,3 +1,4 @@
+import asyncio
 import json
 import threading
 import time
@@ -80,6 +81,10 @@ class Session:
         # }
         self.agent_connections: dict[str, WebSocketApp] = {}
         self._events: deque[Event] = deque()
+        self._event_loop: asyncio.AbstractEventLoop or None = None
+        self._event_thread: threading.Thread or None = None
+
+        self._run_event_thread()
 
     @property
     def id(self):
@@ -115,6 +120,33 @@ class Session:
     def events(self):
         """dequeue[Event]: The queue of pending events for this session"""
         return self._events
+
+    def _run_event_thread(self) -> None:
+        """Start the thread managing external events"""
+        self._event_loop = asyncio.new_event_loop()
+
+        def manage_transition(loop: asyncio.AbstractEventLoop) -> None:
+            self.current_state.check_transitions(self)
+            # The delay is in seconds
+            loop.call_later(1, manage_transition, loop)
+
+        def start_event_loop():
+            logger.debug(f'Starting Event Loop for session: {self.id}')
+            asyncio.set_event_loop(self._event_loop)
+            asyncio.get_event_loop().call_soon(manage_transition, self._event_loop)
+            self._event_loop.run_forever()
+            logger.debug(f'Event Loop stopped for: {self.id}')
+
+        thread = threading.Thread(target=start_event_loop)
+        self._event_thread = thread
+        thread.start()
+
+    def _stop_event_thread(self) -> None:
+        """Stop the thread managing external events"""
+        self._event_loop.stop()
+        self._event_thread.join()
+        self._event_loop = None
+        self._event_thread = None
 
     def get_chat_history(self, n: int = None) -> list[Message]:
         """Get the history of messages between this session and its agent.

@@ -3,7 +3,7 @@ from functools import partial
 from typing import Union, Callable, TYPE_CHECKING
 
 from besser.agent.core.transition.event import Event
-from besser.agent.core.transition.condition import Condition
+from besser.agent.core.transition.condition import Condition, Conjunction
 from besser.agent.core.transition.transition import Transition
 from besser.agent.exceptions.exceptions import StateNotFound, ConflictingAutoTransitionError
 
@@ -27,9 +27,6 @@ class TransitionBuilder:
             ],
             params: dict = None
     ) -> 'TransitionBuilder':
-        if self.condition is not None:
-            # todo: why we do not make a conjunction ?
-            raise ValueError('You are replacing the condition!')
 
         sig = inspect.signature(function)  #
         func_params = list(sig.parameters.keys())
@@ -43,7 +40,11 @@ class TransitionBuilder:
             condition_function = partial(function, params=params)
         else:
             raise ValueError('Wrong Event Condition Function Signature!')
-        self.condition = Condition(condition_function)
+
+        if self.condition is None:
+            self.condition = Condition(condition_function)
+        else:
+            self.condition = Conjunction(self.condition, Condition(condition_function))
         return self
 
     def go_to(self, dest: 'State') -> None:
