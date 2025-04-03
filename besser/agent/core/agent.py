@@ -365,8 +365,8 @@ class Agent:
         # self._stop_event_thread()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
-        for session in self._sessions.values():
-            session._stop_event_thread()
+        for session_id in list(self._sessions.keys()):
+            self.delete_session(session_id)
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.
@@ -512,6 +512,7 @@ class Agent:
         while self._sessions[session_id].agent_connections:
             agent_connection = next(iter(self._sessions[session_id].agent_connections.values()))
             agent_connection.close()
+        self._sessions[session_id]._stop_event_thread()
         del self._sessions[session_id]
 
     def use_websocket_platform(self, use_ui: bool = True) -> WebSocketPlatform:
