@@ -4,6 +4,7 @@ import base64
 import inspect
 import json
 import os
+import time
 from datetime import datetime
 
 import numpy as np
@@ -169,6 +170,8 @@ class WebSocketPlatform(Platform):
         for conn_id in list(self._connections.keys()):
             conn = self._connections[conn_id]
             conn.close_socket()
+        while self._connections:
+            time.sleep(0.05)
         self._websocket_server.shutdown()
         logger.info(f'{self._agent.name}\'s WebSocketPlatform stopped')
 
