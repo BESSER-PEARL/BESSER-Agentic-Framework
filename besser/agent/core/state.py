@@ -255,38 +255,47 @@ class State:
         When checking transition, the priority is based on transition order.
         For a given transition expecting an event to happen, the first event matching will be used.
         If a user message event is received but does not match the transition, run the fallback body
-        Finally, all events preceding a matching event will be flushed.
 
         Args:
             session (Session): the current session
         """
-        for next_transition in self.transitions:
+        run_fallback = False
+        for i, next_transition in enumerate(self.transitions):
             if next_transition.is_event():
                 # TODO: Decide policy to remove events
                 fallback_deque = deque()
                 while session.events:
-                    # TODO: find a better way to share the event with the condition
                     session.event = session.events.pop()
                     if isinstance(session.event, ReceiveTextEvent):
                         session.event.predict_intent(session)
                     if next_transition.evaluate(session, session.event):
                         session.move(next_transition)
+                        # TODO: Make this configurable (we can consider remove all the previously checked events)
+                        session.events.extend(fallback_deque)  # We restore the queue but with the matched event removed
                         return
-                    elif isinstance(session.event, ReceiveMessageEvent) and session.event.human:
-                        logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
-                        try:
-                            self._fallback_body(session)
-                        except Exception as _:
-                            logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
-                                          f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+                    if isinstance(session.event, ReceiveTextEvent) and session.event.human:
+                        # There is a ReceiveTextEvent and we couldn't match any transition so far
+                        run_fallback = True
+                        if i < len(self.transitions)-1:
+                            # We only append ReceiveTextEvent (human) if we didn't finish checking all transitions
+                            fallback_deque.appendleft(session.event)
                     else:
                         fallback_deque.appendleft(session.event)
                 session.events.extend(fallback_deque)
-                return
             else:
                 if next_transition.is_condition_true(session):
                     session.move(next_transition)
                     return
+        if run_fallback:
+            # There was one or more transitions with ReceiveMessageEvent and one ReceiveMessageEvent (human)
+            # that didn't match any transition
+            logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
+            try:
+               self._fallback_body(session)
+            except Exception as _:
+               logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
+                             f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+        session.event = None
 
     def run(self, session: Session) -> None:
         """Run the state (i.e. its body). After running the body, check if the first defined transition of the state is
