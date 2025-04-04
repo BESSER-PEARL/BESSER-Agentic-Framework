@@ -65,8 +65,6 @@ class Session:
         self._event_loop: asyncio.AbstractEventLoop or None = None
         self._event_thread: threading.Thread or None = None
 
-        self._run_event_thread()
-
     @property
     def id(self):
         """str: The session id."""

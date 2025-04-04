@@ -455,6 +455,7 @@ class Agent:
         self._monitoring_db_insert_session(session)
         # ADD LOOP TO CHECK TRANSITIONS HERE
         session.current_state.run(session)
+        session._run_event_thread()
         return session
 
     def get_or_create_session(self, session_id: str, platform: Platform) -> Session:
