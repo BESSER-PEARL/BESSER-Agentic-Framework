@@ -18,6 +18,16 @@ class DummyEvent(Event):
         super().__init__('dummy')
 
 
+class AnyEvent(Event):
+
+    def __init__(self):
+        super().__init__('any_event')
+
+    def is_matching(self, event: 'Event') -> bool:
+        if isinstance(event, Event):
+            return True
+
+
 class ReceiveMessageEvent(Event):
     @staticmethod
     def create_event_from(message: str = None, session: 'Session' = None, human: bool = True):
