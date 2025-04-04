@@ -7,7 +7,7 @@ from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
 from besser.agent.library.intent.intent_library import fallback_intent
-from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
+from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent, AnyEvent
 from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
@@ -167,10 +167,12 @@ class State:
             if self in self.agent.global_state_component[global_state]:
                 self.agent.global_state_component[global_state].append(dest)
 
-    def when_event(self, event: Event) -> TransitionBuilder:
+    def when_event(self, event: Event or None = None) -> TransitionBuilder:
         for transition in self.transitions:
             if transition.is_auto():
                 raise ConflictingAutoTransitionError(self._agent, self)
+        if not event:
+            event = AnyEvent()
         return TransitionBuilder(source=self, event=event)
 
     def when_condition(
