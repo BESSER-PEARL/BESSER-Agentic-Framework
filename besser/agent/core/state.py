@@ -7,7 +7,7 @@ from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
 from besser.agent.library.intent.intent_library import fallback_intent
-from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent, ReceiveMessageEvent
+from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
 from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
@@ -204,8 +204,8 @@ class State:
     def go_to(self, dest: 'State') -> None:
         """Create a new `auto` transition on this state.
 
-        This transition needs no event to be triggered, which means that when the agent moves to a state 
-        that has an `auto` transition, the agent will move to the transition's destination state 
+        This transition needs no event to be triggered, which means that when the agent moves to a state
+        that has an `auto` transition, the agent will move to the transition's destination state
         unconditionally without waiting for user input. This transition cannot be combined with other
         transitions.
 

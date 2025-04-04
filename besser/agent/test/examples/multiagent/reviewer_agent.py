@@ -53,7 +53,7 @@ initial_state.when_event(ReceiveTextEvent()) \
 
 
 def code_review_body(session: Session):
-    code: str = session.event.text
+    code: str = session.event.message
     answer: str = gpt.predict(
         message=f"You are a code reviewer. Given the following code, try to find if there are syntax errors.\n"
                 f"If you think there are no errors, just reply 'ok'.\n\n"

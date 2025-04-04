@@ -42,19 +42,8 @@ class Session:
         _platform (str): The platform where the session has been created
         _current_state (str): The current state in the agent for this session
         _dictionary (str): Storage of private data for this session
-        _message (str): The last message sent to the agent by this session
-        _predicted_intent (str): The last predicted intent for this session
-        _file: File or None: The last file sent to the agent.
         _event: Any or None: The last event to trigger a transition.
-        flags (dict[str, bool]): A dictionary of boolean flags.
-            A `predicted_intent flag` is set to true when an intent is received. When the evaluation of the
-            current state's transitions is done, the flag is set to false. It may happen that a transition different
-            from the one associated with this intent is triggered (e.g. one evaluating some condition). In the following
-            state, if there is a transition associated with the same intent, it should not be triggered as the time for
-            this intent passed (unless the same intent is detected, in such case the flag will be set to true again).
-            Another flag `file_flag` is used for the same purpose but for files sent by the user
-            Another flag `event_flag` is used for the same purpose but for external events
-        agent_connections (dict[str, WebSocketApp]): WebSocket client connections to other agent's WebSocket platforms.
+        _agent_connections (dict[str, WebSocketApp]): WebSocket client connections to other agent's WebSocket platforms.
             These connections enable an agent to send messages to other agents.
         _events: deque[Any]: The queue of received external events to process
     """
@@ -70,16 +59,8 @@ class Session:
         self._platform: 'Platform' = platform
         self._current_state: 'State' = self._agent.initial_state()
         self._dictionary: dict[str, Any] = {}
-        # self._message: str or None = None
-        # self._predicted_intent: IntentClassifierPrediction or None = None
-        # self._file: File or None = None
         self._event: Event = None
-        # self.flags: dict[str, bool] = {
-        #     # 'predicted_intent': False,
-        #     # 'file': False,
-        #     'event': False
-        # }
-        self.agent_connections: dict[str, WebSocketApp] = {}
+        self._agent_connections: dict[str, WebSocketApp] = {}
         self._events: deque[Event] = deque()
         self._event_loop: asyncio.AbstractEventLoop or None = None
         self._event_thread: threading.Thread or None = None
@@ -255,7 +236,7 @@ class Session:
             finished = True
 
         def on_close(ws, close_status_code, close_msg):
-            del self.agent_connections[url]
+            del self._agent_connections[url]
 
         def on_error(ws, error):
             nonlocal finished
@@ -264,7 +245,7 @@ class Session:
         ws = WebSocketApp(url, on_message=on_message, on_open=on_open, on_close=on_close, on_error=on_error)
         websocket_thread = threading.Thread(target=ws.run_forever)
         websocket_thread.start()
-        self.agent_connections[url] = ws
+        self._agent_connections[url] = ws
         while not finished:
             # Wait until the connection is open
             time.sleep(0.01)
@@ -278,12 +259,12 @@ class Session:
             message (Any): the message to send to the WebSocket server
         """
         logger.info(f'Sending message to {url}')
-        if url not in self.agent_connections:
+        if url not in self._agent_connections:
             self.create_agent_connection(url)
-        if url not in self.agent_connections:
+        if url not in self._agent_connections:
             logger.error(f'Could not connect to {url}')
             return
-        ws = self.agent_connections[url]
+        ws = self._agent_connections[url]
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message)
         ws.send(json.dumps(payload, cls=PayloadEncoder))

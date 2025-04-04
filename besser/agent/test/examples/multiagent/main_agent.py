@@ -89,7 +89,7 @@ def send_request_body(session: Session):
     session.send_message_to_websocket(
         url='ws://localhost:8011',
         message={
-            "request": session.event.text,
+            "request": session.event.message,
             "code": session.get('code')
         }
     )
@@ -102,7 +102,7 @@ send_request_state.when_event(ReceiveTextEvent()) \
 
 
 def final_body(session: Session):
-    new_code: str = session.event.text
+    new_code: str = session.event.message
     session.set('new_code', new_code)
     websocket_platform.reply(session, "Take a look at the new code:")
     websocket_platform.reply(session, new_code)
