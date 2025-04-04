@@ -12,8 +12,8 @@ from besser.agent.library.transition.condition import IntentMatcher, VariableOpe
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
-from besser.agent.exceptions.exceptions import BodySignatureError, ConflictingAutoTransitionError, \
-    DuplicatedIntentMatchingTransitionError, IntentNotFound
+from besser.agent.exceptions.exceptions import BodySignatureError, DuplicatedIntentMatchingTransitionError, \
+    IntentNotFound
 from besser.agent.exceptions.logger import logger
 from besser.agent.library.transition.condition_functions import file_type
 from besser.agent.library.state.state_library import default_body, default_fallback_body
@@ -168,9 +168,6 @@ class State:
                 self.agent.global_state_component[global_state].append(dest)
 
     def when_event(self, event: Event or None = None) -> TransitionBuilder:
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         if not event:
             event = AnyEvent()
         return TransitionBuilder(source=self, event=event)
@@ -183,9 +180,6 @@ class State:
             ],
             params: dict = None
     ) -> TransitionBuilder:
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         transition_builder = TransitionBuilder(source=self, event=None)
         return transition_builder.with_condition(function, params)
 
@@ -194,9 +188,6 @@ class State:
             raise DuplicatedIntentMatchingTransitionError(self, intent)
         if intent not in self._agent.intents:
             raise IntentNotFound(self._agent, intent)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         self.intents.append(intent)
         event: ReceiveTextEvent = ReceiveTextEvent()
         condition: Condition = IntentMatcher(intent)
@@ -215,15 +206,10 @@ class State:
             dest (State): the destination state
         """
 
-        if self.transitions:
-            raise ConflictingAutoTransitionError(self._agent, self)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=None, condition=None)
         transition_builder.go_to(dest)
 
     def when_no_intent_matched(self) -> TransitionBuilder:
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         event: ReceiveTextEvent = ReceiveTextEvent()
         condition: Condition = IntentMatcher(fallback_intent)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
@@ -235,17 +221,11 @@ class State:
             operation: Callable[[Any, Any], bool],
             target: Any,
     ) -> TransitionBuilder:
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         condition: Condition = VariableOperationMatcher(var_name, operation, target)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
         return transition_builder
 
     def when_file_received(self, allowed_types: list[str] or str = None) -> TransitionBuilder:
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
         event = ReceiveFileEvent()
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
         transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
@@ -293,10 +273,11 @@ class State:
             # that didn't match any transition
             logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
             try:
-               self._fallback_body(session)
+                self._fallback_body(session)
             except Exception as _:
-               logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
-                             f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+                logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
+                            f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+                traceback.print_exc()
         session.event = None
 
     def run(self, session: Session) -> None:
@@ -311,7 +292,7 @@ class State:
             self._body(session)
         except Exception as _:
             logger.error(f"An error occurred while executing '{self._body.__name__}' of state '{self._name}' in agent '"
-                          f"{self._agent.name}'. See the attached exception:")
+                         f"{self._agent.name}'. See the attached exception:")
             traceback.print_exc()
         # Reset current event
         session.event = None
