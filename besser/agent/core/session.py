@@ -2,12 +2,14 @@ import asyncio
 import json
 import threading
 import time
+from asyncio import TimerHandle
 from collections import deque
 from typing import Any, TYPE_CHECKING
 
 from pandas import DataFrame
 from websocket import WebSocketApp
 
+from besser.agent import CHECK_TRANSITIONS_DELAY
 from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.library.transition.condition import IntentMatcher
@@ -42,10 +44,13 @@ class Session:
         _platform (str): The platform where the session has been created
         _current_state (str): The current state in the agent for this session
         _dictionary (str): Storage of private data for this session
-        _event: Any or None: The last event to trigger a transition.
+        _event (Any or None): The last event to trigger a transition.
+        _events (deque[Any]): The queue of received external events to process
+        _event_loop (asyncio.AbstractEventLoop): The loop in charge of managing incoming events
+        _event_thread (threading.Thread): The thread where the event loop is running
+        _timer_handle (TimerHandle): Handler of scheduled calls on the event loop
         _agent_connections (dict[str, WebSocketApp]): WebSocket client connections to other agent's WebSocket platforms.
             These connections enable an agent to send messages to other agents.
-        _events: deque[Any]: The queue of received external events to process
     """
 
     def __init__(
@@ -60,10 +65,11 @@ class Session:
         self._current_state: 'State' = self._agent.initial_state()
         self._dictionary: dict[str, Any] = {}
         self._event: Event = None
-        self._agent_connections: dict[str, WebSocketApp] = {}
         self._events: deque[Event] = deque()
         self._event_loop: asyncio.AbstractEventLoop or None = None
         self._event_thread: threading.Thread or None = None
+        self._timer_handle: TimerHandle = None
+        self._agent_connections: dict[str, WebSocketApp] = {}
 
     @property
     def id(self):
@@ -100,19 +106,20 @@ class Session:
         """dequeue[Event]: The queue of pending events for this session"""
         return self._events
 
+    def manage_transition(self) -> None:
+        self.current_state.check_transitions(self)
+        # The delay is in seconds
+        delay = self._agent.get_property(CHECK_TRANSITIONS_DELAY)
+        self._timer_handle = self._event_loop.call_later(delay, self.manage_transition)
+
     def _run_event_thread(self) -> None:
         """Start the thread managing external events"""
         self._event_loop = asyncio.new_event_loop()
 
-        def manage_transition(loop: asyncio.AbstractEventLoop) -> None:
-            self.current_state.check_transitions(self)
-            # The delay is in seconds
-            loop.call_later(1, manage_transition, loop)
-
         def start_event_loop():
             logger.debug(f'Starting Event Loop for session: {self.id}')
             asyncio.set_event_loop(self._event_loop)
-            asyncio.get_event_loop().call_soon(manage_transition, self._event_loop)
+            asyncio.get_event_loop().call_soon(self.manage_transition)
             self._event_loop.run_forever()
             logger.debug(f'Event Loop stopped for: {self.id}')
 

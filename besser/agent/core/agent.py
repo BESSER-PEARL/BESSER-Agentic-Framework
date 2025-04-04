@@ -13,7 +13,6 @@ from besser.agent.core.property import Property
 from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
 from besser.agent.core.state import State
-from besser.agent.core.file import File
 from besser.agent.core.transition.transition import Transition
 from besser.agent.db import DB_MONITORING
 from besser.agent.db.monitoring_db import MonitoringDB
@@ -363,9 +362,12 @@ class Agent:
         if event.is_broadcasted():
             for session in self._sessions.values():
                 session.events.appendleft(event)
+                session._event_loop.call_soon_threadsafe(session.manage_transition)
         else:
             session = self._sessions[event.session_id]
             session.events.appendleft(event)
+            session._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
+            session._event_loop.call_soon_threadsafe(session.manage_transition)
         logger.info(f'Received event: {event.log()}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
