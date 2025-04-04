@@ -5,7 +5,7 @@ import base64
 import logging
 
 from besser.agent.core.agent import Agent
-from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent
+from besser.agent.library.transition.events.base_events import ReceiveTextEvent, ReceiveFileEvent
 from besser.agent.core.file import File
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger

@@ -52,6 +52,14 @@ You can also create your own properties:
 
 Next, let's see all the built in properties, divided by sections.
 
+Agent
+-----
+
+.. automodule:: besser.agent
+   :members:
+
+.. _properties-agent:
+
 NLP
 ---
 

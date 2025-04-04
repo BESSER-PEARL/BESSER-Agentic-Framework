@@ -4,7 +4,7 @@
 import logging
 
 from besser.agent.core.agent import Agent
-from besser.agent.library.transition.event import ReceiveJSONEvent
+from besser.agent.library.transition.events.base_events import ReceiveJSONEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -50,7 +50,7 @@ initial_state.when_event(ReceiveJSONEvent()) \
 
 
 def generate_code_body(session: Session):
-    message = session.event.payload
+    message = session.event.message
     new_code: str = gpt.predict(
         message=f"Given the following code:\n\n"
                 f"{message['code']}\n\n"

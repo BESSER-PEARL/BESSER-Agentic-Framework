@@ -13,21 +13,21 @@ if TYPE_CHECKING:
 class Transition:
     """An agent transition from one state (source) to another (destination).
 
-    A transition is triggered when an event occurs.
+    A transition can have an event and/or a condition, and will be triggered when the target event (if any) was received
+    and the condition (if any) is satisfied.
 
     Args:
         name (str): the transition name
         source (State): the source state of the transition (from where it is triggered)
         dest (State): the destination state of the transition (where the agent moves to)
-        event (Callable[[Session, dict], bool]): the event that triggers the transition
-        event_params (dict): the parameters associated to the event
+        event (Event): the event that triggers the transition
+        condition (Condition): the condition that triggers the transition
 
     Attributes:
         name (str): The transition name
         source (State): The source state of the transition (from where it is triggered)
-        dest (State): The destination state of the transition (where the agent moves to)
-        event (Callable[[Session, dict], bool]): The event that triggers the transition
-        event_params (dict): The parameters associated to the event
+        event (Event): The event that triggers the transition
+        condition (Condition): The condition that triggers the transition
     """
 
     def __init__(
@@ -48,7 +48,7 @@ class Transition:
         """Create a log message for the transition. Useful when transitioning from one state to another to track the
         agent state.
 
-        Example: `intent_matched (hello_intent): [state_0] --> [state_1]`
+        Example: `receive_message_text (Intent Matching - hello_intent): [initial_state] --> [hello_state]`
 
         Returns:
             str: the log message
@@ -63,26 +63,43 @@ class Transition:
             return f"{self.event.name} ({self.condition}): [{self.source.name}] --> [{self.dest.name}]"
 
     def is_auto(self) -> bool:
-        """Check if the transition event is `auto` (i.e. a transition that does not need any event to be triggered).
+        """Check if the transition is `auto` (i.e. no event nor condition linked to it).
 
         Returns:
-            bool: true if the transition's intent matches with the
-            target one, false
+            bool: true if the transition is auto, false otherwise
         """
         return self.event is None and self.condition is None
 
     def is_event(self) -> bool:
-        """Check if the transition wait for an event.
+        """Check if the transition waits for an event.
 
         Returns:
             bool: true if the transition's event is not None
         """
         return self.event is not None
 
-    def evaluate(self, session: 'Session', target_event: Event):
+    def evaluate(self, session: 'Session', target_event: Event) -> bool:
+        """Evaluate the transition, i.e., check if the transition's event was received and the transition condition is
+        satisfied.
+
+        Args:
+            session (Session): the current user session
+            target_event (Event): the event to evaluate
+
+        Returns:
+            bool: true if the target event matches the transition event and the transition condition is satisfied, false otherwise
+        """
         return self.event.is_matching(target_event) and self.is_condition_true(session)
 
     def is_condition_true(self, session: 'Session') -> bool:
+        """Evaluate the transition's condition.
+
+        Args:
+            session (Session): the current user session
+
+        Returns:
+            bool: true if the transition's condition is satisfied, false otherwise
+        """
         try:
             if self.condition is None:
                 return True

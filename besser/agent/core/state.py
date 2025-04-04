@@ -7,8 +7,8 @@ from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
 from besser.agent.library.intent.intent_library import fallback_intent
-from besser.agent.library.transition.event import ReceiveTextEvent, ReceiveFileEvent, AnyEvent
-from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
+from besser.agent.library.transition.events.base_events import ReceiveTextEvent, ReceiveFileEvent, WildcardEvent
+from besser.agent.library.transition.conditions import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
@@ -168,8 +168,16 @@ class State:
                 self.agent.global_state_component[global_state].append(dest)
 
     def when_event(self, event: Event or None = None) -> TransitionBuilder:
+        """Start the definition of an "event matching" transition on this state.
+
+        Args:
+            event (Event): the target event for the transition to be triggered. If none, any event can trigger this
+                transition.
+        Returns:
+            TransitionBuilder: the transition builder
+        """
         if not event:
-            event = AnyEvent()
+            event = WildcardEvent()
         return TransitionBuilder(source=self, event=event)
 
     def when_condition(
@@ -180,10 +188,29 @@ class State:
             ],
             params: dict = None
     ) -> TransitionBuilder:
-        transition_builder = TransitionBuilder(source=self, event=None)
-        return transition_builder.with_condition(function, params)
+        """Start the definition of a "condition matching" transition on this state.
+
+        Args:
+            function (Union[Callable[[Session], bool], Callable[[Session, dict], bool]]): the condition function to add
+                to the transition. Allowed function arguments are (:class:`~besser.agent.core.session.Session`) or
+                (:class:`~besser.agent.core.session.Session`, dict) to add parameters within the dict argument. The
+                function must return a boolean value
+            params (dict, optional): the parameters for the condition function, necessary if the function has
+                (:class:`~besser.agent.core.session.Session`, dict) arguments
+        Returns:
+            TransitionBuilder: the transition builder
+        """
+        return TransitionBuilder(source=self, event=None).with_condition(function, params)
 
     def when_intent_matched(self, intent: Intent) -> TransitionBuilder:
+        """Start the definition of an "intent matching" transition on this state.
+
+        Args:
+            intent (Intent): the target intent for the transition to be triggered
+
+        Returns:
+            TransitionBuilder: the transition builder
+        """
         if intent in self.intents:
             raise DuplicatedIntentMatchingTransitionError(self, intent)
         if intent not in self._agent.intents:
@@ -197,10 +224,9 @@ class State:
     def go_to(self, dest: 'State') -> None:
         """Create a new `auto` transition on this state.
 
-        This transition needs no event to be triggered, which means that when the agent moves to a state
-        that has an `auto` transition, the agent will move to the transition's destination state
-        unconditionally without waiting for user input. This transition cannot be combined with other
-        transitions.
+        This transition needs no event nor condition to be triggered, which means that when the agent moves to a state
+        that has an `auto` transition, the agent will move to the transition's destination state. This transition cannot
+        be combined with other transitions.
 
         Args:
             dest (State): the destination state
@@ -221,22 +247,48 @@ class State:
             operation: Callable[[Any, Any], bool],
             target: Any,
     ) -> TransitionBuilder:
+        """Start the definition of a "variable matching operator" transition on this state.
+
+        This transition evaluates if (variable operator target_value) is satisfied. For instance, "age > 18".
+
+        Args:
+            var_name (str): the name of the variable to evaluate. The variable must exist in the user session
+            operation (Callable[[Any, Any], bool]): the operation to apply to the variable and the target value. It
+                gets as arguments the variable and the target value, and returns a boolean value
+            target (Any): the target value to compare with the variable
+
+        Returns:
+            TransitionBuilder: the transition builder
+        """
         condition: Condition = VariableOperationMatcher(var_name, operation, target)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
         return transition_builder
 
     def when_file_received(self, allowed_types: list[str] or str = None) -> TransitionBuilder:
+        """Start the definition of a "file received" transition on this state.
+
+        Args:
+            allowed_types (list[str] or str): the file types to consider for this transition. List of strings or just 1
+                string are valid values
+
+        Returns:
+            TransitionBuilder: the transition builder
+        """
         event = ReceiveFileEvent()
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
         transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
         return transition_builder
 
-    def check_transitions(self, session: Session):
-        """Check the transition and triggers the one that match
+    def check_transitions(self, session: Session) -> None:
+        """Check the state transitions and triggers the one that is satisfied.
 
         When checking transition, the priority is based on transition order.
-        For a given transition expecting an event to happen, the first event matching will be used.
-        If a user message event is received but does not match the transition, run the fallback body
+
+        For a given transition expecting an event to happen, the first event matching will be used (and removed from the
+        session queue of events).
+
+        If a user message event is received but does not match the transition, run the fallback body (and the event is
+        removed from the session queue of events)
 
         Args:
             session (Session): the current session
@@ -281,8 +333,7 @@ class State:
         session.event = None
 
     def run(self, session: Session) -> None:
-        """Run the state (i.e. its body). After running the body, check if the first defined transition of the state is
-        an `auto` transition, and if so, move to its destination state.
+        """Run the state body.
 
         Args:
             session (Session): the user session

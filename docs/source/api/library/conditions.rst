@@ -1,7 +1,7 @@
-transition
+conditions
 ==========
 
-.. automodule:: besser.agent.core.transition.transition
+.. automodule:: besser.agent.library.transition.conditions
    :members:
    :private-members:
    :undoc-members:

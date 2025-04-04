@@ -1,5 +1,6 @@
 from typing import Any
 
+
 class User:
     def __init__(self, api_payload):
         self._id: int = api_payload['id']

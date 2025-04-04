@@ -16,7 +16,7 @@ from pandas import DataFrame
 from websockets.exceptions import ConnectionClosedError
 from websockets.sync.server import ServerConnection, WebSocketServer, serve
 
-from besser.agent.library.transition.event import ReceiveMessageEvent, ReceiveFileEvent
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
 from besser.agent.exceptions.exceptions import PlatformMismatchError

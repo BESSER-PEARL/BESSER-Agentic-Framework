@@ -13,7 +13,7 @@ from besser.agent.core.transition.transition import Transition
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING_DIALECT, DB_MONITORING_PORT, DB_MONITORING_HOST, DB_MONITORING_DATABASE, \
     DB_MONITORING_USERNAME, DB_MONITORING_PASSWORD
-from besser.agent.library.transition.condition import IntentMatcher, VariableOperationMatcher
+from besser.agent.library.transition.conditions import IntentMatcher, VariableOperationMatcher
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
 
 if TYPE_CHECKING:

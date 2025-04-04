@@ -8,7 +8,7 @@ from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.gitlab.gitlab_objects import Issue
-from besser.agent.platforms.gitlab.gitlab_webhooks_events import IssuesOpened, GitLabEvent, IssueCommentCreated, IssuesUpdated
+from besser.agent.library.transition.events.gitlab_webhooks_events import IssuesOpened, GitLabEvent, IssueCommentCreated, IssuesUpdated
 
 # Configure the logging module (optional)
 logger.setLevel(logging.INFO)

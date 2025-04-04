@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import asyncio
-import threading
 from typing import TYPE_CHECKING
 
 from aiohttp import web
@@ -14,12 +12,13 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.platforms import github
 from besser.agent.platforms.github.github_actions import *
 from besser.agent.platforms.github.github_objects import Issue
-from besser.agent.platforms.github.github_webhooks_events import GitHubEvent
+from besser.agent.library.transition.events.github_webhooks_events import GitHubEvent
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.platform import Platform
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
+
 
 class GitHubPlatform(Platform):
     """The GitHub Platform allows an agent to receive events from GitHub webhooks and make calls to its REST API
@@ -103,7 +102,7 @@ class GitHubPlatform(Platform):
         return method_proxy
 
     def _send(self, session_id, payload: Payload) -> None:
-        logger.warning(f'_send() methdo not implemented in {self.__class__.__name__}')
+        logger.warning(f'_send() method not implemented in {self.__class__.__name__}')
 
     def reply(self, session: Session, message: str) -> None:
         logger.warning(f'reply() method not implemented in {self.__class__.__name__}')
@@ -114,11 +113,11 @@ class GitHubPlatform(Platform):
     def get_issue(self, user: str, repository: str, issue_number: int) -> Issue:
         return Issue(sync_coro_call(get_issue(self._agent.name, self._oauth_token, user, repository, issue_number)))
 
-    def comment_issue(self, issue:Issue, content: str):
+    def comment_issue(self, issue: Issue, content: str):
         return sync_coro_call(comment_issue(self._agent.name, self._oauth_token, issue, content))
 
-    def set_label(self, issue:Issue, label: str):
+    def set_label(self, issue: Issue, label: str):
         return sync_coro_call(set_label(self._agent.name, self._oauth_token, issue, label))
 
-    def assign_user(self, issue:Issue, assignee: str):
+    def assign_user(self, issue: Issue, assignee: str):
         return sync_coro_call(assign_user(self._agent.name, self._oauth_token, issue, assignee))

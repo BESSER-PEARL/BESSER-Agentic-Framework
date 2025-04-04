@@ -12,8 +12,8 @@ from websocket import WebSocketApp
 from besser.agent import CHECK_TRANSITIONS_DELAY
 from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
-from besser.agent.library.transition.condition import IntentMatcher
-from besser.agent.library.transition.event import ReceiveMessageEvent, ReceiveTextEvent
+from besser.agent.library.transition.conditions import IntentMatcher
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveTextEvent
 from besser.agent.core.message import Message, get_message_type
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING
@@ -107,6 +107,7 @@ class Session:
         return self._events
 
     def manage_transition(self) -> None:
+        """Evaluate the session's current state transitions, where one could be satisfied and triggered."""
         self.current_state.check_transitions(self)
         # The delay is in seconds
         delay = self._agent.get_property(CHECK_TRANSITIONS_DELAY)

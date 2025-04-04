@@ -13,8 +13,17 @@ if TYPE_CHECKING:
     from besser.agent.core.session import Session
 
 
-def intent_matched(session: 'Session', params: dict) -> bool:
-    target_intent: Intent = params['intent']
+def intent_matched(session: 'Session', event_params: dict) -> bool:
+    """This function checks if 2 intents are the same, used for intent matching checking.
+
+    Args:
+        session (Session): the current user session
+        event_params (dict): the event parameters
+
+    Returns:
+        bool: True if the 2 intents are the same, false otherwise
+    """
+    target_intent: Intent = event_params['intent']
     predicted_intent = session.event.predicted_intent
     if predicted_intent is not None:
         matched_intent: Intent = predicted_intent.intent
@@ -23,7 +32,7 @@ def intent_matched(session: 'Session', params: dict) -> bool:
 
 
 def variable_matches_operation(session: 'Session', event_params: dict) -> bool:
-    """This event checks if for a specific comparison operation, using a stored session value
+    """This function checks if for a specific comparison operation, using a stored session value
     and a given target value, returns true.
 
     Args:
@@ -33,8 +42,6 @@ def variable_matches_operation(session: 'Session', event_params: dict) -> bool:
     Returns:
         bool: True if the comparison operation of the given values returns true
     """
-    # TODO: REFACTOR WITH NEW EVENTS
-    # TODO: why though ? we can only deprecate it and still provide it similarly to the intent_matched one
     var_name: str = event_params['var_name']
     target_value: Any = event_params['target']
     operation: Callable[[Any, Any], bool] = event_params['operation']
@@ -43,7 +50,7 @@ def variable_matches_operation(session: 'Session', event_params: dict) -> bool:
 
 
 def file_type(session: 'Session', event_params: dict) -> bool:
-    """This event only returns True if a user sent a file of an allowed type.
+    """This function only returns True if a user sent a file of an allowed type.
 
     Args:
         session (Session): the current user session

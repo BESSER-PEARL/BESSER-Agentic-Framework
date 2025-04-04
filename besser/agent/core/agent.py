@@ -283,13 +283,14 @@ class Agent:
             self.global_initial_states.clear()
 
     def _run_platforms(self) -> None:
-        """Stop the execution of the agent platforms"""
+        """Start the execution of the agent platforms"""
         for platform in self._platforms:
             thread = threading.Thread(target=platform.run)
             self._platforms_threads.append(thread)
             thread.start()
 
     def _stop_platforms(self) -> None:
+        """Stop the execution of the agent platforms"""
         for platform, thread in zip(self._platforms, self._platforms_threads):
             platform.stop()
             thread.join()

@@ -7,7 +7,7 @@ import logging
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
-from besser.agent.platforms.github.github_webhooks_events import StarCreated, StarDeleted
+from besser.agent.library.transition.events.github_webhooks_events import StarCreated, StarDeleted
 
 # Configure the logging module (optional)
 logger.setLevel(logging.INFO)

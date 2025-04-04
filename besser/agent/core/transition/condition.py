@@ -5,6 +5,17 @@ if TYPE_CHECKING:
 
 
 class Condition:
+    """ The condition class.
+
+    A condition embeds a boolean function. An agent can define transitions from one state to another based on the
+    fulfillment of a condition.
+
+    Args:
+        function (Callable[[Session], bool]): the condition function. It takes the user session as parameter.
+
+    Attributes:
+        function (Callable[[Session], bool]): the condition function. It takes the user session as parameter.
+    """
 
     def __init__(self, function: Callable[['Session'], bool]):
         self.function: Callable[['Session'], bool] = function
@@ -17,6 +28,16 @@ class Condition:
 
 
 class Conjunction(Condition):
+    """A conjunction is the union of 2 conditions. A conjunction condition is fulfilled when the 2 conditions are
+    fulfilled.
+
+    Args:
+        cond1 (Condition): the first condition of the conjunction
+        cond2 (Condition): the second condition of the conjunction
+
+    Attributes:
+        log (str): the log message of the conjunction condition
+    """
 
     def __init__(self, cond1: Condition, cond2: Condition):
         def conjunction(session: Session) -> bool:

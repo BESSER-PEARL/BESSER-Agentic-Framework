@@ -1,10 +1,25 @@
+from datetime import datetime
+from typing import Any
+
 from besser.agent.core.transition.event import Event
 
 
 class GitLabEvent(Event):
+    """Base GitLab event.
 
-    def __init__(self, category: str, action: str, payload):
-        super().__init__(category + action)
+    Args:
+        category (str): the event category
+        action (str): the event action
+        payload (Any): the event payload
+
+    Attributes:
+        _category (str): the event category
+        _action (str): the event action
+        _payload (Any): the event payload
+    """
+
+    def __init__(self, category: str, action: str, payload: Any):
+        super().__init__(name=category + action, timestamp=datetime.now())
         self._category: str = category
         self._action: str = action
         self._payload = payload
