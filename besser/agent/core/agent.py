@@ -370,8 +370,7 @@ class Agent:
         else:
             session = self._sessions[event.session_id]
             session.events.appendleft(event)
-            session._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
-            session._event_loop.call_soon_threadsafe(session.manage_transition)
+            session.call_manage_transition()
         self._monitoring_db_insert_event(event)
         if isinstance(event, ReceiveMessageEvent):
             if isinstance(event, ReceiveJSONEvent):

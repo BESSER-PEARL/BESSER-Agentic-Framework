@@ -105,6 +105,13 @@ class Session:
         """dequeue[Event]: The queue of pending events for this session"""
         return self._events
 
+    def call_manage_transition(self) -> None:
+        """Schedule the next call to manage_transition as soon as possible (cancelling the previously scheduled
+        call).
+        """
+        self._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
+        self._event_loop.call_soon_threadsafe(self.manage_transition)
+
     def manage_transition(self) -> None:
         """Evaluate the session's current state transitions, where one could be satisfied and triggered."""
         self.current_state.check_transitions(self)
@@ -210,6 +217,7 @@ class Session:
             self.set("prev_state", self.current_state)
         self._current_state = transition.dest
         self._current_state.run(self)
+        self.call_manage_transition()
 
     def reply(self, message: str) -> None:
         """An agent message (usually a reply to a user message) is sent to the session platform to show it to the user.
