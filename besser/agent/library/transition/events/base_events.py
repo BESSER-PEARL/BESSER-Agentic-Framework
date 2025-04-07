@@ -68,14 +68,12 @@ class ReceiveMessageEvent(Event):
             session_id = None
         else:
             session_id = session.id
+        message = session._agent.process(session=session, message=message, is_user_message=human)
         try:
             payload = json.loads(message)
             event = ReceiveJSONEvent(payload, session_id, human)
-            session.save_message(Message(t=MessageType.JSON, content=message, is_user=human, timestamp=datetime.now()))
         except json.JSONDecodeError:
-            text = session._agent.process(session=session, message=message, is_user_message=human)
-            session.save_message(Message(t=MessageType.STR, content=message, is_user=human, timestamp=datetime.now()))
-            event = ReceiveTextEvent(text, session_id, human)
+            event = ReceiveTextEvent(message, session_id, human)
         finally:
             return event
 

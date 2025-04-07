@@ -2,10 +2,11 @@ import asyncio
 import operator
 import threading
 from configparser import ConfigParser
+from datetime import datetime
 from typing import Any, Callable, get_type_hints
 
 from besser.agent.core.transition.event import Event
-from besser.agent.core.message import Message
+from besser.agent.core.message import Message, MessageType
 from besser.agent.core.entity.entity import Entity
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.intent.intent_parameter import IntentParameter
@@ -19,8 +20,10 @@ from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
     DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound
 from besser.agent.exceptions.logger import logger
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveJSONEvent
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
+from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 from besser.agent.nlp.nlp_engine import NLPEngine
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.telegram.telegram_platform import TelegramPlatform
@@ -182,7 +185,6 @@ class Agent:
         """
         if intent in self.intents:
             raise DuplicatedIntentError(self, intent)
-        # TODO: Check entity is in self.entities
         self.intents.append(intent)
         return intent
 
@@ -360,6 +362,7 @@ class Agent:
         Args:
             event (Event): the received event
         """
+        session = None
         if event.is_broadcasted():
             for session in self._sessions.values():
                 session.events.appendleft(event)
@@ -369,6 +372,13 @@ class Agent:
             session.events.appendleft(event)
             session._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
             session._event_loop.call_soon_threadsafe(session.manage_transition)
+        self._monitoring_db_insert_event(event)
+        if isinstance(event, ReceiveMessageEvent):
+            if isinstance(event, ReceiveJSONEvent):
+                t = MessageType.JSON
+            else:
+                t = MessageType.STR
+            session.save_message(Message(t=t, content=event.message, is_user=True, timestamp=datetime.now()))
         logger.info(f'Received event: {event.log()}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
@@ -448,11 +458,9 @@ class Agent:
             Session: the session
         """
         if session_id in self._sessions:
-            # TODO: Raise exception
-            pass
+            raise ValueError(f'Trying to create a new session with an existing id" {session_id}')
         if platform not in self._platforms:
-            # TODO: Raise exception
-            pass
+            raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
         self._monitoring_db_insert_session(session)
@@ -532,15 +540,20 @@ class Agent:
             # Not in thread since we must ensure it is added before running a state (the chat table needs the session)
             self._monitoring_db.insert_session(session)
 
-    def _monitoring_db_insert_intent_prediction(self, session: Session) -> None:
+    def _monitoring_db_insert_intent_prediction(
+            self,
+            session: Session,
+            predicted_intent: IntentClassifierPrediction
+    ) -> None:
         """Insert an intent prediction record into the monitoring database.
 
         Args:
             session (Session): the session of the current user
+            predicted_intent (IntentClassifierPrediction): the intent prediction
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             thread = threading.Thread(target=self._monitoring_db.insert_intent_prediction,
-                                      args=(session, session.current_state,))
+                                      args=(session, session.current_state, predicted_intent))
             thread.start()
 
     def _monitoring_db_insert_transition(self, session: Session, transition: Transition) -> None:
@@ -561,4 +574,18 @@ class Agent:
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             thread = threading.Thread(target=self._monitoring_db.insert_chat, args=(session, message))
+            thread.start()
+
+    def _monitoring_db_insert_event(self, event: Event) -> None:
+        """Insert an event record into the monitoring database.
+
+        Args:
+            event (Event): the event to insert into the database
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            if event.is_broadcasted():
+                session = None
+            else:
+                session = self._sessions[event.session_id]
+            thread = threading.Thread(target=self._monitoring_db.insert_event, args=(session, event))
             thread.start()

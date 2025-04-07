@@ -98,7 +98,6 @@ class Session:
         Args:
             event (Event): the event to set in the session
         """
-        # TODO: Event are not stored in the DB
         self._event = event
 
     @property
@@ -205,7 +204,7 @@ class Session:
         logger.info(transition.log())
         self._agent._monitoring_db_insert_transition(self, transition)
         if isinstance(transition.event, ReceiveTextEvent) and isinstance(transition.condition, IntentMatcher):
-            self._agent._monitoring_db_insert_intent_prediction(self)
+            self._agent._monitoring_db_insert_intent_prediction(self, self.event.predicted_intent)
         # TODO: STORE EVENT IN DB (CALL event.store_in_db())
         if any(transition.dest is global_state for global_state in self._agent.global_state_component):
             self.set("prev_state", self.current_state)

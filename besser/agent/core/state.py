@@ -323,6 +323,7 @@ class State:
         if run_fallback:
             # There was one or more transitions with ReceiveMessageEvent and one ReceiveMessageEvent (human)
             # that didn't match any transition
+            self._agent._monitoring_db_insert_intent_prediction(session, session.event.predicted_intent)  # insert fallback intent in DB
             logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
             try:
                 self._fallback_body(session)
