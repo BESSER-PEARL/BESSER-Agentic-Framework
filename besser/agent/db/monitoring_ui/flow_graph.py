@@ -25,7 +25,15 @@ def flow_graph(monitoring_db: MonitoringDB):
         source_state = transition['source_state']
         dest_state = transition['dest_state']
         event = transition['event']
-        info = transition['info']
+        condition = transition['condition']
+        if event and condition:
+            info = f'{event}, {condition}'
+        elif event:
+            info = event
+        elif condition:
+            info = condition
+        else:
+            info = ''
         if source_state not in state_set:
             state_set.add(source_state)
             nt.add_node(source_state, group=1)
@@ -36,14 +44,10 @@ def flow_graph(monitoring_db: MonitoringDB):
     if transition_dict:
         max_count = max(transition_dict.values())
         for (source_state, dest_state, event, info), count in transition_dict.items():
-            if source_state != dest_state:
-                title = event
-                if info:
-                    title += f'({info})'
-                nt.add_edge(source_state, dest_state, title=title, width=count/max_count*10, label=str(count))
-            else:
+            nt.add_edge(source_state, dest_state, title=info, width=count/max_count*10, label=str(count))
+            # if source_state == dest_state:
                 # TODO: REPLACE THIS, use new table to store body and fallback_body executions per state
-                nt.add_edge(source_state, dest_state, title='Fallback', width=count/max_count*10, label=str(count), color='red')
+                # nt.add_edge(source_state, dest_state, title='Fallback', width=count/max_count*10, label=str(count), color='red')
         nt.options.physics.use_barnes_hut({
             'gravity': -12000,  # changed
             'central_gravity': 0.3,

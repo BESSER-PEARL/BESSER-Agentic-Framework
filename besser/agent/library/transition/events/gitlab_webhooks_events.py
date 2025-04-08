@@ -1,14 +1,28 @@
-class GitLabEvent:
+from datetime import datetime
+from typing import Any
 
-    def __init__(self, name, action, payload):
-        self._name: str = name
+from besser.agent.core.transition.event import Event
+
+
+class GitLabEvent(Event):
+    """Base GitLab event.
+
+    Args:
+        category (str): the event category
+        action (str): the event action
+        payload (Any): the event payload
+
+    Attributes:
+        _category (str): the event category
+        _action (str): the event action
+        _payload (Any): the event payload
+    """
+
+    def __init__(self, category: str, action: str, payload: Any):
+        super().__init__(name=category + action, timestamp=datetime.now())
+        self._category: str = category
         self._action: str = action
-        self._payload: str = payload
-
-    @property
-    def name(self):
-        """str: The name of the event"""
-        return self._name
+        self._payload = payload
 
     @property
     def action(self):
@@ -17,8 +31,21 @@ class GitLabEvent:
 
     @property
     def payload(self):
-        """str: The payload of the event"""
+        """Any: The payload of the event"""
         return self._payload
+
+    def is_matching(self, event: 'Event') -> bool:
+        """Check whether a GitLab event matches another one.
+
+        Args:
+            event (Event): the target event to compare
+
+        Returns:
+            bool: true if both events match, false otherwise
+        """
+        if isinstance(event, GitLabEvent):
+            return self._category == event._category and self._action == event._action
+        return False
 
 
 class IssuesClosed(GitLabEvent):

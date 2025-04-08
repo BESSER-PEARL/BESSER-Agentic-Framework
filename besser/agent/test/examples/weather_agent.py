@@ -48,11 +48,11 @@ def s0_body(session: Session):
 
 
 s0.set_body(s0_body)
-s0.when_intent_matched_go_to(weather_intent, weather_state)
+s0.when_intent_matched(weather_intent).go_to(weather_state)
 
 
 def weather_body(session: Session):
-    predicted_intent: IntentClassifierPrediction = session.predicted_intent
+    predicted_intent: IntentClassifierPrediction = session.event.predicted_intent
     city = predicted_intent.get_parameter('city1')
     temperature = round(random.uniform(0, 30), 2)
     if city.value is None:

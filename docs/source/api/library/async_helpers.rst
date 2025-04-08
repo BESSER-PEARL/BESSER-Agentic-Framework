@@ -1,7 +1,7 @@
-event_library
+async_helpers
 =============
 
-.. automodule:: besser.agent.library.event.event_library
+.. automodule:: besser.agent.library.coroutine.async_helpers
    :members:
    :private-members:
    :undoc-members:

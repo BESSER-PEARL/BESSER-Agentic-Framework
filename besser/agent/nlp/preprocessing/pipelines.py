@@ -18,11 +18,11 @@ lang_map = {
 }
 stemmers: dict[str, snowballstemmer.stemmer] = {}
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    # "punkt" is not installed, download it
-    nltk.download('punkt')
+for nltk_tokenizer in ['punkt', 'punkt_tab']:
+    try:
+        nltk.data.find(f'tokenizers/{nltk_tokenizer}')
+    except LookupError:
+        nltk.download(nltk_tokenizer)
 
 
 def create_or_get_stemmer(lang: str = 'english') -> snowballstemmer:

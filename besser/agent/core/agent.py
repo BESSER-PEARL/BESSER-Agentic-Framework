@@ -2,10 +2,11 @@ import asyncio
 import operator
 import threading
 from configparser import ConfigParser
+from datetime import datetime
 from typing import Any, Callable, get_type_hints
 
-from besser.agent.core.message import Message
-from besser.agent.core.transition import Transition
+from besser.agent.core.transition.event import Event
+from besser.agent.core.message import Message, MessageType
 from besser.agent.core.entity.entity import Entity
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.intent.intent_parameter import IntentParameter
@@ -13,14 +14,16 @@ from besser.agent.core.property import Property
 from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
 from besser.agent.core.state import State
-from besser.agent.core.file import File
+from besser.agent.core.transition.transition import Transition
 from besser.agent.db import DB_MONITORING
 from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
     DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound
 from besser.agent.exceptions.logger import logger
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveJSONEvent
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
+from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 from besser.agent.nlp.nlp_engine import NLPEngine
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.telegram.telegram_platform import TelegramPlatform
@@ -62,8 +65,6 @@ class Agent:
         self._name: str = name
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
-        self._event_loop: asyncio.AbstractEventLoop or None = None
-        self._event_thread: threading.Thread or None = None
         self._nlp_engine = NLPEngine(self)
         self._config: ConfigParser = ConfigParser()
         self._default_ic_config: IntentClassifierConfiguration = SimpleIntentClassifierConfiguration()
@@ -184,7 +185,6 @@ class Agent:
         """
         if intent in self.intents:
             raise DuplicatedIntentError(self, intent)
-        # TODO: Check entity is in self.entities
         self.intents.append(intent)
         return intent
 
@@ -279,52 +279,24 @@ class Agent:
                             state.name is global_init_state[0].name for global_init_state in self.global_initial_states)
                             and state not in global_state_follow_up):
                         if state.transitions and not state.transitions[0].is_auto():
-                            state.when_intent_matched_go_to(global_state_tuple[1], global_state)
-                            self.global_state_component[global_state][-1].when_variable_matches_operation_go_to(
-                                var_name="prev_state", operation=operator.eq, target=state, dest=state)
+                            state.when_intent_matched(global_state_tuple[1]).go_to(global_state)
+                            self.global_state_component[global_state][-1].when_variable_matches_operation(
+                                var_name="prev_state", operation=operator.eq, target=state).go_to(state)
             self.global_initial_states.clear()
 
     def _run_platforms(self) -> None:
-        """Stop the execution of the agent platforms"""
+        """Start the execution of the agent platforms"""
         for platform in self._platforms:
             thread = threading.Thread(target=platform.run)
             self._platforms_threads.append(thread)
             thread.start()
 
     def _stop_platforms(self) -> None:
+        """Stop the execution of the agent platforms"""
         for platform, thread in zip(self._platforms, self._platforms_threads):
             platform.stop()
             thread.join()
         self._platforms_threads = []
-
-    def _run_event_thread(self) -> None:
-        """Start the thread managing external events"""
-        self._event_loop = asyncio.new_event_loop()
-
-        def manage_events(loop: asyncio.AbstractEventLoop) -> None:
-            for session in self._sessions.values():
-                if session.events and len(session.events) != 0:
-                    session.flags['event'] = True
-                    session.current_state.receive_event(session)
-            loop.call_later(1, manage_events, loop)
-
-        def start_event_loop():
-            logger.debug('Starting Event Loop')
-            asyncio.set_event_loop(self._event_loop)
-            asyncio.get_event_loop().call_soon(manage_events, self._event_loop)
-            self._event_loop.run_forever()
-            logger.debug('Event Loop stopped')
-
-        thread = threading.Thread(target=start_event_loop)
-        self._event_thread = thread
-        thread.start()
-
-    def _stop_event_thread(self) -> None:
-        """Stop the thread managing external events"""
-        self._event_loop.stop()
-        self._event_thread.join()
-        self._event_loop = None
-        self._event_thread = None
 
     def run(self, train: bool = True, sleep: bool = True) -> None:
         """Start the execution of the agent.
@@ -344,7 +316,7 @@ class Agent:
             if self._monitoring_db.connected:
                 self._monitoring_db.initialize_db()
         self._run_platforms()
-        self._run_event_thread()
+        # self._run_event_thread()
         if sleep:
             idle = threading.Event()
             while True:
@@ -359,9 +331,10 @@ class Agent:
         """Stop the agent execution."""
         logger.info(f'Stopping agent {self._name}')
         self._stop_platforms()
-        self._stop_event_thread()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
+        for session_id in list(self._sessions.keys()):
+            self.delete_session(session_id)
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.
@@ -381,55 +354,31 @@ class Agent:
         new_session.current_state.run(new_session)
         return new_session
 
-    def receive_message(self, session_id: str, message: str) -> None:
-        """Receive a message from a specific session.
-
-        Receiving a message starts the process of inferring the message's intent and acting properly
-        (e.g. transition to another state, store something in memory, etc.)
-
-        Args:
-            session_id (str): the session that sends the message to the agent
-            message (str): the message sent to the agent
-        """
-        session = self._sessions[session_id]
-        # TODO: Raise exception SessionNotFound
-        message = self.process(session=session, message=message, is_user_message=True)
-        session.message = message
-        logger.info(f'Received message: {message}')
-        session.predicted_intent = self._nlp_engine.predict_intent(session)
-        logger.info(f'Detected intent: {session.predicted_intent.intent.name}')
-        self._monitoring_db_insert_intent_prediction(session)
-        for parameter in session.predicted_intent.matched_parameters:
-            logger.info(f"Parameter '{parameter.name}': {parameter.value}, info = {parameter.info}")
-        session.current_state.receive_intent(session)
-
-    def receive_file(self, session_id: str, file: File) -> None:
-        """Receive a file from a specific session.
-
-        Args:
-            session_id (str): the session that sends the message to the agent
-            file (File): the file sent to the agent
-        """
-        session = self._sessions[session_id]
-        # TODO: Raise exception SessionNotFound
-        # keep previous message here? 
-        file = self.process(session=session, message=file, is_user_message=True)
-        session.message = file.name
-        session.file = file
-        logger.info('Received file')
-        session.current_state.receive_file(session)
-
-    def receive_event(self, event: Any) -> None:
+    def receive_event(self, event: Event) -> None:
         """Receive an external event from a platform.
 
-        Receiving an event broadcast the message to all the sessions of the agent
+        Receiving an event and send it to all the applicable sessions of the agent
 
         Args:
-            event (Any): the received event
+            event (Event): the received event
         """
-        logger.info(f'Received event: {event.name}')
-        for session in self._sessions.values():
+        session = None
+        if event.is_broadcasted():
+            for session in self._sessions.values():
+                session.events.appendleft(event)
+                session._event_loop.call_soon_threadsafe(session.manage_transition)
+        else:
+            session = self._sessions[event.session_id]
             session.events.appendleft(event)
+            session.call_manage_transition()
+        self._monitoring_db_insert_event(event)
+        if isinstance(event, ReceiveMessageEvent):
+            if isinstance(event, ReceiveJSONEvent):
+                t = MessageType.JSON
+            else:
+                t = MessageType.STR
+            session.save_message(Message(t=t, content=event.message, is_user=True, timestamp=datetime.now()))
+        logger.info(f'Received event: {event.log()}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
         """Runs the agent processors in a message.
@@ -508,15 +457,15 @@ class Agent:
             Session: the session
         """
         if session_id in self._sessions:
-            # TODO: Raise exception
-            pass
+            raise ValueError(f'Trying to create a new session with an existing id" {session_id}')
         if platform not in self._platforms:
-            # TODO: Raise exception
-            pass
+            raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
         self._monitoring_db_insert_session(session)
+        # ADD LOOP TO CHECK TRANSITIONS HERE
         session.current_state.run(session)
+        session._run_event_thread()
         return session
 
     def get_or_create_session(self, session_id: str, platform: Platform) -> Session:
@@ -531,9 +480,10 @@ class Agent:
         Args:
             session_id (str): the session id
         """
-        while self._sessions[session_id].agent_connections:
-            agent_connection = next(iter(self._sessions[session_id].agent_connections.values()))
+        while self._sessions[session_id]._agent_connections:
+            agent_connection = next(iter(self._sessions[session_id]._agent_connections.values()))
             agent_connection.close()
+        self._sessions[session_id]._stop_event_thread()
         del self._sessions[session_id]
 
     def use_websocket_platform(self, use_ui: bool = True) -> WebSocketPlatform:
@@ -589,15 +539,20 @@ class Agent:
             # Not in thread since we must ensure it is added before running a state (the chat table needs the session)
             self._monitoring_db.insert_session(session)
 
-    def _monitoring_db_insert_intent_prediction(self, session: Session) -> None:
+    def _monitoring_db_insert_intent_prediction(
+            self,
+            session: Session,
+            predicted_intent: IntentClassifierPrediction
+    ) -> None:
         """Insert an intent prediction record into the monitoring database.
 
         Args:
             session (Session): the session of the current user
+            predicted_intent (IntentClassifierPrediction): the intent prediction
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             thread = threading.Thread(target=self._monitoring_db.insert_intent_prediction,
-                                      args=(session, session.current_state,))
+                                      args=(session, session.current_state, predicted_intent))
             thread.start()
 
     def _monitoring_db_insert_transition(self, session: Session, transition: Transition) -> None:
@@ -618,4 +573,18 @@ class Agent:
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             thread = threading.Thread(target=self._monitoring_db.insert_chat, args=(session, message))
+            thread.start()
+
+    def _monitoring_db_insert_event(self, event: Event) -> None:
+        """Insert an event record into the monitoring database.
+
+        Args:
+            event (Event): the event to insert into the database
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            if event.is_broadcasted():
+                session = None
+            else:
+                session = self._sessions[event.session_id]
+            thread = threading.Thread(target=self._monitoring_db.insert_event, args=(session, event))
             thread.start()

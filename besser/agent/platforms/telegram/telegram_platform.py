@@ -10,6 +10,7 @@ from telegram import Update
 from telegram.ext import Application, ApplicationBuilder, BaseHandler, CommandHandler, ContextTypes, MessageHandler, \
     filters
 
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
 from besser.agent.core.file import File
@@ -64,7 +65,11 @@ class TelegramPlatform(Platform):
             session_id = str(update.effective_chat.id)
             session = await asyncio.to_thread(self._agent.get_or_create_session, session_id, self)
             text = update.message.text
-            await asyncio.to_thread(self._agent.receive_message, session.id, text)
+            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
+                message=text,
+                session=session,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), message, block=False)
         self._handlers.append(message_handler)
@@ -84,7 +89,11 @@ class TelegramPlatform(Platform):
             voice_file = await context.bot.get_file(update.message.voice.file_id)
             voice_data = await voice_file.download_as_bytearray()
             text = self._agent.nlp_engine.speech2text(bytes(voice_data))
-            await asyncio.to_thread(self._agent.receive_message, session.id, text)
+            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
+                message=text,
+                session=session,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         voice_handler = MessageHandler(filters.VOICE, voice, block=False)
         self._handlers.append(voice_handler)
@@ -100,7 +109,11 @@ class TelegramPlatform(Platform):
                 file_name=update.message.document.file_name, file_type=update.message.document.mime_type,
                 file_base64=base64_data
             )
-            await asyncio.to_thread(self._agent.receive_file, session.id, file=f)
+            event: ReceiveFileEvent = ReceiveFileEvent(
+                file=f,
+                session_id=session.id,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         file_handler = MessageHandler(filters.ATTACHMENT & (~filters.PHOTO), file, block=False)
         self._handlers.append(file_handler)
@@ -116,7 +129,11 @@ class TelegramPlatform(Platform):
                 file_name=update.message.photo[-1].file_id + ".jpg", file_type="image/jpeg",
                 file_base64=base64_data
             )
-            await asyncio.to_thread(self._agent.receive_file, session.id, file=f)
+            event: ReceiveFileEvent = ReceiveFileEvent(
+                file=f,
+                session_id=session.id,
+                human=True)
+            await asyncio.to_thread(self._agent.receive_event, event)
 
         image_handler = MessageHandler(filters.PHOTO, image, block=False)
         self._handlers.append(image_handler)
@@ -164,8 +181,6 @@ class TelegramPlatform(Platform):
         logger.info(f'{self._agent.name}\'s TelegramPlatform stopped')
 
     def _send(self, session_id: str, payload: Payload) -> None:
-        session = self._agent.get_or_create_session(session_id=session_id, platform=self)
-        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         if payload.action == PayloadAction.AGENT_REPLY_STR.value:
             future = asyncio.run_coroutine_threadsafe(
                 self._telegram_app.bot.send_message(
@@ -213,6 +228,7 @@ class TelegramPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_file(self, session: Session, file: File, message: str = None) -> None:
@@ -233,6 +249,7 @@ class TelegramPlatform(Platform):
             file_dict["caption"] = ""
         payload = Payload(action=PayloadAction.AGENT_REPLY_FILE,
                           message=file_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_image(self, session: Session, file: File, message: str = None) -> None:
@@ -253,6 +270,7 @@ class TelegramPlatform(Platform):
             file_dict["caption"] = ""
         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE,
                           message=file_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def reply_location(self, session: Session, latitude: float, longitude: float) -> None:
@@ -269,6 +287,7 @@ class TelegramPlatform(Platform):
         session.save_message(Message(t=MessageType.LOCATION, content=location_dict, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_LOCATION,
                           message=location_dict)
+        payload.message = self._agent.process(is_user_message=False, session=session, message=payload.message)
         self._send(session.id, payload)
 
     def add_handler(self, handler: BaseHandler) -> None:

@@ -4,14 +4,21 @@ Transitions
 Transitions define the connections between agent :doc:`states <states>` and how/when are they triggered.
 
 A transition is a rule that says that the agent must move from a source state to a destination state when some event
-occurs.
+and/or condition occurs.
 
 .. warning::
 
     Transitions' order matters! The order in which a state's transitions are created is the order in which they will be
-    evaluated once the state body finishes its execution.
+    evaluated.
 
-In this section, we will explain how to create transitions, including the *events* that trigger them, and the various methods available for creating predefined transitions in an easy way.
+In this section, we will explain how to create transitions and the various methods available for creating predefined transitions in an easy way.
+
+.. note::
+
+    Transitions of a session current state are evaluated periodically every N seconds. You can set N as an agent property.
+    See the :any:`agent properties <properties-agent>`.
+
+    Whenever a session receives an incoming event, transition evaluation is also run.
 
 Let's say we have the following agent:
 
@@ -24,21 +31,170 @@ Let's say we have the following agent:
     state3 = agent.new_state('state3')
     ...
 
-Intent transitions
+Transition Builder
 ------------------
 
-When the user sends a message to the agent, it gets the user intent and uses it to decide which state to move to. When the
-user intent matches with a specified transition intent, the agent moves to the specified transition destination state.
+To help us define a full transition, we use a :class:`~besser.agent.core.transition.transition_builder.TransitionBuilder`
+object that will add each element to the transition for us.
 
-Therefore, :any:`intent_matching <besser.agent.library.event.event_library.intent_matched>` is a pre-defined event
-integrated into BAF, so you only need to define the transition:
+Essentially, a Transition Builder has 3 elements:
+
+- **Source**: the source state of the transition we want to build
+- **Event**: the event that should trigger the transition **(optional)**
+- **Condition**: the condition that should trigger the transition **(optional)**
+
+If both event and condition are specified, both need to be fulfilled in order to trigger the transition. If none of them
+is specified, the transition will always be triggered without restrictions.
+
+Fortunately, BAF provides you with functions that abstract you of these concepts.
+
+Let's see an example transition that should be triggered when a ReceiveMessageEvent is sent to the agent from state1:
 
 .. code:: python
 
-    state1.when_intent_matched_go_to(yes_intent, state2)
-    state1.when_intent_matched_go_to(no_intent, state3)
+    from besser.agent.library.transition.events.base_events import ReceiveMessageEvent
+    ...
 
-Visually, this would be the current agent architecture:
+    event = ReceiveMessageEvent()
+
+    transition_builder: TransitionBuilder = state1.when_event(event)
+
+
+This will create an (incomplete) transition builder. We still need to specify the destination state:
+
+.. code:: python
+
+    transition_builder.go_to(state2)
+
+That's it! The transition has been already registered into the agent.
+
+**In practice, you will define both the event and the destination state in the same code line:**
+
+.. code:: python
+
+    state1.when_event(event).go_to(state2)
+
+.. note::
+
+    You can leave the event argument empty to match any incoming event (a **"wildcard"** event):
+
+    .. code:: python
+
+        state1.when_event().go_to(state2)
+
+If you want to **add a condition** to the transition, you can do so in the same line of code:
+
+.. code:: python
+
+    state1.when_event(event).with_condition(some_condition).go_to(state2)
+
+
+You can also **add multiple conditions** to the same transition (so all of them will be merged into a single one)
+
+.. code:: python
+
+    state1.when_event(event).with_condition(condition1).with_condition(condition2).go_to(state2)
+
+It is also possible to define a transition **only with condition (without event)**:
+
+.. code:: python
+
+    state1.when_condition(some_condition).go_to(state2)
+
+
+Let's quickly explain events and conditions.
+
+Events
+~~~~~~
+
+An agent can receive events through its platforms. An agent can define transitions from one state to another based
+on the **reception of specific events**.
+
+In the :doc:`Events wiki <events>` page you will find more details about all available events.
+
+
+.. _transition-conditions:
+
+Conditions
+~~~~~~~~~~
+
+A condition is simply **a Python function that returns a boolean value** (i.e., True or False). When returning true, we say
+the condition is satisfied (which is the requirement of a condition-based transition to be triggered).
+
+A condition function only has an **argument of type Session** (i.e., the session of the current user, similar to the session parameter
+of a state body). This way, conditions can read/write data on the user session.
+
+Let's see it with an example. Let's assume that some agent states update a session variable called 'count'. We can
+define a condition that will be satisfied when 'count' is greater than 3:
+
+.. code:: python
+
+    def my_condition1(session: Session):
+        return session.get('count') > 3
+
+Now, we can add our condition to a transition:
+
+.. code:: python
+
+    state1.when_condition(my_condition1).go_to(state2)
+
+Optionally, a condition can have **a second argument of type dictionary, where you can store some parameters**. This way,
+we can reuse the same condition function with different data:
+
+.. code:: python
+
+    def my_condition2(session: Session, params: dict):
+        return session.get('count') > params['target_count']
+
+    state1.when_condition(my_condition2, params={'target_count': 3}).go_to(state2)
+    state1.when_condition(my_condition2, params={'target_count': 5}).go_to(state3)
+
+
+Finally, let's see another way to implement equivalent conditions with **lambda functions**.
+
+.. code:: python
+
+    my_condition1 = lambda session: session.get('count') >= 3
+    my_condition2 = lambda session, params: session.get('count') >= params['target']
+
+
+We can also define **time-based conditions**. Let's see an example:
+
+.. code:: python
+
+    from datetime import datetime
+    ...
+
+    def time_condition(session: Session, params: dict):
+        # Returns true if the current date is after a target date
+        return datetime.now() > params['target_date']
+
+    state1.when_condition(time_condition, params={'target_date': datetime(2025, 7, 3)}).go_to(state2)
+
+
+Built-in transitions
+--------------------
+
+BAF provides some default built-in transitions you can use in your agents without having to manually implement events or condition.
+
+Here we describe each of them.
+
+Intent Matching
+~~~~~~~~~~~~~~~
+
+When the user sends a message to the agent, it gets the user intent and uses it to decide which state to move to. When the
+user intent matches with a specified transition intent, the agent moves to that transition's destination state.
+
+
+It uses the :class:`~besser.agent.library.transition.events.base_events.ReceiveTextEvent` and
+:class:`~besser.agent.library.transition.conditions.IntentMatcher` condition.
+
+.. code:: python
+
+    state1.when_intent_matched(yes_intent).go_to(state2)
+    state2.when_intent_matched(no_intent).go_to(state3)
+
+Visually, this would be the agent architecture:
 
 .. figure:: ../../img/transitions_example.png
    :alt: Intent diagram
@@ -48,7 +204,7 @@ You can also define where to go when none of the previous intents is matched:
 
 .. code:: python
 
-    state1.when_no_intent_matched_go_to(state4)
+    state1.when_no_intent_matched().go_to(state4)
 
 Note **that there is the possibility that the agent cannot transition to any state**. For example, if we do not define the
 last transition, when neither yes_intent nor no_intent are matched the agent would not know where to move.
@@ -56,53 +212,42 @@ In that scenario, the agent would run the state1's fallback body, without moving
 (see :any:`state-fallback-body` for more info).
 Thus, it is up to the agent creator to choose whether, in case no intent is matched, a transition to another state takes place or not.
 
+Session variables
+~~~~~~~~~~~~~~~~~
 
-Session variables transitions
------------------------------
+We can define transitions that take a session variable and applies some operator to compare it with a target value.
+In the previous section we saw how to manually create such conditions, but here you will see how to do it with the built-in transitions.
 
-Another kind of event that can make an agent move to another state is
-:any:`variable_matches_operation <besser.agent.library.event.event_library.variable_matches_operation>`. This event
-compares a value stored in the user session with another one (the target value) applying an operation. If the operation
-returns true, the event does as well, and therefore transitioning to the transition's destination.
-
-To create a transition triggered by this kind of event, simply add:
+This transition uses the :class:`~besser.agent.library.transition.conditions.VariableOperationMatcher` condition (and no event).
 
 .. code:: python
 
     import operator # You can import a set of predefined operations from here (or define your own)
-    state1.when_variable_matches_operation_go_to('money', operator.lt, 10000, state2)
+    state1.when_variable_matches_operation('money', operator.lt, 10000).go_to(state2)
 
-In the previous example, we defined a transition whose event will return true whenever the variable *money* stored in
-the user session is lower than (*lt*) 10000.
+The operator is a Python function that takes the session variable and the target value as arguments and returns a boolean value.
 
 One must be cautious when defining these transitions. Following the previous example, when this transition is evaluated,
 there must be a 'money' variable in the session (that has to be added in some state body), otherwise this transition
 will never be triggered.
 
-File transitions
------------------------------
+File reception
+~~~~~~~~~~~~~~
 
-It is also possible to cause a transition in case a file is sent by the user with the event called 
-:any:`file_received <besser.agent.library.event.event_library.file_received>`. This event
-is only triggered if a user sent a file to an agent.
+It is also possible to trigger a transition in case a file is sent to the agent
 
-To create a transition triggered by this kind of event, simply add:
+It uses the :class:`~besser.agent.library.transition.events.base_events.ReceiveFileEvent`.
 
 .. code:: python
 
-    state1.when_file_received_go_to(state2)
+    state1.when_file_received(allowed_types=["application/pdf", "image/png"]).go_to(state2)
 
-Note that it is also possible to define a list of allowed file types, such that agent creators can impose
-restrictions to what can be sent by users to avoid unwanted file types to be processed. 
-
-To add this rule to the transition, simply add:
-
-.. code:: python
-
-    state1.when_file_received_go_to(state2, allowed_types=["application/pdf", "image/png"])
+Note that it is also possible to define a list of allowed file types, so we can impose
+restrictions to what can be sent by users to avoid unwanted file types to be processed. Don't add this parameter if you
+want to receive any kind of file.
 
 Automatic transitions
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Another simple but useful kind of transition is the automatic transition. When a state finishes the execution of its
 body, if it has an automatic transition the agent will always move to the transition's destination.
@@ -110,10 +255,7 @@ body, if it has an automatic transition the agent will always move to the transi
 This is really useful when, after a sequence of states, we want to automatically return to the starting point of the
 conversation.
 
-The implicit event associated with this kind of transition is the
-:any:`auto <besser.agent.library.event.event_library.auto>` event, a special event that always returns true.
-
-This is how to create an auto transition:
+This transition has no event nor condition (therefore, being always satisfied)
 
 .. code:: python
 
@@ -123,62 +265,21 @@ This is how to create an auto transition:
 
     The automatic transition cannot be combined with other transitions in the same state.
 
-.. _custom-event-transitions:
-
-Custom Event transitions
-------------------------
-
-This is the generic way to define events that trigger transitions. Until now, the transitions we created had an implicit
-event associated to them ('match an intent' or 'a variable meets a condition'). Now we will see how to create custom
-events.
-
-An event is a Python function that returns a boolean value (i.e., only ``True`` or ``False`` values), and takes 2
-arguments: the user :doc:`session <sessions>` and a dictionary called *event_params*. Let's see an example:
-
-
-.. code:: python
-
-
-    import requests # Necessary to make HTTP requests
-
-    def check_temperature(session: Session, event_params: dict):
-        api_url = 'http://api.openweathermap.org/data/2.5/weather'
-        city = session.get('city')
-        appid = event_params.get('weather_appid')
-        max_temperature = event_params.get('max_temperature')
-        response = requests.get(url=api_url, params=dict(q=city, APPID=appid))
-        if response.status_code == 200:
-            if response.json()['temperature'] > max_temperature:
-                return True
-        else:
-            print(f"Request failed with status code {response.status_code}")
-        return False
-
-This event checks the temperature in a specific city (previously provided by the user and stored in its session). If
-it is above some temperature (defined in the event parameters), it will return true, triggering the relevant transition
-and moving to another state where the agent could, for instance, warn the user about the high temperature in the city. In
-this (fictitious) example, to make a request to the API we need an APPID, provided in the event parameters as well.
-
-Once we have defined the event function, we can attach it to a transition (here, from state1 to state2):
-
-.. code:: python
-
-    state1.when_event_go_to(check_temperature, state2, event_params={'max_temperature': 30, 'appid': YOUR_APP_ID})
-
-The session in an event allows to get user-specific information (that can be set in a state body). The event parameters
-allow to have event-specific information (note that this parameters' values could also change during runtime).
-
-
 API References
 --------------
 
 - Agent: :class:`besser.agent.core.agent.Agent`
 - Agent.new_state(): :meth:`besser.agent.core.agent.Agent.new_state`
-- State: :class:`besser.agent.core.state.State`
-- State.go_to(): :meth:`besser.agent.core.state.State.go_to`
-- State.when_intent_matched_go_to(): :meth:`besser.agent.core.state.State.when_intent_matched_go_to`
-- State.when_event_go_to(): :meth:`besser.agent.core.state.State.when_event_go_to`
-- State.when_no_intent_matched_go_to(): :meth:`besser.agent.core.state.State.when_no_intent_matched_go_to`
-- State.when_variable_matches_operation_go_to(): :meth:`besser.agent.core.state.State.when_variable_matches_operation_go_to`
+- ReceiveMessageEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveMessageEvent`
 - Session: :class:`besser.agent.core.session.Session`
 - Session.get(): :meth:`besser.agent.core.session.Session.get`
+- State: :class:`besser.agent.core.state.State`
+- State.go_to(): :meth:`besser.agent.core.state.State.go_to`
+- State.when_condition(): :meth:`besser.agent.core.state.State.when_condition`
+- State.when_event(): :meth:`besser.agent.core.state.State.when_event`
+- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
+- State.when_no_intent_matched(): :meth:`besser.agent.core.state.State.when_no_intent_matched`
+- State.when_variable_matches_operation(): :meth:`besser.agent.core.state.State.when_variable_matches_operation`
+- TransitionBuilder: :class:`besser.agent.core.transition.transition_builder.TransitionBuilder`
+- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
+- TransitionBuilder.with_condition(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.with_condition`

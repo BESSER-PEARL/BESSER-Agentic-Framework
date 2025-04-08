@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from besser.agent.db.monitoring_db import MonitoringDB, TABLE_INTENT_PREDICTION, TABLE_SESSION, TABLE_CHAT, \
-    TABLE_TRANSITION
+from besser.agent.db.monitoring_db import MonitoringDB, TABLE_INTENT_PREDICTION, TABLE_SESSION, TABLE_CHAT, TABLE_EVENT
 from besser.agent.exceptions.logger import logger
 
 try:
@@ -30,13 +29,13 @@ def home(monitoring_db: MonitoringDB):
 
 
 def event_distribution(monitoring_db, agent_names):
-    table_transition = monitoring_db.get_table(TABLE_TRANSITION)
+    table_event = monitoring_db.get_table(TABLE_EVENT)
     if agent_names:
         table_session = monitoring_db.get_table(TABLE_SESSION)
         # Filter the tables by the specified agents
         table_session = table_session[table_session['agent_name'].isin(agent_names)]
-        table_transition = table_transition[table_transition['session_id'].isin(table_session['id'])]
-    fig = px.histogram(table_transition, x='event', color='event', title='Events')
+        table_event = table_event[table_event['session_id'].isin(table_session['id'])]
+    fig = px.histogram(table_event, x='event', color='event', title='Events')
     st.plotly_chart(fig, use_container_width=True)
 
 

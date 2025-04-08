@@ -1,0 +1,17 @@
+Version 3.0.0
+=============
+
+New Features
+------------
+
+- Added the :class:`~besser.agent.core.transition.event.Event` and :class:`~besser.agent.core.transition.condition.Condition` classes.
+  Now, transitions can be triggered by incoming events and/or conditions (see :doc:`../wiki/core/transitions` and :doc:`../wiki/core/events` docs)
+- New transition syntax with :class:`~besser.agent.core.transition.transition_builder.TransitionBuilder` class
+
+Improvements
+------------
+
+- For each session, transitions from the current state are periodically evaluated for satisfiability (every N seconds, N being configurable with :class:`~besser.agent.CHECK_TRANSITIONS_DELAY` property)
+    - Transitions also evaluated immediately after receiving an event or finishing the execution of a state.
+- All built-in transitions (intent matching, file reception, session variables) have been refactored to follow the new event/condition and TransitionBuilder mechanisms.
+- Monitoring DB has been updated to store received events

@@ -1,21 +1,24 @@
 import inspect
 import traceback
 from collections import deque
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING, Union
 
+from besser.agent.core.transition.event import Event
+from besser.agent.core.transition.transition import Transition
+from besser.agent.core.transition.transition_builder import TransitionBuilder
+from besser.agent.library.intent.intent_library import fallback_intent
+from besser.agent.library.transition.events.base_events import ReceiveTextEvent, ReceiveFileEvent, WildcardEvent
+from besser.agent.library.transition.conditions import IntentMatcher, VariableOperationMatcher
+from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
 from besser.agent.core.session import Session
-from besser.agent.core.transition import Transition
-from besser.agent.exceptions.exceptions import BodySignatureError, ConflictingAutoTransitionError, \
-    DuplicatedIntentMatchingTransitionError, EventSignatureError, IntentNotFound, StateNotFound
+from besser.agent.exceptions.exceptions import BodySignatureError, DuplicatedIntentMatchingTransitionError, \
+    IntentNotFound
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import auto, intent_matched, variable_matches_operation, file_received
-from besser.agent.library.event.event_template import event_template
-from besser.agent.library.intent.intent_library import fallback_intent
+from besser.agent.library.transition.condition_functions import file_type
 from besser.agent.library.state.state_library import default_body, default_fallback_body
 from besser.agent.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
-from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -164,252 +167,174 @@ class State:
             if self in self.agent.global_state_component[global_state]:
                 self.agent.global_state_component[global_state].append(dest)
 
-    def when_event_go_to(self, event: Callable[[Session, dict], bool], dest: 'State', event_params: dict) -> None:
-        """Create a new transition on this state.
-
-        When the agent is in a state and a state's transition event occurs, the agent will move to the destination state
-        of the transition.
+    def when_event(self, event: Event or None = None) -> TransitionBuilder:
+        """Start the definition of an "event matching" transition on this state.
 
         Args:
-            event (Callable[[Session, dict], bool]): the transition event
-            dest (State): the destination state
-            event_params (dict): the parameters associated to the event
+            event (Event): the target event for the transition to be triggered. If none, any event can trigger this
+                transition.
+        Returns:
+            TransitionBuilder: the transition builder
         """
-        # TODO: Standardize events
-        # event_signature = inspect.signature(event)
-        # event_template_signature = inspect.signature(event_template)
-        # if event_signature.parameters != event_template_signature.parameters:
-        #     raise EventSignatureError(self._agent, event, event_template_signature, event_signature)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=event,
-                                           event_params=event_params))
-        self._check_global_state(dest)
+        if not event:
+            event = WildcardEvent()
+        return TransitionBuilder(source=self, event=event)
 
-    def go_to(self, dest: 'State') -> None:
-        """Create a new `auto` transition on this state.
-
-        This transition needs no event to be triggered, which means that when the agent moves to a state 
-        that has an `auto` transition, the agent will move to the transition's destination state 
-        unconditionally without waiting for user input. This transition cannot be combined with other
-        transitions.
+    def when_condition(
+            self,
+            function: Union[
+                Callable[[Session], bool],
+                Callable[[Session, dict], bool]
+            ],
+            params: dict = None
+    ) -> TransitionBuilder:
+        """Start the definition of a "condition matching" transition on this state.
 
         Args:
-            dest (State): the destination state
+            function (Union[Callable[[Session], bool], Callable[[Session, dict], bool]]): the condition function to add
+                to the transition. Allowed function arguments are (:class:`~besser.agent.core.session.Session`) or
+                (:class:`~besser.agent.core.session.Session`, dict) to add parameters within the dict argument. The
+                function must return a boolean value
+            params (dict, optional): the parameters for the condition function, necessary if the function has
+                (:class:`~besser.agent.core.session.Session`, dict) arguments
+        Returns:
+            TransitionBuilder: the transition builder
         """
-        if dest not in self._agent.states:
-            raise StateNotFound(self._agent, dest)
-        if self.transitions:
-            raise ConflictingAutoTransitionError(self._agent, self)
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=auto, event_params={}))
-        self._check_global_state(dest)
+        return TransitionBuilder(source=self, event=None).with_condition(function, params)
 
-    def when_intent_matched_go_to(self, intent: Intent, dest: 'State') -> None:
-        """Create a new `intent matching` transition on this state.
-
-        When the agent is in a state and an intent is received (the intent is predicted from a user message),
-        if the transition event is to receive this particular intent, the agent will move to the transition's destination
-        state.
+    def when_intent_matched(self, intent: Intent) -> TransitionBuilder:
+        """Start the definition of an "intent matching" transition on this state.
 
         Args:
-            intent (Intent): the transition intent
-            dest (State): the destination state
+            intent (Intent): the target intent for the transition to be triggered
+
+        Returns:
+            TransitionBuilder: the transition builder
         """
         if intent in self.intents:
             raise DuplicatedIntentMatchingTransitionError(self, intent)
         if intent not in self._agent.intents:
             raise IntentNotFound(self._agent, intent)
-        if dest not in self._agent.states:
-            raise StateNotFound(self._agent, dest)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
-        event_params = {'intent': intent}
         self.intents.append(intent)
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=intent_matched,
-                                           event_params=event_params))
-        self._check_global_state(dest)
+        event: ReceiveTextEvent = ReceiveTextEvent()
+        condition: Condition = IntentMatcher(intent)
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
+        return transition_builder
 
-    def when_no_intent_matched_go_to(self, dest: 'State') -> None:
-        """Create a new `no intent matching` transition on this state.
+    def go_to(self, dest: 'State') -> None:
+        """Create a new `auto` transition on this state.
 
-        When the agent is in a state and no fitting intent is received (the intent is predicted from a user message), 
-        the agent will move to the transition's destination
-        state. If no other transition is specified, the agent will wait for a user message regardless.
+        This transition needs no event nor condition to be triggered, which means that when the agent moves to a state
+        that has an `auto` transition, the agent will move to the transition's destination state. This transition cannot
+        be combined with other transitions.
 
         Args:
             dest (State): the destination state
         """
-        event_params = {'intent': fallback_intent}
-        # self.intents.append(fallback_intent)
-        if dest not in self._agent.states:
-            raise StateNotFound(self._agent, dest)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=intent_matched,
-                                           event_params=event_params))
 
-    def when_variable_matches_operation_go_to(
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=None, condition=None)
+        transition_builder.go_to(dest)
+
+    def when_no_intent_matched(self) -> TransitionBuilder:
+        event: ReceiveTextEvent = ReceiveTextEvent()
+        condition: Condition = IntentMatcher(fallback_intent)
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
+        return transition_builder
+
+    def when_variable_matches_operation(
             self,
             var_name: str,
             operation: Callable[[Any, Any], bool],
             target: Any,
-            dest: 'State'
-    ) -> None:
-        """Create a new `variable_matches_operation` transition on this state.
+    ) -> TransitionBuilder:
+        """Start the definition of a "variable matching operator" transition on this state.
 
-        When the agent is in a state and the operation on the specified session variable and target value returns true,
-        then the agent moves to the specified destination state.
+        This transition evaluates if (variable operator target_value) is satisfied. For instance, "age > 18".
 
         Args:
-            var_name (str): the name of the stored variable in the session storage
-            operation (Callable[[Any, Any], bool]): the comparison operation to be done on the stored and target value
-            target (Any): the target value to which will be used in the operation with the stored value
-            dest (State): the destination state
+            var_name (str): the name of the variable to evaluate. The variable must exist in the user session
+            operation (Callable[[Any, Any], bool]): the operation to apply to the variable and the target value. It
+                gets as arguments the variable and the target value, and returns a boolean value
+            target (Any): the target value to compare with the variable
+
+        Returns:
+            TransitionBuilder: the transition builder
         """
-        if dest not in self._agent.states:
-            raise StateNotFound(self._agent, dest)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
-        event_params = {'var_name': var_name, 'operation': operation, 'target': target}
+        condition: Condition = VariableOperationMatcher(var_name, operation, target)
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, condition=condition)
+        return transition_builder
 
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=variable_matches_operation,
-                                           event_params=event_params))
-
-    def when_file_received_go_to(self, dest: 'State', allowed_types: list[str] or str = None) -> None:
-        """Create a new `file received` transition on this state.
-
-        When the agent is in a state and a file is received the agent will move to the transition's destination
-        state. If no other transition is specified, trigger the fallback state.
+    def when_file_received(self, allowed_types: list[str] or str = None) -> TransitionBuilder:
+        """Start the definition of a "file received" transition on this state.
 
         Args:
-            dest (State): the destination state
-            allowed_types (list[str] or str, optional): the allowed file types, non-conforming types will cause a
-            fallback message
+            allowed_types (list[str] or str): the file types to consider for this transition. List of strings or just 1
+                string are valid values
+
+        Returns:
+            TransitionBuilder: the transition builder
         """
-        if dest not in self._agent.states:
-            raise StateNotFound(self._agent, dest)
-        for transition in self.transitions:
-            if transition.is_auto():
-                raise ConflictingAutoTransitionError(self._agent, self)
-        event_params = {}
-        if allowed_types:
-            event_params = {'allowed_types': allowed_types}
-        self.transitions.append(Transition(name=self._t_name(), source=self, dest=dest, event=file_received,
-                                           event_params=event_params))
+        event = ReceiveFileEvent()
+        transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
+        transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
+        return transition_builder
 
-    def receive_intent(self, session: Session) -> None:
-        """Receive an intent from a user session (which is predicted from the user message).
+    def check_transitions(self, session: Session) -> None:
+        """Check the state transitions and triggers the one that is satisfied.
 
-        When receiving an intent it looks for the state's transition whose trigger event is to match that intent.
-        The fallback body is run when the received intent does not match any transition intent (i.e. fallback intent).
+        When checking transition, the priority is based on transition order.
+
+        For a given transition expecting an event to happen, the first event matching will be used (and removed from the
+        session queue of events).
+
+        If a user message event is received but does not match the transition, run the fallback body (and the event is
+        removed from the session queue of events)
 
         Args:
-            session (Session): the user session that sent the message
+            session (Session): the current session
         """
-        predicted_intent: IntentClassifierPrediction = session.predicted_intent
-        if predicted_intent is None:
-            logger.error("Something went wrong, no intent was predicted")
-            return
-        for transition in self.transitions:
-            if transition.is_event_true(session):
-                session.flags['predicted_intent'] = False
-                session.move(transition)
-                return
-        session.flags['predicted_intent'] = False
-        if predicted_intent.intent == fallback_intent:
-            # When no transition is activated, run the fallback body of the state
+        run_fallback = False
+        for i, next_transition in enumerate(self.transitions):
+            if next_transition.is_event():
+                # TODO: Decide policy to remove events
+                fallback_deque = deque()
+                while session.events:
+                    session.event = session.events.pop()
+                    if isinstance(session.event, ReceiveTextEvent):
+                        session.event.predict_intent(session)
+                    if next_transition.evaluate(session, session.event):
+                        session.move(next_transition)
+                        # TODO: Make this configurable (we can consider remove all the previously checked events)
+                        session.events.extend(fallback_deque)  # We restore the queue but with the matched event removed
+                        return
+                    if isinstance(session.event, ReceiveTextEvent) and session.event.human:
+                        # There is a ReceiveTextEvent and we couldn't match any transition so far
+                        run_fallback = True
+                        if i < len(self.transitions)-1:
+                            # We only append ReceiveTextEvent (human) if we didn't finish checking all transitions
+                            fallback_deque.appendleft(session.event)
+                    else:
+                        fallback_deque.appendleft(session.event)
+                session.events.extend(fallback_deque)
+            else:
+                if next_transition.is_condition_true(session):
+                    session.move(next_transition)
+                    return
+        if run_fallback:
+            # There was one or more transitions with ReceiveMessageEvent and one ReceiveMessageEvent (human)
+            # that didn't match any transition
+            self._agent._monitoring_db_insert_intent_prediction(session, session.event.predicted_intent)  # insert fallback intent in DB
             logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
             try:
                 self._fallback_body(session)
             except Exception as _:
-                logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state "
-                              f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
+                logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
+                            f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
                 traceback.print_exc()
-
-    def receive_file(self, session: Session) -> None:
-        """Receive a file from a user session.
-
-        When receiving a file it looks for the state's transition whose trigger event is to receive a file.
-        The fallback body is when no file transition was defined.
-
-        Args:
-            session (Session): the user session that sent the message
-        """
-        for transition in self.transitions:
-            if transition.is_event_true(session):
-                session.flags['file'] = False
-                session.move(transition)
-                return
-        session.flags['file'] = False
-        # When no transition is activated, run the fallback body of the state
-        logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
-        try:
-            self._fallback_body(session)
-        except Exception as _:
-            logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
-                          f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
-            traceback.print_exc()
-
-    def receive_event(self, session: Session) -> None:
-        """Receive an event from a user session.
-
-        When receiving an event it looks for the state's transition whose trigger event matches the first event.
-        If not we pop the current event and check for the next one.
-        The passed items are discarded, unless no transition is made.
-
-        Args:
-            session (Session): the user session that received the event
-        """
-        # TODO: Decide policy to remove events
-        fallback_deque = deque()
-        while session.events:
-            for transition in self.transitions:
-                if transition.is_event_true(session):
-                    session.event = session.events.pop()
-                    session.flags['event'] = False
-                    session.move(transition)
-                    return
-            fallback_deque.appendleft(session.events.pop())
-        session.events.extend(fallback_deque)
-        session.flags['event'] = False
-
-        # When no transition is activated and the event not broadcasted, run the fallback body of the state
-        # logger.info(f"[{self._name}] Running fallback body {self._fallback_body.__name__}")
-        # try:
-        #     self._fallback_body(session)
-        # except Exception as _:
-        #     logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
-        #                   f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
-
-    def _check_next_transition(self, session: Session) -> None:
-        """Check whether the first defined transition of the state is an `auto` transition, and if so, move to its
-        destination state.
-
-        This method is intended to be called after running the body of a state.
-
-        Args:
-            session (Session): the user session
-        """
-        # Check auto transition
-        if self.transitions[0].is_auto():
-            session.move(self.transitions[0])
-            return
-
-        for next_transition in self.transitions:
-            if next_transition.event == intent_matched:
-                # If the next transition is an intent_matched, we return to await the user message
-                return
-            elif next_transition.is_event_true(session):
-                session.move(next_transition)
-                return
+        session.event = None
 
     def run(self, session: Session) -> None:
-        """Run the state (i.e. its body). After running the body, check if the first defined transition of the state is
-        an `auto` transition, and if so, move to its destination state.
+        """Run the state body.
 
         Args:
             session (Session): the user session
@@ -419,6 +344,7 @@ class State:
             self._body(session)
         except Exception as _:
             logger.error(f"An error occurred while executing '{self._body.__name__}' of state '{self._name}' in agent '"
-                          f"{self._agent.name}'. See the attached exception:")
+                         f"{self._agent.name}'. See the attached exception:")
             traceback.print_exc()
-        self._check_next_transition(session)
+        # Reset current event
+        session.event = None

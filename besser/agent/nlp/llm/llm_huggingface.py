@@ -99,8 +99,6 @@ class LLMHuggingFace(LLM):
             for message in chat_history
             if message.type in [MessageType.STR, MessageType.LOCATION]
         ]
-        if not messages:
-            messages.append({'role': 'user', 'content': session.message})
         messages = merge_llm_consecutive_messages(context_messages + messages)
         outputs = self.pipe(messages, return_full_text=False, **parameters)
         answer = outputs[0]['generated_text']

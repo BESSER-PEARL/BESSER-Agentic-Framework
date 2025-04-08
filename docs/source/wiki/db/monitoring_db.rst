@@ -1,13 +1,12 @@
 Monitoring Database
 ===================
 
-****This section is under development and may change in future versions**
-
 If you would like to monitor the agent performance, to discover if it is properly recognizing the message intents or the
 parameters, what kind of messages are throwing the fallback state (i.e. when no intent is recognized), the confidence on
 the intent predictions,... or gather some information about the users, like what are the most frequent questions or how
-many interactions they need in order to achieve their goal when using the agent... You can rely on a database to store
-usage information for later monitoring and analysis!
+many interactions they need in order to achieve their goal when using the agent...
+
+**You can rely on a database to store usage information for later monitoring and analysis!**
 
 BAF agents have a :class:`MonitoringDB <besser.agent.db.monitoring_db.MonitoringDB>` attribute (optionally used) in charge
 of managing the DB connection and the data insertion. When running the agent, right after its training, it connects to
@@ -147,19 +146,71 @@ Some components may need this table in order to retrieve the chat history of a s
       - False
       - 2024-05-02 16:22:20
 
+Table event
+~~~~~~~~~~~
+
+This table stores all received events on agents, where each row belongs to an event.
+
+**Table schema (PostgreSQL):**
+
+.. code:: sql
+
+    CREATE TABLE IF NOT EXISTS public.event
+    (
+        id INTEGER NOT NULL DEFAULT nextval('session_id_seq1'::regclass),
+        session_id INTEGER,
+        type CHARACTER VARYING NOT NULL,
+        content CHARACTER VARYING NOT NULL,
+        is_user BOOLEAN NOT NULL
+        "timestamp" TIMESTAMP without time zone NOT NULL,
+        CONSTRAINT chat_pkey PRIMARY KEY (id),
+        CONSTRAINT chat_session_id_fkey FOREIGN KEY (session_id)
+            REFERENCES public.session (id) MATCH SIMPLE
+    )
+
+**Example table entries:**
+
+.. list-table::
+    :header-rows: 1
+    :align: left
+
+    * - id
+      - session_id
+      - event
+      - info
+      - timestamp
+
+    * - 1
+      - 1
+      - receive_message_text
+      - Hello
+      - 2024-05-02 14:52:47
+
+    * - 2
+      - 1
+      - receive_message_text
+      - Good
+      - 2024-05-02 14:52:50
+
+    * - 3
+      - 1
+      - receive_file
+      - report.pdf
+      - 2024-05-02 14:52:59
+
+Each event (row) references to its user session (the corresponding entry in the session table).
+
+If an event was broadcasted to all agent sessions, the session_id is left empty.
+
+Extra information of an event is stored in the info column (e.g., the received message in receive_message_text events or the file name in receive_file events)
+
 Table transition
 ~~~~~~~~~~~~~~~~
 
 Every time a user :doc:`transitions <../core/transitions>` from one agent state to another, a new record is inserted into this table, keeping track
 of the followed paths within the agent's state machine.
 
-Each transition contains the source and destination state names and the name of the event that triggered it. For some
-predefined events of BAF, some additional information is stored in the *info* column:
-
-- :any:`intent_matching <besser.agent.library.event.event_library.intent_matched>`:
-  the name of the matched intent is stored.
-- :any:`variable_matches_operation <besser.agent.library.event.event_library.variable_matches_operation>`:
-  <var> <operation> <target> is stored as a single string.
+Each transition contains the source and destination state names and the name of the event and/or condition that triggered it.
 
 
 **Table schema (PostgreSQL):**
@@ -172,8 +223,8 @@ predefined events of BAF, some additional information is stored in the *info* co
         session_id INTEGER NOT NULL,
         source_state CHARACTER VARYING NOT NULL,
         dest_state CHARACTER VARYING NOT NULL,
-        event CHARACTER VARYING NOT NULL,
-        info CHARACTER VARYING,
+        event CHARACTER VARYING,
+        condition CHARACTER VARYING,
         "timestamp" TIMESTAMP without time zone NOT NULL,
         CONSTRAINT transition_pkey PRIMARY KEY (id),
         CONSTRAINT transition_session_id_fkey FOREIGN KEY (session_id)
@@ -192,23 +243,23 @@ predefined events of BAF, some additional information is stored in the *info* co
       - source_state
       - dest_state
       - event
-      - info
+      - condition
       - timestamp
 
     * - 1
       - 1
       - init_state
       - hello_state
-      - intent_matched
-      - hello_intent
+      - receive_message_text
+      - Intent Matching - hello_intent
       - 2024-05-02 14:53:57
 
     * - 2
       - 1
       - hello_state
       - good_state
-      - intent_matched
-      - good_intent
+      - receive_message_text
+      - Intent Matching - good_intent
       - 2024-05-02 14:54:25
 
 Each transition (row) references to its user session (the corresponding entry in the *session* table). The

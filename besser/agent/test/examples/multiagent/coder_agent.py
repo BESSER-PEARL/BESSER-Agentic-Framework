@@ -4,6 +4,7 @@
 import logging
 
 from besser.agent.core.agent import Agent
+from besser.agent.library.transition.events.base_events import ReceiveJSONEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -43,11 +44,13 @@ ok_intent = agent.new_intent('yes_intent', [
 
 # STATES BODIES' DEFINITION + TRANSITIONS
 
-initial_state.when_no_intent_matched_go_to(generate_code_state)
+initial_state.when_event(ReceiveJSONEvent()) \
+             .with_condition(lambda session: not session.event.human) \
+             .go_to(generate_code_state)
 
 
 def generate_code_body(session: Session):
-    message = session.message
+    message = session.event.message
     new_code: str = gpt.predict(
         message=f"Given the following code:\n\n"
                 f"{message['code']}\n\n"
@@ -62,12 +65,13 @@ def generate_code_body(session: Session):
 
 
 generate_code_state.set_body(generate_code_body)
-generate_code_state.when_intent_matched_go_to(ok_intent, reply_code_state)
-generate_code_state.when_no_intent_matched_go_to(update_code_state)
+generate_code_state.when_intent_matched(ok_intent).go_to(reply_code_state)
+# TODO : fix no_intent_matched
+generate_code_state.when_no_intent_matched().got_to(update_code_state)
 
 
 def update_code_body(session: Session):
-    issues: str = session.message
+    issues: str = session.event.message
     new_code: str = gpt.predict(
         message=f'Given the following code:\n\n'
                 f'{session.get("new_code")}\n\n'
@@ -83,8 +87,9 @@ def update_code_body(session: Session):
 
 
 update_code_state.set_body(update_code_body)
-update_code_state.when_intent_matched_go_to(ok_intent, reply_code_state)
-update_code_state.when_no_intent_matched_go_to(update_code_state)
+update_code_state.when_intent_matched(ok_intent).go_to(reply_code_state)
+# TODO : fix no_intent_matched
+update_code_state.when_no_intent_matched().go_to(update_code_state)
 
 
 def reply_code_body(session: Session):
