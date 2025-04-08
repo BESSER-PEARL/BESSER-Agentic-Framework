@@ -84,7 +84,7 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                         st.write(f'- **Content:** {doc["content"]}')
 
         elif message.type in [MessageType.STR, MessageType.MARKDOWN]:
-            write_or_stream(message.content, stream)
+            write_or_stream(message.content, stream=isinstance(message.content, str))
 
 
 def load_chat():
