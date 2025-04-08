@@ -70,7 +70,8 @@ Let's see how to use base entities with an example:
     age_intent.parameter('age', 'NUM', number_entity)
     ...
     def age_body(session: Session):
-        predicted_intent: IntentClassifierPrediction = session.predicted_intent
+        event: ReceiveTextEvent = session.event
+        prediction: IntentClassifierPrediction = event.predicted_intent
         age = predicted_intent.get_parameter('age').value
         session.set('age', age) # Save the age in the user session
         session.reply('Thanks for the information')
@@ -88,6 +89,7 @@ API References
 - Intent.parameter(): :meth:`besser.agent.core.intent.intent.Intent.parameter`
 - IntentClassifierPrediction: :class:`besser.agent.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
 - MatchedParameter: :class:`besser.agent.nlp.ner.matched_parameter.MatchedParameter`
+- ReceiveTextEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveTextEvent`
 - Session: :class:`besser.agent.core.session.Session`
 - Session.reply(): :meth:`besser.agent.core.session.Session.reply`
 - Session.set(): :meth:`besser.agent.core.session.Session.set`

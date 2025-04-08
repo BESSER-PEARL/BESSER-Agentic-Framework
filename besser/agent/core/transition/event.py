@@ -40,6 +40,11 @@ class Event(ABC):
         """str or None: The id of the session the event was sent to."""
         return self._session_id
 
+    @property
+    def timestamp(self):
+        """datetime: The timestamp indicating the event reception instant."""
+        return self._session_id
+
     def is_matching(self, event: 'Event') -> bool:
         """Check whether an event matches another one.
 

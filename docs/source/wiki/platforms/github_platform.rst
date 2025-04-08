@@ -25,19 +25,18 @@ After you instantiate your agent, simply call the following function:
     ...
     github_platform = agent.use_github_platform()
 
-After that, you can use the different events sent by GitHub to trigger transitions in your agent
-(from :any:`state bodies<state-body>`):
+After that, you can use the different :any:`events sent by GitHub <github-events>` to trigger transitions in your agent.
 
 .. code:: python
 
     # Pull Request
-    idle.when_event_go_to(github_event_matched, pull_state, {'event':PullRequestOpened()})
+    idle.when_event(PullRequestOpened()).go_to(pull_state)
     # Issues
-    idle.when_event_go_to(github_event_matched, issue_state, {'event':IssuesOpened()})
+    idle.when_event(IssuesOpened()).go_to(issue_state)
     # Labels
-    idle.when_event_go_to(github_event_matched, label_state, {'event':LabelCreated()})
+    idle.when_event(LabelCreated()).go_to(label_state)
     # Stars
-    idle.when_event_go_to(github_event_matched, star_state, {'event':StarCreated()})
+    idle.when_event(StarCreated()).go_to(star_state)
 
 
 .. note::
@@ -102,9 +101,12 @@ API References
 
 - Agent: :class:`besser.agent.core.agent.Agent`
 - Agent.use_github_platform(): :meth:`besser.agent.core.agent.Agent.use_github_platform`
+- GitHubEvent: :meth:`besser.agent.library.transition.events.github_webhooks_events.GitHubEvent`
 - GitHubPlatform: :class:`besser.agent.platforms.github.github_platform.GitHubPlatform`
-- GitHubEvent: :meth:`besser.agent.platforms.github.github_webhooks_events.GitHubEvent`
-- Issue: :meth:`besser.agent.platforms.github.github_objects.Issue`
-- User: :meth:`besser.agent.platforms.github.github_objects.User`
 - GitHubPlatform.comment_issue(): :meth:`besser.agent.platforms.github.github_platform.GitHubPlatform.comment_issue`
-
+- Issue: :meth:`besser.agent.platforms.github.github_objects.Issue`
+- IssuesOpened: :meth:`besser.agent.library.transition.events.github_webhooks_events.IssuesOpened`
+- LabelCreated: :meth:`besser.agent.library.transition.events.github_webhooks_events.LabelCreated`
+- PullRequestOpened: :meth:`besser.agent.library.transition.events.github_webhooks_events.PullRequestOpened`
+- StarCreated: :meth:`besser.agent.library.transition.events.github_webhooks_events.StarCreated`
+- User: :meth:`besser.agent.platforms.github.github_objects.User`

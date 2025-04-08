@@ -1,3 +1,4 @@
+import functools
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -24,6 +25,8 @@ class Condition:
         return self.function(session)
 
     def __str__(self):
+        if isinstance(self.function, functools.partial):
+            return self.function.func.__name__
         return self.function.__name__
 
 

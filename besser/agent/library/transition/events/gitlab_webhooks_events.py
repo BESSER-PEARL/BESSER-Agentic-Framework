@@ -35,6 +35,14 @@ class GitLabEvent(Event):
         return self._payload
 
     def is_matching(self, event: 'Event') -> bool:
+        """Check whether a GitLab event matches another one.
+
+        Args:
+            event (Event): the target event to compare
+
+        Returns:
+            bool: true if both events match, false otherwise
+        """
         if isinstance(event, GitLabEvent):
             return self._category == event._category and self._action == event._action
         return False

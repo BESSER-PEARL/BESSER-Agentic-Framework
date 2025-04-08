@@ -35,6 +35,14 @@ class GitHubEvent(Event):
         return self._payload
 
     def is_matching(self, event: 'Event') -> bool:
+        """Check whether a GitHub event matches another one.
+
+        Args:
+            event (Event): the target event to compare
+
+        Returns:
+            bool: true if both events match, false otherwise
+        """
         if isinstance(event, GitHubEvent):
             return self._category == event._category and self._action == event._action
         return False

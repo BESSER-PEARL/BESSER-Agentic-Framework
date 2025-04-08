@@ -11,7 +11,7 @@ To successfully do this, it is necessary to provide a set of example sentences f
 
 In this section, we delve into the different intent classifiers available in BAF. Each one has its pros and cons.
 
-Each agent state has its own intent classifier. This is because each intent classifier is trained to recognize only those
+**Each agent state has its own intent classifier.** This is because each intent classifier is trained to recognize only those
 intents allowed in its state. This way, you can choose the intent classifier that better suits for each state depending
 on the needs. Let's see how to configure this.
 
@@ -139,8 +139,8 @@ Imagine your agent has a state where it asks some question to the user, expectin
         websocket_platform.reply_options(session, ['Yes', 'No'])
 
     example_state.set_body(example_body)
-    example_state.when_intent_matched_go_to(yes_intent, state1)
-    example_state.when_intent_matched_go_to(no_intent, state2)
+    example_state.when_intent_matched(yes_intent).go_to(state1)
+    example_state.when_intent_matched(no_intent).go_to(state2)
 
 In this kind of situations, the Simple Intent Classifier will satisfy the agent needs. You can also remove the
 reply_options message and let the user write, although if you want to force the user reply, this is strongly recommended.
@@ -223,9 +223,9 @@ want to think about them all, we can simply provide an intent description and us
         # ...
 
     example_state.set_body(example_body)
-    example_state.when_intent_matched_go_to(intent1, state1)
+    example_state.when_intent_matched(intent1).go_to(state1)
     # ...
-    example_state.when_intent_matched_go_to(help_intent, help_state)
+    example_state.when_intent_matched(help_intent).go_to(help_state)
 
 API References
 --------------
@@ -244,4 +244,5 @@ API References
 - SimpleIntentClassifierTorch: :class:`besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch.SimpleIntentClassifierTorch`
 - State: :class:`besser.agent.core.state.State`
 - State.set_body(): :meth:`besser.agent.core.state.State.set_body`
-- State.when_intent_matched_go_to(): :meth:`besser.agent.core.state.State.when_intent_matched_go_to`
+- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
+- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
