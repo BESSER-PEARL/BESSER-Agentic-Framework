@@ -109,7 +109,8 @@ class Session:
         """Schedule the next call to manage_transition as soon as possible (cancelling the previously scheduled
         call).
         """
-        self._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
+        if self._timer_handle:
+            self._timer_handle.cancel()  # Cancel previously scheduled call to session.manage_transition()
         self._event_loop.call_soon_threadsafe(self.manage_transition)
 
     def manage_transition(self) -> None:
