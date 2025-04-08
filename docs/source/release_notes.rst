@@ -3,6 +3,7 @@ Release Notes
 
 .. toctree::
 
+   release_notes/v3.0.0
    release_notes/v2.2.0
    release_notes/v2.1.0
    release_notes/v2.0.0
