@@ -1,10 +1,10 @@
 # You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
 # import sys
 # sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
-import base64
 import logging
 
 from besser.agent.core.agent import Agent
+from besser.agent.library.transition.events.base_events import ReceiveTextEvent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -47,11 +47,13 @@ ok_intent = agent.new_intent('yes_intent', [
 
 # STATES BODIES' DEFINITION + TRANSITIONS
 
-initial_state.when_no_intent_matched_go_to(code_review_state)
+initial_state.when_event(ReceiveTextEvent()) \
+             .with_condition(lambda session: not session.event.human) \
+             .go_to(code_review_state)
 
 
 def code_review_body(session: Session):
-    code: str = session.message
+    code: str = session.event.message
     answer: str = gpt.predict(
         message=f"You are a code reviewer. Given the following code, try to find if there are syntax errors.\n"
                 f"If you think there are no errors, just reply 'ok'.\n\n"

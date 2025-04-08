@@ -75,8 +75,8 @@ def s0_body(session: Session):
 
 
 s0.set_body(s0_body)
-s0.when_intent_matched_go_to(hello_intent, hello_state)
-s0.when_intent_matched_go_to(howareyou_intent, howareyou_state)
+s0.when_intent_matched(hello_intent).go_to(hello_state)
+s0.when_intent_matched(howareyou_intent).go_to(howareyou_state)
 
 
 def hello_body(session: Session):
@@ -92,7 +92,7 @@ def hello_fallback_body(session: Session):
 
 hello_state.set_body(hello_body)
 hello_state.set_fallback_body(hello_fallback_body)
-hello_state.when_intent_matched_go_to(bye_intent, bye_state)
+hello_state.when_intent_matched(bye_intent).go_to(bye_state)
 
 
 def bye_body(session: Session):

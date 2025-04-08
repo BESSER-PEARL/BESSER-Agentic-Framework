@@ -153,7 +153,7 @@ E.g. if we would like to add a state that should be entered if the user thanks t
 
     youre_welcome_state = agent.new_state('youre_welcome_state')
     ...
-    help_state.when_intent_matched_go_to(thanks_intent, youre_welcome_state)
+    help_state.when_intent_matched(thanks_intent).go_to(youre_welcome_state)
 
 We could now see the states "**help_state**" and "**youre_welcome_state**" as a global-state-component.
 Note that, the final transition back to the original state always gets added to the final state of the global-state-component.
@@ -181,4 +181,5 @@ API References
 - State.set_body(): :meth:`besser.agent.core.state.State.set_body`
 - State.set_fallback_body(): :meth:`besser.agent.core.state.State.set_fallback_body`
 - State.set_global(): :meth:`besser.agent.core.state.State.set_global`
-- State.when_intent_matched_go_to(): :meth:`besser.agent.core.state.State.when_intent_matched_go_to`
+- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
+- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`

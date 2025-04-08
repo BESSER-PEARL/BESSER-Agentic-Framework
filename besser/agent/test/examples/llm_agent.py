@@ -83,7 +83,7 @@ psychology_intent = agent.new_intent(
 # STATES BODIES' DEFINITION + TRANSITIONS
 
 def global_fallback_body(session: Session):
-    answer = gpt.predict(f"You are being used within an intent-based agent. The agent triggered the fallback mechanism because no intent was recognized from the user input. Generate a message similar to 'Sorry, I don't know the answer', based on the user message: {session.message}")
+    answer = gpt.predict(f"You are being used within an intent-based agent. The agent triggered the fallback mechanism because no intent was recognized from the user input. Generate a message similar to 'Sorry, I don't know the answer', based on the user message: {session.event.message}")
     session.reply(answer)
 
 
@@ -97,15 +97,15 @@ def greetings_body(session: Session):
 
 greetings_state.set_body(greetings_body)
 # Here, we could create a state for each intent, but we keep it simple
-greetings_state.when_intent_matched_go_to(hello_intent, greetings_state)
-greetings_state.when_intent_matched_go_to(maths_intent, answer_state)
-greetings_state.when_intent_matched_go_to(physics_intent, answer_state)
-greetings_state.when_intent_matched_go_to(literature_intent, answer_state)
-greetings_state.when_intent_matched_go_to(psychology_intent, answer_state)
+greetings_state.when_intent_matched(hello_intent).go_to(greetings_state)
+greetings_state.when_intent_matched(maths_intent).go_to(answer_state)
+greetings_state.when_intent_matched(physics_intent).go_to(answer_state)
+greetings_state.when_intent_matched(literature_intent).go_to(answer_state)
+greetings_state.when_intent_matched(psychology_intent).go_to(answer_state)
 
 
 def answer_body(session: Session):
-    answer = gpt.predict(session.message)
+    answer = gpt.predict(session.event.message)
     session.reply(answer)
 
 

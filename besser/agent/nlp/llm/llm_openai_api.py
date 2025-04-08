@@ -98,8 +98,6 @@ class LLMOpenAI(LLM):
             for message in chat_history
             if message.type in [MessageType.STR, MessageType.LOCATION]
         ]
-        if not messages:
-            messages.append({'role': 'user', 'content': session.message})
         context_messages = []
         if self._global_context:
             context_messages.append({"role": "system", "content": self._global_context})

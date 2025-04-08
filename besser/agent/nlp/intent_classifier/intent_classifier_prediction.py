@@ -15,6 +15,7 @@ class IntentClassifierPrediction:
         matched_sentence (str): the sentence used in the intent classifier (the original user message is previously
             processed, is modified by the NER, etc.)
         matched_parameters (list[MatchedParameter]): the list of parameters (i.e. entities) found in the user message
+        state (str): the name of the state at which the intent was predicted
 
     Attributes:
         intent (Intent): The target intent of the prediction
@@ -22,6 +23,7 @@ class IntentClassifierPrediction:
         matched_sentence (str): The sentence used in the intent classifier (the original user message is previously
             processed, is modified by the NER, etc.)
         matched_parameters (list[MatchedParameter]): The list of parameters (i.e. entities) found in the user message
+        state (str): The name of the state at which the intent was predicted
     """
 
     def __init__(
@@ -29,12 +31,15 @@ class IntentClassifierPrediction:
             intent: Intent,
             score: float = None,
             matched_sentence: str = None,
-            matched_parameters: list[MatchedParameter] = None
+            matched_parameters: list[MatchedParameter] = None,
+            state: str = None
     ):
+        self.state = state
         self.intent: Intent = intent
         self.score: float = score
         self.matched_sentence: str = matched_sentence
         self.matched_parameters: list[MatchedParameter] = matched_parameters
+        self.state: str = None
 
     def get_parameter(self, name: str) -> MatchedParameter or None:
         """Get a parameter from the intent classifier prediction.

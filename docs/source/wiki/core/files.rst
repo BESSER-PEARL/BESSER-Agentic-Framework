@@ -1,7 +1,7 @@
 Files
 =====
 
-The :class:`File class <besser.agent.core.file.File>` was added as a way to help with the definition of file objects that are both sent and received by users.
+The :class:`File <besser.agent.core.file.File>` class was added as a way to help with the definition of file objects that are both sent and received by users.
 
 File Object Definition
 ----------------------
@@ -25,22 +25,14 @@ Thus, users can choose whether to set file_base64, file_path or file_data.
 Receiving and Sending Files
 ---------------------------
 
-If a developer wants to add the handling of receiving files to a platform, apart from the platform specific
-implementation (that is independent of the BAF), the received file will need to be transformed into a file object
-and forwarded to the running agent as follows ("agent" will be the running agent instance that should be available
-in the platform): 
-
-.. code:: python
-
-    agent.receive_file(session.id, file=file)
-
-In case a file transition was specified, the transition will take place and the file object will be available in the 
-Session attribute:
+In case a file transition was specified, once it takes place the file object will be available in the
+Session's event:
 
 .. code:: python
 
     def body(session: Session):
-        file = session.file
+        event: ReceiveFileEvent = session.event
+        file: File = event.file
         file_name = file.name
         file_type = file.type
         file_base64_data = file.base64
@@ -63,6 +55,7 @@ API References
 --------------
 
 - File: :class:`besser.agent.core.file.File`
-- Agent.receive_file(): :meth:`besser.agent.core.agent.Agent.receive_file`
-- WebSocketPlatform.reply_file(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`
+- ReceiveFileEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveFileEvent`
+- Session: :class:`besser.agent.core.session.Session`
 - TelegramPlatform.reply_file(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
+- WebSocketPlatform.reply_file(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`

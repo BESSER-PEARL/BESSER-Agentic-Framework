@@ -9,11 +9,15 @@ from sqlalchemy.orm import declarative_base
 from besser.agent.core.message import Message
 from besser.agent.core.session import Session
 from besser.agent.core.state import State
-from besser.agent.core.transition import Transition
+from besser.agent.core.transition.event import Event
+from besser.agent.core.transition.transition import Transition
 from besser.agent.exceptions.logger import logger
 from besser.agent.db import DB_MONITORING_DIALECT, DB_MONITORING_PORT, DB_MONITORING_HOST, DB_MONITORING_DATABASE, \
     DB_MONITORING_USERNAME, DB_MONITORING_PASSWORD
-from besser.agent.library.event.event_library import intent_matched, variable_matches_operation
+from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
+from besser.agent.library.transition.events.github_webhooks_events import GitHubEvent
+from besser.agent.library.transition.events.gitlab_webhooks_events import GitLabEvent
+from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
 
 if TYPE_CHECKING:
@@ -34,6 +38,9 @@ TABLE_TRANSITION = 'transition'
 
 TABLE_CHAT = 'chat'
 """The name of the database table that contains the chat records"""
+
+TABLE_EVENT = 'event'
+"""The name of the database table that contains the event records"""
 
 
 class MonitoringDB:
@@ -111,8 +118,8 @@ class MonitoringDB:
             session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=False)
             source_state = Column(String, nullable=False)
             dest_state = Column(String, nullable=False)
-            event = Column(String, nullable=False)
-            info = Column(String)
+            event = Column(String, nullable=True)
+            condition = Column(String, nullable=True)
             timestamp = Column(DateTime, nullable=False)
 
         class TableChat(Base):
@@ -122,6 +129,14 @@ class MonitoringDB:
             type = Column(String, nullable=False)
             content = Column(String, nullable=False)
             is_user = Column(Boolean, nullable=False)
+            timestamp = Column(DateTime, nullable=False)
+
+        class TableEvent(Base):
+            __tablename__ = TABLE_EVENT
+            id = Column(Integer, primary_key=True, autoincrement=True)
+            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=True)
+            event = Column(String, nullable=False)
+            info = Column(String, nullable=True)
             timestamp = Column(DateTime, nullable=False)
 
         Base.metadata.create_all(self.conn)
@@ -142,17 +157,23 @@ class MonitoringDB:
         )
         self.run_statement(stmt)
 
-    def insert_intent_prediction(self, session: Session, state: State) -> None:
+    def insert_intent_prediction(
+            self,
+            session: Session,
+            state: State,
+            predicted_intent: IntentClassifierPrediction
+    ) -> None:
         """Insert a new intent prediction record into the intent predictions table of the monitoring database.
 
         Args:
             session (Session): the session containing the predicted intent to insert into the database
             state (State): the state where the intent prediction took place (the session's current state may have
                 changed since the intent prediction, so we need it as argument)
+            predicted_intent (IntentClassifierPrediction): the intent prediction
         """
         table = Table(TABLE_INTENT_PREDICTION, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        if state not in session._agent.nlp_engine._intent_classifiers and session.predicted_intent.intent.name == 'fallback_intent':
+        if state not in session._agent.nlp_engine._intent_classifiers and predicted_intent.intent.name == 'fallback_intent':
             intent_classifier = 'None'
         elif isinstance(session._agent.nlp_engine._intent_classifiers[state], LLMIntentClassifier):
             intent_classifier = state.ic_config.llm_name
@@ -160,11 +181,11 @@ class MonitoringDB:
             intent_classifier = session._agent.nlp_engine._intent_classifiers[state].__class__.__name__,
         stmt = insert(table).values(
             session_id=int(session_entry['id'][0]),
-            message=session.message,
+            message=predicted_intent.matched_sentence,
             timestamp=datetime.now(),
             intent_classifier=intent_classifier,
-            intent=session.predicted_intent.intent.name,
-            score=float(session.predicted_intent.score)
+            intent=predicted_intent.intent.name,
+            score=float(predicted_intent.score)
         )
         result = self.conn.execute(stmt.returning(table.c.id))  # Not committed until all parameters have been inserted
         intent_prediction_id = int(result.fetchone()[0])
@@ -175,7 +196,7 @@ class MonitoringDB:
                 'name': matched_parameter.name,
                 'value': matched_parameter.value,
                 'info': str(matched_parameter.info),
-            } for matched_parameter in session.predicted_intent.matched_parameters
+            } for matched_parameter in predicted_intent.matched_parameters
         ]
         if rows_to_insert:
             stmt = insert(table).values(rows_to_insert)
@@ -192,18 +213,20 @@ class MonitoringDB:
         """
         table = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        if transition.event == intent_matched:
-            transition_info = transition.event_params['intent'].name
-        elif transition.event == variable_matches_operation:
-            transition_info = f'{transition.event_params["var_name"]} {transition.event_params["operation"].__name__} {transition.event_params["target"]}'
+        if transition.is_event():
+            event = transition.event.name
         else:
-            transition_info = ''
+            event = ''
+        if transition.condition:
+            condition = str(transition.condition)
+        else:
+            condition = ''
         stmt = insert(table).values(
             session_id=int(session_entry['id'][0]),
             source_state=transition.source.name,
             dest_state=transition.dest.name,
-            event=transition.event.__name__,
-            info=transition_info,
+            event=event,
+            condition=condition,
             timestamp=datetime.now(),
         )
         self.run_statement(stmt)
@@ -223,6 +246,38 @@ class MonitoringDB:
             content=message.content,
             is_user=message.is_user,
             timestamp=message.timestamp,
+        )
+        self.run_statement(stmt)
+
+    def insert_event(self, session: Session or None, event: Event) -> None:
+        """Insert a new record into the event table of the monitoring database.
+
+        Args:
+            session (Session or None): the session the event belongs to, or None if the event is not associated to a
+                session
+            event (Event): the event to insert into the database
+        """
+        # TODO: We need to store agent id for broadcasted events
+        table = Table(TABLE_EVENT, MetaData(), autoload_with=self.conn)
+        if session is not None:
+            session_id = int(self.select_session(session)['id'][0])
+        else:
+            session_id = None
+        if isinstance(event, ReceiveMessageEvent):
+            info = event.message
+        elif isinstance(event, ReceiveFileEvent):
+            info = event.file.name
+        elif isinstance(event, GitHubEvent):
+            info = {'category': event._category, 'action': event.action, 'payload': event.payload}
+        elif isinstance(event, GitLabEvent):
+            info = {'category': event._category, 'action': event.action, 'payload': event.payload}
+        else:
+            info = ''
+        stmt = insert(table).values(
+            session_id=session_id,
+            event=event.name,
+            info=str(info),
+            timestamp=datetime.now()
         )
         self.run_statement(stmt)
 

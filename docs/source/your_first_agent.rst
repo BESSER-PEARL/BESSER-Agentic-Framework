@@ -144,7 +144,7 @@ is not defined since this state does nothing.
 
 .. code:: python
 
-    initial_state.when_intent_matched_go_to(hello_intent, hello_state)
+    initial_state.when_intent_matched(hello_intent).go_to(hello_state)
 
 
 hello_state
@@ -158,8 +158,8 @@ This state can transition to *good_state* or *bad_state* depending on the user r
         session.reply('Hi! How are you?')
 
     hello_state.set_body(hello_body)
-    hello_state.when_intent_matched_go_to(good_intent, good_state)
-    hello_state.when_intent_matched_go_to(bad_intent, bad_state)
+    hello_state.when_intent_matched(good_intent).go_to(good_state)
+    hello_state.when_intent_matched(bad_intent).go_to(bad_state)
 
 
 good_state
@@ -211,7 +211,7 @@ Finally, open a terminal and run the agent script:
 Once the agent is trained, a web browser tab with the agents interface will pop up and you will be able to start
 chatting!
 
-.. note::
+.. caution::
 
     If you encounter the following error:
 

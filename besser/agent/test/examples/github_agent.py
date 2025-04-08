@@ -4,12 +4,10 @@
 
 import logging
 
-
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
-from besser.agent.library.event.event_library import github_event_matched
-from besser.agent.platforms.github.github_webhooks_events import StarCreated, StarDeleted
+from besser.agent.library.transition.events.github_webhooks_events import StarCreated, StarDeleted
 
 # Configure the logging module (optional)
 logger.setLevel(logging.INFO)
@@ -31,6 +29,10 @@ unstar_state = agent.new_state('unstar_state')
 
 # STATES BODIES' DEFINITION + TRANSITIONS
 
+# EVENTS
+
+star_created_event = StarCreated()
+star_deleted_event = StarDeleted()
 
 def global_fallback_body(session: Session):
     print('Greetings from global fallback')
@@ -54,8 +56,11 @@ def idle_body(session: Session):
 
 
 idle.set_body(idle_body)
-idle.when_event_go_to(github_event_matched, star_state, {'event': StarCreated()})
-idle.when_event_go_to(github_event_matched, unstar_state, {'event': StarDeleted()})
+idle.when_event(star_deleted_event).go_to(unstar_state)
+idle.when_event(star_created_event).go_to(star_state)
+
+# idle.when_event_go_to(github_event_matched, star_state, {'event': StarCreated()})
+# idle.when_event_go_to(github_event_matched, unstar_state, {'event': StarDeleted()})
 
 
 def star_body(session: Session):

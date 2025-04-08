@@ -1,36 +1,22 @@
 from __future__ import annotations
 
-import asyncio
-import threading
 from typing import TYPE_CHECKING
 
 from aiohttp import web
 from gidgetlab import sansio
 
+from besser.agent.library.coroutine.async_helpers import sync_coro_call
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms import gitlab
 from besser.agent.platforms.gitlab.gitlab_actions import *
 from besser.agent.platforms.gitlab.gitlab_objects import Issue
-from besser.agent.platforms.gitlab.gitlab_webhooks_events import GitLabEvent
+from besser.agent.library.transition.events.gitlab_webhooks_events import GitLabEvent
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.platform import Platform
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-
-
-def sync_coro_call(coro):
-    def start_event_loop(coro, returnee):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        returnee['result'] = loop.run_until_complete(coro)
-
-    returnee = {'result': None}
-    thread = threading.Thread(target=start_event_loop, args=[coro, returnee])
-    thread.start()
-    thread.join()
-    return returnee['result']
 
 
 class GitLabPlatform(Platform):
@@ -66,12 +52,13 @@ class GitLabPlatform(Platform):
 
             event = sansio.Event.from_http(request.headers, body, secret=self._secret)
             if event.event == "Note Hook":
-                agent.receive_event(
-                    GitLabEvent(event.data['object_attributes']['noteable_type'] + event.event,
-                                event.data['object_attributes']['action'] or '', event.data))
+                agent.receive_event(GitLabEvent(event.data['object_attributes']['noteable_type'] + event.event,
+                                                event.data['object_attributes']['action'] or '', event.data))
             else:
-                agent.receive_event(
-                    GitLabEvent(event.event, event.data['object_attributes']['action'] or '', event.data))
+                agent.receive_event(GitLabEvent(
+                    event.event,
+                    event.data['object_attributes']['action'] or '',
+                    event.data))
             return web.Response(status=200)
 
         self._post_entrypoint = post_entrypoint
@@ -85,10 +72,12 @@ class GitLabPlatform(Platform):
         logger.info(f'{self._agent.name}\'s GitLabPlatform starting')
         self._agent.get_or_create_session("GitLab_Session_" + str(self._event_loop.__hash__()), self)
         self.running = True
-        web.run_app(self._app, port=self._port)
+        web.run_app(self._app, port=self._port, handle_signals=False)
 
     def stop(self):
         self.running = False
+        sync_coro_call(self._app.shutdown())
+        sync_coro_call(self._app.cleanup())
         logger.info(f'{self._agent.name}\'s GitLabPlatform stopped')
 
     def __getattr__(self, name: str):

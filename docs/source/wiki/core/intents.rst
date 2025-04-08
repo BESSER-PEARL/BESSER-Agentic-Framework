@@ -32,7 +32,7 @@ this intent is expected to be received and where the user is expected to move on
 
 .. code:: python
 
-    initial_state.when_intent_matched_go_to(hello_intent, handle_hello_state)
+    initial_state.when_intent_matched(hello_intent).go_to(handle_hello_state)
 
 When the user is in initial_state, the agent is waiting for a user message. Once the user sends a message, the agent will
 classify it into one of the possible incoming intents in initial_state (here, only hello_intent can be recognized). If
@@ -75,7 +75,7 @@ sentences and an **entity** that defines the values that can be matched in the p
 
 See the :doc:`entities <entities>` guide to learn about them.
 
-.. note::
+.. tip::
 
     You can also add a list of parameters directly in the intent creation:
 
@@ -87,7 +87,7 @@ Then, we can create a transition that is triggered when the user intent matches 
 
 .. code:: python
 
-    initial_state.when_intent_matched_go_to(weather_intent, handle_weather_state)
+    initial_state.when_intent_matched(weather_intent).go_to(handle_weather_state)
 
 Intent descriptions
 -------------------
@@ -104,17 +104,25 @@ an example intent with a description:
     )
 
 
-Reading the intent prediction results
+Getting the intent prediction results
 -------------------------------------
 
-Within a :any:`state-body` we can access the latest predicted intent from the user :doc:`session <sessions>`. Let's see it with an example body function.
+Within a :any:`state-body` we can access the latest predicted intent from the user :doc:`session <sessions>`.
+
+.. warning::
+
+    The predicted intent is only available when the session event is a :class:`~besser.agent.library.transition.events.base_events.ReceiveTextEvent`
+
+Let's see it with an example body function.
 
 (here we specify the type of each object, although it is not necessary to do it)
 
 .. code:: python
 
     def handle_weather_body(session: Session):
-        prediction: IntentClassifierPrediction = session.predicted_intent
+        # The predicted intent is stored in the last received event
+        event: ReceiveTextEvent = session.event
+        prediction: IntentClassifierPrediction = event.predicted_intent
         # We can get the intent object:
         intent: Intent = prediction.intent
         # We can get the score assigned to this intent by the intent classifier:
@@ -149,7 +157,9 @@ API References
 - IntentClassifierPrediction: :class:`besser.agent.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
 - IntentParameter: :class:`besser.agent.core.intent.intent_parameter.IntentParameter`
 - MatchedParameter: :class:`besser.agent.nlp.ner.matched_parameter.MatchedParameter`
+- ReceiveTextEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveTextEvent`
 - State: :class:`besser.agent.core.state.State`
-- State.when_intent_matched_go_to(): :meth:`besser.agent.core.state.State.when_intent_matched_go_to`
+- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
 - Session: :class:`besser.agent.core.session.Session`
 - Session.reply(): :meth:`besser.agent.core.session.Session.reply`
+- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`

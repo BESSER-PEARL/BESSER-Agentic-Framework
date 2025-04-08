@@ -7,6 +7,7 @@ class MessageType(Enum):
     """Enumeration of the different message types in :class:`Message`."""
 
     STR = 'str'
+    JSON = 'json'
     MARKDOWN = 'markdown'
     HTML = 'html'
     FILE = 'file'
