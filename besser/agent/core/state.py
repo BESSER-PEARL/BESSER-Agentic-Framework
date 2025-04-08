@@ -293,6 +293,7 @@ class State:
         Args:
             session (Session): the current session
         """
+        last_event = session.event
         run_fallback = False
         for i, next_transition in enumerate(self.transitions):
             if next_transition.is_event():
@@ -331,7 +332,7 @@ class State:
                 logger.error(f"An error occurred while executing '{self._fallback_body.__name__}' of state"
                             f"'{self._name}' in agent '{self._agent.name}'. See the attached exception:")
                 traceback.print_exc()
-        session.event = None
+        session.event = last_event
 
     def run(self, session: Session) -> None:
         """Run the state body.
@@ -347,4 +348,4 @@ class State:
                          f"{self._agent.name}'. See the attached exception:")
             traceback.print_exc()
         # Reset current event
-        session.event = None
+        # session.event = None  # If we remove the event, if there is an automatic or condition-based transition, we lose the event
