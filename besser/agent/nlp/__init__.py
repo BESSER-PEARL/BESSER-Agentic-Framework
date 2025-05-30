@@ -91,12 +91,126 @@ type: ``str``
 default value: ``None``
 """
 
+NLP_STT_FROM_PT = Property(SECTION_NLP, 'nlp.speech2text.from_pt', bool, False)
+"""
+Whether or not to load the model weights from a PyTorch checkpoint save file. By default the component will not be 
+activated.
+
+name: ``nlp.speech2text.from_pt``
+
+type: ``bool``
+
+default value: ``False``
+"""
+
+NLP_STT_DIARIZATION = Property(SECTION_NLP, 'nlp.speech2text.diarization', str, 'Enabled')
+"""
+Property for calling the LuxASR API. Can be set to Enabled (default) or Disabled to include or exclude speaker 
+diarization.
+
+name: ``nlp.speech2text.diarization``
+
+type: ``str``
+
+default value: ``Enabled``
+"""
+
+NLP_STT_OUT_FMT = Property(SECTION_NLP, 'nlp.speech2text.out_fmt', str, 'text')
+"""
+Property for calling the LuxASR API. Specifies the output format. Supported values are:
+text – plain text transcript (default)
+json – detailed JSON output
+srt – SubRip subtitle format
+textgrid – Praat TextGrid format
+
+name: ``nlp.speech2text.out_fmt``
+
+type: ``str``
+
+default value: ``text``
+"""
+
+NLP_STT_MIME_TYPE = Property(SECTION_NLP, 'nlp.speech2text.mime_type', str, None)
+"""
+Property for calling the LuxASR API. Specifies the myme type of the uploaded speech file that will be send to the API. 
+By default the component will not be activated.
+
+name: ``nlp.speech2text.mime_type``
+
+type: ``str``
+
+default value: ``None``
+"""
+
 NLP_STT_SR_ENGINE = Property(SECTION_NLP, 'nlp.speech2text.sr.engine', str, None)
 """
 The name of the transcription engine for the Speech Recognition agent component. If none is provided, the component will
 not be activated.
 
 name: ``nlp.speech2text.sr.engine``
+
+type: ``str``
+
+default value: ``None``
+"""
+
+NLP_TTS_HF_MODEL = Property(SECTION_NLP, 'nlp.text2speech.hf.model', str, None)
+"""
+The name of the Hugging Face model for the HFText2Speech agent component. If none is provided, the component will not be 
+activated.
+
+name: ``nlp.text2speech.hf.model``
+
+type: ``str``
+
+default value: ``None``
+"""
+
+NLP_TTS_HF_RT = Property(SECTION_NLP, 'nlp.text2speech.hf.rt', str, None)
+"""
+Property for the HFText2Speech agent component. If set, will return tensors instead of list of python integers. Acceptable values are:
+'tf': Return TensorFlow tf.constant objects.
+'pt': Return PyTorch torch.Tensor objects.
+'np': Return Numpy np.ndarray objects.
+
+name: ``nlp.text2speech.hf.rt``
+
+type: ``str``
+
+default value: ``None``
+"""
+
+NLP_TTS_OPENAI_VOICE = Property(SECTION_NLP, 'nlp.text2speech.hf_voice', str, None)
+"""
+Property for the OpenAI Text2Speech component. The voice to use when generating the audio. 
+Supported voices are alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, and verse.
+By default the component will not be activated
+
+name: ``nlp.text2speech.hf_voice``
+
+type: ``str``
+
+default value: ``None``
+"""
+
+NLP_TTS_OPENAI_MODEL = Property(SECTION_NLP, 'nlp.text2speech.openai_model', str, None)
+"""
+Property for the OpenAI Text2Speech component. The model name used in the API call. 
+By default the component will not be activated
+
+name: ``nlp.text2speech.openai_model``
+
+type: ``str``
+
+default value: ``None``
+"""
+
+NLP_TTS_PIPER_MODEL = Property(SECTION_NLP, 'nlp.text2speech.piper_model', str, None)
+"""
+The name of the Piper model for the PiperText2Speech agent component. If none is provided, the component will not be 
+activated.
+
+name: ``nlp.text2speech.piper_model``
 
 type: ``str``
 

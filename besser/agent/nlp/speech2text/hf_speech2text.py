@@ -17,7 +17,7 @@ except ImportError:
                    "the requirements/requirements-extras.txt file")
 
 try:
-    from transformers import AutoProcessor, TFAutoModelForSpeechSeq2Seq, logging
+    from transformers import AutoProcessor, AutoModelForCTC, TFAutoModelForSpeechSeq2Seq, logging, pipeline
     logging.set_verbosity_error()
 except ImportError:
     logger.warning("transformers dependencies in HFSpeech2Text could not be imported. You can install them from "
@@ -37,31 +37,47 @@ class HFSpeech2Text(Speech2Text):
         nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
 
     Attributes:
+        _from_pt (bool, optional, defaults to False):  Load the model weights from a PyTorch checkpoint save file
+        (see docstring of pretrained_model_name_or_path argument).
         _model_name (str): the Hugging Face model name
         _processor (): the model text processor
         _model (): the Speech2Text model
         _sampling_rate (int): the sampling rate of audio data, it must coincide with the sampling rate used to train the
             model
         _forced_decoder_ids (list): the decoder ids
+        _asr (): the transformer ASR pipeline
     """
 
     def __init__(self, nlp_engine: 'NLPEngine'):
         super().__init__(nlp_engine)
-        # TODO: USE PIPELINE TO ALLOW ALL STT MODELS
+        # TODO: IMPLEMENT CHUNK BATCHING FOR LONG AUDIO FILES
         # https://huggingface.co/docs/transformers/pipeline_tutorial
+        self._from_pt: bool = self._nlp_engine.get_property(nlp.NLP_STT_FROM_PT)
         self._model_name: str = self._nlp_engine.get_property(nlp.NLP_STT_HF_MODEL)
-        self._processor = AutoProcessor.from_pretrained(self._model_name)
-        self._model = TFAutoModelForSpeechSeq2Seq.from_pretrained(self._model_name)
         self._sampling_rate: int = 16000
-        # self.model.config.forced_decoder_ids = None
-        self._forced_decoder_ids = self._processor.get_decoder_prompt_ids(
-            language=self._nlp_engine.get_property(nlp.NLP_LANGUAGE), task="transcribe"
-        )
+        # Only for OpenAI Whisper Models
+        if self._model_name.startswith("openai/whisper"):
+            self._processor = AutoProcessor.from_pretrained(self._model_name)
+            self._model = TFAutoModelForSpeechSeq2Seq.from_pretrained(self._model_name, from_pt=self._from_pt)
+            # self.model.config.forced_decoder_ids = None
+            self._forced_decoder_ids = self._processor.get_decoder_prompt_ids(
+                language=self._nlp_engine.get_property(nlp.NLP_LANGUAGE), task="transcribe"
+            )
+        else:
+            self._asr = pipeline("automatic-speech-recognition", model=self._model_name)
+
+
 
     def speech2text(self, speech: bytes):
         wav_stream = io.BytesIO(speech)
-        audio, sampling_rate = librosa.load(wav_stream, sr=self._sampling_rate)
-        input_features = self._processor(audio, sampling_rate=self._sampling_rate, return_tensors="tf").input_features
-        predicted_ids = self._model.generate(input_features, forced_decoder_ids=self._forced_decoder_ids)
-        transcriptions = self._processor.batch_decode(predicted_ids, skip_special_tokens=True)
-        return transcriptions[0]
+        # Only for OpenAI Whisper Models
+        if self._model_name.startswith("openai/whisper"):
+            audio, sampling_rate = librosa.load(wav_stream, sr=self._sampling_rate)
+            input_features = self._processor(audio, sampling_rate=self._sampling_rate, return_tensors="tf").input_features
+            predicted_ids = self._model.generate(input_features, forced_decoder_ids=self._forced_decoder_ids)
+            transcriptions = self._processor.batch_decode(predicted_ids, skip_special_tokens=True)
+            return transcriptions[0]
+        else:
+            audio, sampling_rate = librosa.load(wav_stream, sr=self._sampling_rate)
+            transcriptions = self._asr(audio)
+            return transcriptions["text"]

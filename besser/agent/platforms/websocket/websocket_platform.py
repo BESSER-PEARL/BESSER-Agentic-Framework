@@ -100,7 +100,7 @@ class WebSocketPlatform(Platform):
                     elif payload.action == PayloadAction.USER_VOICE.value:
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
-                        message = self._agent.nlp_engine.speech2text(audio_bytes)
+                        message = self._agent.nlp_engine.speech2text(session, audio_bytes)
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=message,
                             session=session,
@@ -118,16 +118,26 @@ class WebSocketPlatform(Platform):
                             session=session,
                             human=False)
                         self._agent.receive_event(event)
+                    elif payload.action == PayloadAction.AGENT_REPLY_AUDIO.value:
+                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
+                            message=payload.message,
+                            session=session,
+                            human=False
+                        )
+                        self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
             except ConnectionClosedError:
-                pass
-                # logger.error(f'The client closed unexpectedly')
+                # pass
+                logger.error(f'The client closed unexpectedly')
+                print(f'The client closed unexpectedly')
             except Exception as e:
-                pass
-                # logger.error("Server Error:", e)
+                # pass
+                logger.error("Server Error:", e)
+                print("Server Error:", e)
             finally:
-                # logger.info(f'Session finished')
+                logger.info(f'Session finished')
+                print(f'Session finished')
                 self._agent.delete_session(session.id)
                 del self._connections[session.id]
         self._message_handler = message_handler
@@ -337,5 +347,56 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.RAG_ANSWER, content=rag_message_dict, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_RAG,
                           message=rag_message_dict)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
+        self._send(session.id, payload)
+
+    def reply_speech(self, session: Session, audio_dict: dict) -> None:
+        """Send an audio reply to a specific user.
+
+        Before being sent, the audio is encoded as a Base64 string. This must be done before decoding
+        the Audio on the client side.
+
+        Args:
+            session (Session): the user session
+            audio_dict (dict): the speech synthesis as a dictionary containing 2 keys:
+                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
+                    where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                    of samples in the audio
+                sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
+                    one second of audio
+        """
+        # get audio array
+        audio_array = audio_dict['audio']
+
+        # extract metadata that needs to be sent separate to the audio file as the bytes do not contain the metadata
+        sample_rate = audio_dict['sampling_rate']
+        dtype = audio_array.dtype
+        shape = audio_array.shape
+
+        # Ensure the array is contiguous in memory for predictable byte conversion
+        # This is often the default but ensures safety.
+        audio_array_contiguous = np.ascontiguousarray(audio_array)
+
+        # Convert the NumPy array to its raw byte representation
+        audio_bytes = audio_array_contiguous.tobytes()
+
+        # Encode the bytes to Base64
+        base64_bytes = base64.b64encode(audio_bytes)
+
+        # Decode the Base64 bytes object to a standard UTF-8 string
+        base64_string_audio = base64_bytes.decode('utf-8')
+
+        # We need to send the data as a JSON like object
+        message = {
+            "audio_data_base64": base64_string_audio,
+            "metadata": {
+                "sample_rate": sample_rate,
+                "dtype": str(dtype),
+                "shape": shape
+            }
+        }
+
+        session.save_message(Message(t=MessageType.AUDIO, content=message, is_user=False, timestamp=datetime.now()))
+        payload = Payload(action=PayloadAction.AGENT_REPLY_AUDIO, message=message)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)

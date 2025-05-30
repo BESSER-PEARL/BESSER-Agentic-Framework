@@ -96,7 +96,7 @@ class LLMOpenAI(LLM):
         messages = [
             {'role': 'user' if message.is_user else 'assistant', 'content': message.content}
             for message in chat_history
-            if message.type in [MessageType.STR, MessageType.LOCATION]
+            if message.type in [MessageType.STR, MessageType.LOCATION, MessageType.JSON]
         ]
         context_messages = []
         if self._global_context:

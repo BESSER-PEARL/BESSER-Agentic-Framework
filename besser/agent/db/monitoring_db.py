@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+import json
 import pandas as pd
 from sqlalchemy import Connection, create_engine, Column, String, Integer, UniqueConstraint, ForeignKey, DateTime, \
     Float, MetaData, insert, Table, select, Executable, CursorResult, desc, Boolean
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base
 
 from besser.agent.core.message import Message
@@ -127,7 +129,7 @@ class MonitoringDB:
             id = Column(Integer, primary_key=True, autoincrement=True)
             session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=False)
             type = Column(String, nullable=False)
-            content = Column(String, nullable=False)
+            content = Column(JSONB, nullable=False)  # JSONB allows to handle the dictionary (TTS messages)
             is_user = Column(Boolean, nullable=False)
             timestamp = Column(DateTime, nullable=False)
 
@@ -243,7 +245,7 @@ class MonitoringDB:
         stmt = insert(table).values(
             session_id=int(session_entry['id'][0]),
             type=message.type.value,
-            content=message.content,
+            content=json.dumps(message.content),  # transform message content into json
             is_user=message.is_user,
             timestamp=message.timestamp,
         )

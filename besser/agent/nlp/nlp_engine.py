@@ -23,11 +23,18 @@ from besser.agent.nlp.preprocessing.pipelines import lang_map
 from besser.agent.nlp.rag.rag import RAG
 from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
 from besser.agent.nlp.speech2text.api_speech2text import APISpeech2Text
+from besser.agent.nlp.speech2text.luxasr_speech2text import LuxASRSpeech2Text
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
+from besser.agent.nlp.text2speech.text2speech import Text2Speech
+from besser.agent.nlp.text2speech.openai_text2speech import OpenAIText2Speech
+from besser.agent.nlp.text2speech.hf_text2speech import HFText2Speech
+from besser.agent.nlp.text2speech.piper_text2speech import PiperText2Speech
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
     from besser.agent.core.state import State
+
+import inspect
 
 
 class NLPEngine:
@@ -53,6 +60,7 @@ class NLPEngine:
         self._intent_classifiers: dict['State', IntentClassifier] = {}
         self._ner: NER or None = None
         self._speech2text: Speech2Text or None = None
+        self._text2speech: Text2Speech or None = None
         self._rag: RAG = None
 
     @property
@@ -85,6 +93,14 @@ class NLPEngine:
             self._speech2text = HFSpeech2Text(self)
         elif self.get_property(nlp.NLP_STT_SR_ENGINE):
             self._speech2text = APISpeech2Text(self)
+        elif self.get_property(nlp.NLP_STT_MIME_TYPE):
+            self._speech2text = LuxASRSpeech2Text(self)
+        if self.get_property(nlp.NLP_TTS_HF_MODEL):
+            self._text2speech = HFText2Speech(self)
+        elif self.get_property(nlp.NLP_TTS_OPENAI_VOICE) and self.get_property(nlp.NLP_TTS_OPENAI_MODEL):
+            self._text2speech = OpenAIText2Speech(self)
+        elif self.get_property(nlp.NLP_TTS_PIPER_MODEL):
+            self._text2speech = PiperText2Speech(self)
 
     def get_property(self, prop: Property) -> Any:
         """Get a NLP property's value from the NLPEngine's agent.
@@ -158,15 +174,52 @@ class NLPEngine:
             return None
         return best_intent_prediction
 
-    def speech2text(self, speech: bytes):
+    def speech2text(self, session: Session, speech: bytes):
         """Transcribe a voice audio into its corresponding text representation.
 
         Args:
+            session (): The user session
             speech (bytes): the recorded voice that wants to be transcribed
 
         Returns:
             str: the speech transcription
         """
+        # for processing and detecting the spoken language of the audio bytes before STT is performed
+        for processor in self._agent.processors:
+            sig = inspect.signature(processor.process)
+            params = sig.parameters
+            if 'message' in params and params['message'].annotation is bytes:
+                try:
+                    ln = processor.process(session=session, message=speech)
+                except Exception as e:
+                    print("Exception in processor.process:", e)
+
+        # TODO: DO ONLY FOR NEXUS EVENT REMOVE BEFORE PUSHING
+        if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
+            self._speech2text = LuxASRSpeech2Text(self)
+            print("lux if: ", type(speech), len(speech))
+        # TODO END
+
+        print("lux: ", type(speech), len(speech))
         text = self._speech2text.speech2text(speech)
         logger.info(f"[Speech2Text] Transcribed audio message: '{text}'")
         return text
+
+    def text2speech(self, text: str):
+        """Synthesize a text into its corresponding voice audio.
+
+        Args:
+            text (str): the text that wants to be synthesized
+
+        Returns:
+            dict: the speech synthesis as a dictionary containing 2 keys:
+                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
+                    where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                    of samples in the audio
+                sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
+                    one second of audio
+        """
+        tts = self._text2speech.text2speech(text)
+        logger.info(f"[Text2Speech] Synthesized {tts['audio'].shape[1]} sample frames and {tts['audio'].shape[1]} "
+                    f"audio channels with a sampling rate of {tts['sampling_rate']}")
+        return tts

@@ -1,0 +1,89 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import io
+
+from besser.agent import nlp
+from besser.agent.exceptions.logger import logger
+from besser.agent.nlp.text2speech.text2speech import Text2Speech
+
+if TYPE_CHECKING:
+    from besser.agent.nlp.nlp_engine import NLPEngine
+
+
+try:
+    import soundfile as sf
+except ImportError:
+    logger.warning("soundfile dependencies in OpenAIText2Speech could not be imported. You can install them from "
+                   "the requirements/requirements-extra.txt file")
+
+try:
+    from transformers import logging
+    logging.set_verbosity_error()
+except ImportError:
+    logger.warning("transformers dependencies in OpenAIText2Speech could not be imported. You can install them from "
+                   "the requirements/requirements-llms.txt file")
+
+try:
+    import openai
+    from openai import OpenAI
+except ImportError:
+    logger.warning(
+        "OpenAI dependencies in OpenAIText2Speech could not be imported. You can install them from "
+        "the requirements/requirements-llms.txt file")
+    import openai
+    from openai import OpenAI
+
+class OpenAIText2Speech(Text2Speech):
+    """A Hugging Face Text2Speech.
+
+    Implements the OpenAI Create Speech API.
+
+    Args:
+        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+
+    Attributes:
+        _model_name (str): The Hugging Face model name
+        _voice (str): The voice to use when generating the audio
+    """
+    def __init__(self, nlp_engine: 'NLPEngine'):
+        super().__init__(nlp_engine)
+        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_OPENAI_MODEL)
+        self._voice = self._nlp_engine.get_property(nlp.NLP_TTS_OPENAI_VOICE)
+        self._sampling_rate: int = 24000
+
+    def text2speech(self, text: str) -> dict:
+        client = OpenAI(
+            api_key=self._nlp_engine.get_property(nlp.OPENAI_API_KEY)
+        )
+        try:
+            # Make the standard API call (without with_streaming_response)
+            response = client.audio.speech.create(
+                model=self._model_name,
+                voice=self._voice,
+                input=text,
+                # optionally specify response_format, e.g., 'mp3', 'opus', 'aac', 'flac'
+                response_format="wav" # Default is mp3
+            )
+            # Access the raw audio bytes directly from the response content
+            audio_bytes = response.content
+            # --- Decoding using soundfile ---
+            # Wrap the bytes in a BytesIO object to make it file-like
+            audio_io = io.BytesIO(audio_bytes)
+            # Read the audio data using soundfile
+            # It returns the data as a NumPy array and the sample rate
+            # dtype='float32' gives samples between -1.0 and 1.0 (common for processing)
+            # dtype='int16' gives 16-bit integer samples
+            audio_array, sample_rate = sf.read(audio_io, dtype='float32')
+            tts = {
+                'audio': audio_array,
+                'sampling_rate': sample_rate
+            }
+        except openai.APIError as e:
+            print(f"An API error occurred: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+        return tts
+
+

@@ -65,6 +65,10 @@ class PayloadAction(Enum):
     (see :class:`besser.agent.nlp.rag.rag.RAGMessage`).
     """
 
+    AGENT_REPLY_AUDIO = 'agent_reply_audio'
+    """PayloadAction: Indicates that the payload's purpose is to send an agent reply containing a :class:`file.File` 
+    object, specifically an audio file (as ndarray)"""
+
 
 class Payload:
     """Represents a payload object used for encoding and decoding messages between an agent and any other external agent.
