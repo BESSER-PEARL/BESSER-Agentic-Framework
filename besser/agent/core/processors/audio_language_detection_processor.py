@@ -48,12 +48,8 @@ class AudioLanguageDetectionProcessor(Processor):
         Returns:
             str: the processed message
         """
-        print(type(message), len(message))
-
         # transcribe audio bytes
         message = self._speech2text.speech2text(message)
-
-        print("message: " + message)
 
         llm: LLM = self._nlp_engine._llms[self._llm_name]
 
@@ -63,7 +59,6 @@ class AudioLanguageDetectionProcessor(Processor):
 
         detected_lang = llm.predict(prompt, session=session)
         print("detected lang:" + detected_lang)
-
         session.set('detected_audio_language', detected_lang)
 
         return detected_lang
