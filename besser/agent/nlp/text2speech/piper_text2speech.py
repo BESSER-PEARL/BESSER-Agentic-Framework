@@ -41,7 +41,7 @@ class PiperText2Speech(Text2Speech):
     """
     def __init__(self, nlp_engine: 'NLPEngine'):
         super().__init__(nlp_engine)
-        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_HF_MODEL)
+        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_PIPER_MODEL)
         self._piper_api_url = "http://localhost:8000/synthesize"
         self._sample_rate = 22500  # NEEDS TO MATCH SAMPLE RATE IN main.py within the docker container
         self._dtype = np.int16  # Because the service sends audio/l16
