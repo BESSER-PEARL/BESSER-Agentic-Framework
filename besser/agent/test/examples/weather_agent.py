@@ -44,7 +44,14 @@ weather_intent.parameter('city1', 'CITY', city_entity)
 
 
 def s0_body(session: Session):
-    session.reply('Waiting...')
+    session.reply(
+        "Welcome! 👋\n"
+        "I can tell you the weather in a city.\n"
+        "Just type something like:\n"
+        "- 'What is the weather in Barcelona?'\n"
+        "- 'Weather in Luxembourg'\n"
+        "Which city would you like to know about?"
+    )
 
 
 s0.set_body(s0_body)

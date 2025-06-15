@@ -1,7 +1,7 @@
 # NLP
 # spellux @ git+https://github.com/Aran30/spellux  # Not available in PyPi. Install manually with `pip install git+https://github.com/Aran30/spellux.git`
 spacy==3.7.2
-scikit-learn==1.6.1
+scikit-learn>=1.7.0
 
 # Speech-to-text
 librosa==0.10.1
