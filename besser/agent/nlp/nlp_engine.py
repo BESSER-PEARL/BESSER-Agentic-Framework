@@ -22,6 +22,7 @@ from besser.agent.nlp.ner.simple_ner import SimpleNER
 from besser.agent.nlp.preprocessing.pipelines import lang_map
 from besser.agent.nlp.rag.rag import RAG
 from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
+from besser.agent.nlp.speech2text.openai_speech2text import OpenAISpeech2Text
 from besser.agent.nlp.speech2text.api_speech2text import APISpeech2Text
 from besser.agent.nlp.speech2text.luxasr_speech2text import LuxASRSpeech2Text
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
@@ -91,6 +92,8 @@ class NLPEngine:
         self._ner = SimpleNER(self, self._agent)
         if self.get_property(nlp.NLP_STT_HF_MODEL):
             self._speech2text = HFSpeech2Text(self)
+        elif self.get_property(nlp.NLP_STT_OPENAI_MODEL):
+            self._speech2text = OpenAISpeech2Text(self)
         elif self.get_property(nlp.NLP_STT_SR_ENGINE):
             self._speech2text = APISpeech2Text(self)
         elif self.get_property(nlp.NLP_STT_MIME_TYPE):

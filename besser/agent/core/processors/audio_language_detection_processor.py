@@ -39,7 +39,6 @@ class AudioLanguageDetectionProcessor(Processor):
         super().__init__(agent=agent, user_messages=user_messages, agent_messages=agent_messages)
         self._llm_name: str = llm_name
         self._nlp_engine: 'NLPEngine' = agent.nlp_engine
-        self._speech2text: Speech2Text = HFSpeech2Text(self._nlp_engine)
 
     def process(self, session: Session, message: bytes) -> str:
         """Method to process a message and predict the message's language.
