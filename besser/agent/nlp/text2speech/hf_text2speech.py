@@ -48,7 +48,6 @@ class HFText2Speech(Text2Speech):
             self._tts = pipeline("text-to-speech", model=self._model_name)
 
     def text2speech(self, text: str) -> dict:
-        # TODO Add support for Piper and Coqui models
         # TODO Improve quality of SpeechT5: https://huggingface.co/microsoft/speecht5_tts
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
             inputs = self._tokenizer(text=text, return_tensors=self._nlp_engine.get_property(nlp.NLP_TTS_HF_RT))

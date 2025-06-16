@@ -245,7 +245,8 @@ class MonitoringDB:
         stmt = insert(table).values(
             session_id=int(session_entry['id'][0]),
             type=message.type.value,
-            content=json.dumps(message.content),  # transform message content into json
+            #content=json.dumps(message.content),  # transform message content into json
+            content=str(message.content),
             is_user=message.is_user,
             timestamp=message.timestamp,
         )

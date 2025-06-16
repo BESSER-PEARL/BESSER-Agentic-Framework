@@ -26,17 +26,15 @@ except ImportError:
                    "the requirements/requirements-llms.txt file")
 
 try:
-    import openai
-    from openai import OpenAI
+    from openai import OpenAI, APIError
 except ImportError:
     logger.warning(
         "OpenAI dependencies in OpenAIText2Speech could not be imported. You can install them from "
         "the requirements/requirements-llms.txt file")
-    import openai
-    from openai import OpenAI
+
 
 class OpenAIText2Speech(Text2Speech):
-    """A Hugging Face Text2Speech.
+    """An OpenAI Text2Speech.
 
     Implements the OpenAI Create Speech API.
 
@@ -80,10 +78,10 @@ class OpenAIText2Speech(Text2Speech):
                 'audio': audio_array,
                 'sampling_rate': sample_rate
             }
-        except openai.APIError as e:
-            print(f"An API error occurred: {e}")
+        except APIError as e:
+            logger.error(f"An API error occurred: {e}")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            logger.error(f"An unexpected error occurred: {e}")
         return tts
 
 

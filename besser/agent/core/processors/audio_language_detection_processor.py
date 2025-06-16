@@ -2,8 +2,10 @@ from typing import TYPE_CHECKING
 
 from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
+
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
+
 from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 from besser.agent.nlp.llm.llm import LLM
@@ -20,7 +22,7 @@ if TYPE_CHECKING:
 class AudioLanguageDetectionProcessor(Processor):
     """The AudioLanguageDetectionProcessor returns the spoken language in a given audio message.
 
-    This processor leverages GPT 4.1 to predict the user's spoken language.
+    This processor leverages an LLM to predict the user's spoken language.
 
     Args:
         agent (Agent): The agent the processor belongs to
@@ -51,7 +53,7 @@ class AudioLanguageDetectionProcessor(Processor):
             message (str): the message to be processed
 
         Returns:
-            str: the processed message
+            str: the original message
         """
         # transcribe audio bytes
         #message = self._speech2text.speech2text(message)
@@ -95,6 +97,7 @@ class AudioLanguageDetectionProcessor(Processor):
             print("Response from OpenAI:", response)
             llm: LLM = self._nlp_engine._llms[self._llm_name]
 
+
             prompt = (f"Identify the language based on the following message: {response.text}. "
                   f"Only return the ISO 639-1 standard language code of the "
                   f"language you recognized.")
@@ -107,4 +110,5 @@ class AudioLanguageDetectionProcessor(Processor):
             detected_lang = "unknown"
             session.set('detected_audio_language', detected_lang)
 
-        return detected_lang
+
+        return message

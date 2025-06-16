@@ -91,17 +91,6 @@ type: ``str``
 default value: ``None``
 """
 
-NLP_STT_OPENAI_MODEL = Property(SECTION_NLP, 'nlp.speech2text.openai_model', str, None)
-"""
-The model name for the OpenAI Speech2Text agent component. If none is provided, the component will not be activated.
-
-name: ``nlp.speech2text.openai_model``
-
-type: ``str``
-
-default value: ``None``
-"""
-
 NLP_STT_FROM_PT = Property(SECTION_NLP, 'nlp.speech2text.from_pt', bool, False)
 """
 Whether or not to load the model weights from a PyTorch checkpoint save file. By default the component will not be 
@@ -143,7 +132,7 @@ default value: ``text``
 
 NLP_STT_MIME_TYPE = Property(SECTION_NLP, 'nlp.speech2text.mime_type', str, None)
 """
-Property for calling the LuxASR API. Specifies the MIME type of the uploaded speech file that will be sent to the API. 
+Property for calling the LuxASR API. Specifies the myme type of the uploaded speech file that will be send to the API. 
 By default the component will not be activated.
 
 name: ``nlp.speech2text.mime_type``

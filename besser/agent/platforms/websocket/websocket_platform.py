@@ -128,16 +128,13 @@ class WebSocketPlatform(Platform):
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
             except ConnectionClosedError:
-                # pass
-                logger.error(f'The client closed unexpectedly')
-                print(f'The client closed unexpectedly')
+                pass
+                #logger.error(f'The client closed unexpectedly')
             except Exception as e:
-                # pass
-                logger.error("Server Error:", e)
-                print("Server Error:", e)
+                pass
+                #logger.error("Server Error:", e)
             finally:
-                logger.info(f'Session finished')
-                print(f'Session finished')
+                #logger.info(f'Session finished')
                 self._agent.delete_session(session.id)
                 del self._connections[session.id]
         self._message_handler = message_handler

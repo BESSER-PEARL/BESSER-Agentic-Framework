@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import requests
 
 from typing import TYPE_CHECKING
 
@@ -18,11 +19,6 @@ except ImportError:
     logger.warning("transformers dependencies in HFText2Speech could not be imported. You can install them from "
                    "the requirements/requirements-llms.txt file")
 
-try:
-    import requests
-except ImportError:
-    logger.warning("extra dependencies in PiperText2Speech could not be imported. You can install them from "
-                   "the requirements/requirements-extras.txt file")
 
 class PiperText2Speech(Text2Speech):
     """A Piper Text2Speech implementation.
@@ -41,10 +37,11 @@ class PiperText2Speech(Text2Speech):
     """
     def __init__(self, nlp_engine: 'NLPEngine'):
         super().__init__(nlp_engine)
-        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_PIPER_MODEL)
+        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_HF_MODEL)
         self._piper_api_url = "http://localhost:8000/synthesize"
         self._sample_rate = 22500  # NEEDS TO MATCH SAMPLE RATE IN main.py within the docker container
         self._dtype = np.int16  # Because the service sends audio/l16
+
 
     def text2speech(self, text: str) -> dict:
         """Sends text to the Dockerized Piper service and plays the audio."""

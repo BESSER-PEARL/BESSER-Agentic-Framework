@@ -8,8 +8,6 @@ librosa==0.10.1
 SpeechRecognition==3.10.0
 
 # Text-to-speech
-requests==2.32.3
-openai==1.76.0
 soundfile==0.13.1
 
 # Image
