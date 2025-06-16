@@ -54,7 +54,7 @@ gpt = LLMOpenAI(
 )
 
 # Define processor
-process = AudioLanguageDetectionProcessor(agent, 'gpt-4o-mini', True, False)
+# process = AudioLanguageDetectionProcessor(agent, 'gpt-4o-mini', True, False)
 
 # States
 initial_state = agent.new_state('initial_state', initial=True)

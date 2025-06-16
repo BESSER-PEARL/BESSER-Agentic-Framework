@@ -34,19 +34,16 @@ class LuxASRSpeech2Text(Speech2Text):
         self._mime_type = self._nlp_engine.get_property(nlp.NLP_STT_MIME_TYPE)
 
     def speech2text(self, speech: bytes) -> str:
-        print("Lux speech2text: ", type(speech), len(speech))
         url = f"https://luxasr.uni.lu/v2/asr?diarization={self._diarization}&outfmt={self._output_format}"
         headers = {
             "accept": "application/json"
         }
-        print("url: ", url)
         # Set MIME type
         mime_type = self._mime_type
         files = {
             "audio_file": ("recorded_speech", speech, mime_type)
         }
         response = requests.post(url, headers=headers, files=files)
-        print(response.text)
 
         # Given that the text is returned in the following format: "User: \"[00.03-02.17] SPEAKER_00: M\u00e4in Numm ass Julian.\""
         # we need to extract just the text
@@ -69,6 +66,5 @@ class LuxASRSpeech2Text(Speech2Text):
                 spoken_texts.append(cleaned)
 
         # Join all text segments with a space
-        print(len(spoken_texts))
         print(" ".join(spoken_texts))
         return " ".join(spoken_texts)

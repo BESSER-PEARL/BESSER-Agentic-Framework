@@ -197,6 +197,7 @@ class NLPEngine:
                 except Exception as e:
                     print("Exception in processor.process:", e)
 
+
         # TODO: DO ONLY FOR NEXUS EVENT REMOVE BEFORE PUSHING
         try:
             if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
@@ -207,6 +208,7 @@ class NLPEngine:
             print("Exception in language detection:", e)
 
         print("lux: ", type(speech), len(speech))
+
         text = self._speech2text.speech2text(speech)
         logger.info(f"[Speech2Text] Transcribed audio message: '{text}'")
         return text
