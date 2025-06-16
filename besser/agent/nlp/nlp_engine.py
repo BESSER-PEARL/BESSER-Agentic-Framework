@@ -195,10 +195,13 @@ class NLPEngine:
                     print("Exception in processor.process:", e)
 
         # TODO: DO ONLY FOR NEXUS EVENT REMOVE BEFORE PUSHING
-        if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
-            self._speech2text = LuxASRSpeech2Text(self)
-            print("lux if: ", type(speech), len(speech))
-        # TODO END
+        try:
+            if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
+                self._speech2text = LuxASRSpeech2Text(self)
+                print("lux if: ", type(speech), len(speech))
+            # TODO END
+        except Exception as e:
+            print("Exception in language detection:", e)
 
         print("lux: ", type(speech), len(speech))
         text = self._speech2text.speech2text(speech)
