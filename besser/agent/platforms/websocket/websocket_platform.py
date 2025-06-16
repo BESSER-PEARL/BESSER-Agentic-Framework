@@ -362,28 +362,42 @@ class WebSocketPlatform(Platform):
                 sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
                     one second of audio
         """
-        # get audio array
         audio_array = audio_dict['audio']
-
-        # extract metadata that needs to be sent separate to the audio file as the bytes do not contain the metadata
         sample_rate = audio_dict['sampling_rate']
         dtype = audio_array.dtype
         shape = audio_array.shape
 
-        # Ensure the array is contiguous in memory for predictable byte conversion
-        # This is often the default but ensures safety.
+        # Get speed from session, default to 1.0
+        speed = session.get("speed")
+        if speed is None:
+            speed = 1.0
+
+        # Adjust audio speed if needed
+        if speed != 1.0:
+            # If mono, shape = (audio_length,), if multi-channel, shape = (channels, audio_length)
+            if audio_array.ndim == 1:
+                # Mono
+                indices = np.arange(0, audio_array.shape[0], 1/speed)
+                indices = indices[indices < audio_array.shape[0]]
+                audio_array = np.interp(indices, np.arange(audio_array.shape[0]), audio_array)
+            elif audio_array.ndim == 2:
+                # Multi-channel
+                channels, length = audio_array.shape
+                indices = np.arange(0, length, 1/speed)
+                indices = indices[indices < length]
+                audio_array = np.stack([
+                    np.interp(indices, np.arange(length), audio_array[ch])
+                    for ch in range(channels)
+                ])
+            # Update shape and dtype after speed change
+            shape = audio_array.shape
+            dtype = audio_array.dtype
+
         audio_array_contiguous = np.ascontiguousarray(audio_array)
-
-        # Convert the NumPy array to its raw byte representation
         audio_bytes = audio_array_contiguous.tobytes()
-
-        # Encode the bytes to Base64
         base64_bytes = base64.b64encode(audio_bytes)
-
-        # Decode the Base64 bytes object to a standard UTF-8 string
         base64_string_audio = base64_bytes.decode('utf-8')
 
-        # We need to send the data as a JSON like object
         message = {
             "audio_data_base64": base64_string_audio,
             "metadata": {
