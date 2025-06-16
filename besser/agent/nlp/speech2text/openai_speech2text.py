@@ -10,12 +10,10 @@ class OpenAISpeech2Text(Speech2Text):
     def __init__(self, nlp_engine: 'NLPEngine'):
         super().__init__(nlp_engine)
         self._api_key = self._nlp_engine.get_property(nlp.OPENAI_API_KEY)
-        #self._model_name = self._nlp_engine.get_property(nlp.NLP_STT_OPENAI_MODEL, default="whisper-1")
-        self._model_name = "whisper-1"
+        self._model_name = self._nlp_engine.get_property(nlp.NLP_STT_OPENAI_MODEL, default="whisper-1")
         openai.api_key = self._api_key
 
     def speech2text(self, speech: bytes):
-        print("dopng speech 2 text")
         try:
             audio_file = io.BytesIO(speech)
             audio_file.name = "audio.wav"  # OpenAI API expects a filename
