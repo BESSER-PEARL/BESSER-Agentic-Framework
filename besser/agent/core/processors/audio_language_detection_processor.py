@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
+from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
 from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
@@ -85,6 +86,7 @@ class AudioLanguageDetectionProcessor(Processor):
             mp3_file.seek(0)
 
             # Send to OpenAI
+            # right now hardcoded to use gpt-4o-mini-transcribe, as it's one of the best and fastest models for transcribing any language
             response = client.audio.transcriptions.create(
                 model="gpt-4o-mini-transcribe",
                 file=mp3_file,
@@ -100,7 +102,7 @@ class AudioLanguageDetectionProcessor(Processor):
                   f"language you recognized.")
 
             detected_lang = llm.predict(prompt, session=session)
-            print("Detected language (ISO 639-1):", detected_lang)
+            logger.info(f"Detected language (ISO 639-1): {detected_lang}")
             session.set('detected_audio_language', detected_lang)
         except Exception as e:
             print(f"Error during language detection: {e}")
