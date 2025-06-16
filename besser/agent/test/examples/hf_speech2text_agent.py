@@ -34,15 +34,13 @@ agent.set_property(nlp.NLP_STT_HF_MODEL, 'Lemswasabi/wav2vec2-large-xlsr-53-842h
 # other models
 #agent.set_property(nlp.NLP_STT_HF_MODEL, 'openai/whisper-tiny')
 agent.set_property(nlp.NLP_STT_HF_MODEL, 'openai/whisper-large-v3')
+#agent.set_property(nlp.NLP_STT_MIME_TYPE, 'application/octet-stream')
 
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
 
 # Define NLP Engine
 eng = NLPEngine(agent)
-
-# LuxASR SpeechToText
-stt = HFSpeech2Text(eng)
 
 # Create the LLM
 gpt = LLMOpenAI(
@@ -54,7 +52,7 @@ gpt = LLMOpenAI(
 )
 
 # Define processor
-# process = AudioLanguageDetectionProcessor(agent, 'gpt-4o-mini', True, False)
+#process = AudioLanguageDetectionProcessor(agent, 'gpt-4o-mini', True, False)
 
 # States
 initial_state = agent.new_state('initial_state', initial=True)
@@ -86,6 +84,7 @@ stt_state.go_to(initial_state)
 
 # Execute when a file is received
 def stt_file_body(session: Session):
+    stt = session._agent._nlpengine._speech2text
     event: ReceiveFileEvent = session.event
     file: File = event.file
 

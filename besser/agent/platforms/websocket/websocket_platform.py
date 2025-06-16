@@ -118,13 +118,6 @@ class WebSocketPlatform(Platform):
                             session=session,
                             human=False)
                         self._agent.receive_event(event)
-                    elif payload.action == PayloadAction.AGENT_REPLY_AUDIO.value:
-                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
-                            message=payload.message,
-                            session=session,
-                            human=False
-                        )
-                        self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
             except ConnectionClosedError:

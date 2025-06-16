@@ -1,15 +1,19 @@
+# You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
+# import sys
+# sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
+
 # Besser Agentic Framework Luxembourgish speech-to-speech example agent (LuxASR STT and Piper TTS)
 
 # imports
 import logging
 import base64
-import os
+
+from requests import session
 
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent import nlp
-from besser.agent import db
 
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
 
@@ -20,9 +24,6 @@ from besser.agent.nlp.nlp_engine import NLPEngine
 from besser.agent.core.file import File
 from besser.agent.library.transition.events.base_events import ReceiveFileEvent, ReceiveMessageEvent
 from besser.agent.library.transition.events.base_events import ReceiveJSONEvent
-
-from besser.agent.db.monitoring_ui.monitoring_ui import start_ui
-from besser.agent.test.examples.piper_text2speech_agent import initial_state
 
 # Configure the logging module (optional)
 logger.setLevel(logging.INFO)
@@ -43,17 +44,8 @@ agent.set_property(nlp.NLP_TTS_PIPER_MODEL, 'mbarnig/lb_rhasspy_piper_tts')
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
 
-# Run the Monitoring UI
-#dirname = os.path.dirname(__file__)
-#config_path = os.path.join(dirname, 'config.ini')
-#start_ui(config_path, agent.get_property(db.DB_MONITORING_HOST), agent.get_property(db.DB_MONITORING_PORT))
-
 # Define NLP Engine
 eng = NLPEngine(agent)
-
-# LuxASR SpeechToText
-stt = LuxASRSpeech2Text(eng)
-tts = PiperText2Speech(eng)
 
 
 # Create the LLM
@@ -92,11 +84,11 @@ awaiting_state.when_event(ReceiveJSONEvent()).go_to(sts_state)  # when Audio is 
 awaiting_state.when_no_intent_matched().go_to(sts_state)
 
 def stt_message_body(session: Session):
+    stt = session._agent._nlp_engine._speech2text
+    tts = session._agent._nlp_engine._text2speech
     # only transcribe message if the user spoke
     if isinstance(session.event, ReceiveJSONEvent) or isinstance(session.event, ReceiveMessageEvent):
         session.reply("User: " + session.event.message)
-    #session.reply("User: " + session.event.message)
-    #print(session.get_chat_history(n=100)[-1].content)
     answer = gpt.chat(session)
     audio = tts.text2speech(answer)
     websocket_platform.reply_speech(session, audio)
@@ -109,6 +101,8 @@ sts_state.go_to(awaiting_state)
 
 # Execute when a file is received
 def stt_file_body(session: Session):
+    stt = session._agent._nlp_engine._speech2text
+    tts = session._agent._nlp_engine._text2speech
     event: ReceiveFileEvent = session.event
     file: File = event.file
 

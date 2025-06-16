@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import requests
 
 from typing import TYPE_CHECKING
 
@@ -17,12 +18,6 @@ try:
 except ImportError:
     logger.warning("transformers dependencies in HFText2Speech could not be imported. You can install them from "
                    "the requirements/requirements-llms.txt file")
-
-try:
-    import requests
-except ImportError:
-    logger.warning("extra dependencies in PiperText2Speech could not be imported. You can install them from "
-                   "the requirements/requirements-extras.txt file")
 
 class PiperText2Speech(Text2Speech):
     """A Piper Text2Speech implementation.

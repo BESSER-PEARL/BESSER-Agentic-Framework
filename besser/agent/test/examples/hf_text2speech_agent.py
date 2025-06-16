@@ -39,8 +39,6 @@ websocket_platform = agent.use_websocket_platform(use_ui=True)
 # Define NLP Engine
 eng = NLPEngine(agent)
 
-tts = HFText2Speech(eng)
-
 # States
 initial_state = agent.new_state('initial_state', initial=True)
 tts_state = agent.new_state('tts_state')  # for messages
@@ -58,6 +56,7 @@ initial_state.when_no_intent_matched().go_to(tts_state)
 
 
 def tts_body(session: Session):
+    tts = session._agent._nlpengine._text2speech
     audio = tts.text2speech(session.event.message)
     websocket_platform.reply_speech(session, audio)
 
@@ -67,6 +66,7 @@ tts_state.go_to(initial_state)
 
 # Execute when a file is received
 def tts_file_body(session: Session):
+    tts = session._agent._nlpengine._text2speech
     event: ReceiveFileEvent = session.event
     file: File = event.file
 
