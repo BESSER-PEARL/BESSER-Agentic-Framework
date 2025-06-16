@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 
 from besser.agent.core.processors.processor import Processor
 from besser.agent.core.session import Session
+from besser.agent.nlp.nlp_engine import NLPEngine
+from besser.agent import nlp 
 
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
@@ -41,7 +43,7 @@ class AudioLanguageDetectionProcessor(Processor):
     def __init__(self, agent: 'Agent', llm_name, user_messages: bool = False, agent_messages: bool = False):
         super().__init__(agent=agent, user_messages=user_messages, agent_messages=agent_messages)
         self._llm_name: str = llm_name
-        self._nlp_engine: 'NLPEngine' = agent.nlp_engine
+        self._nlp_engine: NLPEngine = agent.nlp_engine
 
     def process(self, session: Session, message: bytes) -> str:
         """Method to process a message and predict the message's language.
@@ -65,7 +67,7 @@ class AudioLanguageDetectionProcessor(Processor):
         detected_lang = "lb"
         try:
             print("herehrehrh")
-            client = openai.OpenAI(api_key="openaikey")
+            client = openai.OpenAI(api_key=self._nlp_engine.get_property(nlp.OPENAI_API_KEY))
 
             # Let's say message is raw PCM (e.g., from microphone)
             raw_audio = io.BytesIO(message)
