@@ -7,18 +7,18 @@ if TYPE_CHECKING:
 class Text2Speech(ABC):
     """The Text2Speech abstract class.
 
-        The Text2Speech component, also known as TTS or speech synthesis, is in charge of converting written text into
-        audio speech signals. This task is called synthesizing or speech synthesis.
+    The Text2Speech component, also known as TTS or speech synthesis, is in charge of converting written text into
+    audio speech signals. This task is called synthesizing or speech synthesis.
 
-        We can use it in an agent to allow the users to send text messages and synthesize them to audio speech
-        signals like regular spoken language
+    We can use it in an agent to allow the users to send text messages and synthesize them to audio speech
+    signals like regular spoken language
 
-        Args:
-            nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+    Args:
+        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
 
-        Attributes:
-            _nlp_engine (): The NLPEngine that handles the NLP processes of the agent
-        """
+    Attributes:
+        _nlp_engine (): The NLPEngine that handles the NLP processes of the agent
+    """
 
     def __init__(self, nlp_engine: 'NLPEngine'):
         self._nlp_engine: 'NLPEngine' = nlp_engine

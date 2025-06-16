@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import regex as re
+import requests
 
 from typing import TYPE_CHECKING
 
@@ -11,15 +12,9 @@ from besser.agent.nlp.speech2text.speech2text import Speech2Text
 if TYPE_CHECKING:
     from besser.agent.nlp.nlp_engine import NLPEngine
 
-try:
-    import requests
-except ImportError:
-    logger.warning("extra dependencies in LuxASRSpeech2Text could not be imported. You can install them from "
-                   "the requirements/requirements-extras.txt file")
-
 
 class LuxASRSpeech2Text(Speech2Text):
-    """Makes use of the LuxASR API
+    """Makes use of the LuxASR API (Note: This only works with Luxembourgish speech)
 
     It calls the LuxASR API provided by the University of Luxembourg: https://luxasr.uni.lu/
 
@@ -66,5 +61,4 @@ class LuxASRSpeech2Text(Speech2Text):
                 spoken_texts.append(cleaned)
 
         # Join all text segments with a space
-        print(" ".join(spoken_texts))
         return " ".join(spoken_texts)

@@ -66,8 +66,9 @@ class PayloadAction(Enum):
     """
 
     AGENT_REPLY_AUDIO = 'agent_reply_audio'
-    """PayloadAction: Indicates that the payload's purpose is to send an agent reply containing a :class:`file.File` 
-    object, specifically an audio file (as ndarray)"""
+    """PayloadAction: Indicates that the payload's purpose is to send an agent reply containing an audio, which is a
+    dictionary containing the audio data (as a base 64 String) and the metadata to reconstruct the audio array, composed
+    of sample_rate, dtype and shape."""
 
 
 class Payload:

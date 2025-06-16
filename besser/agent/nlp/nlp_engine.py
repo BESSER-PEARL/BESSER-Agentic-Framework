@@ -1,3 +1,4 @@
+import inspect
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Hide Tensorflow logs
@@ -34,8 +35,6 @@ if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
     from besser.agent.core.state import State
 
-import inspect
-
 
 class NLPEngine:
     """The NLP Engine of an agent.
@@ -51,7 +50,8 @@ class NLPEngine:
         _intent_classifiers (dict[State, IntentClassifier]): The collection of Intent Classifiers of the NLPEngine.
             There is one for each agent state (only states with transitions triggered by intent matching)
         _ner (NER or None): The NER (Named Entity Recognition) system of the NLPEngine
-        _speech2text (Speech2Text or None): The Speech-to-Text System of the NLPEngine
+        _speech2text (Speech2Text or None): The Speech-to-Text system of the NLPEngine
+        _text2speech (Text2Speech or None): The Text-to-Speech system of the NLPEngine
     """
 
     def __init__(self, agent: 'Agent'):
@@ -178,23 +178,24 @@ class NLPEngine:
         """Transcribe a voice audio into its corresponding text representation.
 
         Args:
-            session (): The user session
+            session (Session): The user session
             speech (bytes): the recorded voice that wants to be transcribed
 
         Returns:
             str: the speech transcription
         """
+        processed_speech = speech
         # for processing and detecting the spoken language of the audio bytes before STT is performed
         for processor in self._agent.processors:
             sig = inspect.signature(processor.process)
             params = sig.parameters
             if 'message' in params and params['message'].annotation is bytes:
                 try:
-                    ln = processor.process(session=session, message=speech)
+                    processed_speech = processor.process(session=session, message=speech)
                 except Exception as e:
                     print("Exception in processor.process:", e)
 
-        text = self._speech2text.speech2text(speech)
+        text = self._speech2text.speech2text(processed_speech)
         logger.info(f"[Speech2Text] Transcribed audio message: '{text}'")
         return text
 

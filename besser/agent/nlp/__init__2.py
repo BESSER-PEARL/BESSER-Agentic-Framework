@@ -132,7 +132,7 @@ default value: ``text``
 
 NLP_STT_MIME_TYPE = Property(SECTION_NLP, 'nlp.speech2text.mime_type', str, None)
 """
-Property for calling the LuxASR API. Specifies the MIME type of the uploaded speech file that will be sent to the API. 
+Property for calling the LuxASR API. Specifies the myme type of the uploaded speech file that will be send to the API. 
 By default the component will not be activated.
 
 name: ``nlp.speech2text.mime_type``
