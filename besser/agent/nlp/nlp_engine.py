@@ -194,10 +194,18 @@ class NLPEngine:
             params = sig.parameters
             if 'message' in params and params['message'].annotation is bytes:
                 try:
-                    processed_speech = processor.process(session=session, message=speech)
+                    processor.process(session=session, message=speech)
+                    ln = session.get('detected_audio_language')
                 except Exception as e:
                     print("Exception in processor.process:", e)
-
+        # TODO: DO ONLY FOR NEXUS EVENT REMOVE BEFORE PUSHING
+        try:
+            if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
+                self._speech2text = LuxASRSpeech2Text(self)
+                print("lux if: ", type(speech), len(speech))
+            # TODO END
+        except Exception as e:
+            print("Exception in language detection:", e)
 
         text = self._speech2text.speech2text(speech)
 
