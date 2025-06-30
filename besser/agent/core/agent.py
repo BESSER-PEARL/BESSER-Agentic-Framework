@@ -1,7 +1,6 @@
 import asyncio
 import operator
 import threading
-import inspect
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Callable, get_type_hints
@@ -398,10 +397,7 @@ class Agent:
         """
         for processor in self.processors:
             method_return_type = get_type_hints(processor.process).get('return')
-            sig = inspect.signature(processor.process)
-            params = sig.parameters
-            test = 'message' in params and params['message'].annotation is bytes
-            if method_return_type is not None and isinstance(message, method_return_type) and not test:
+            if method_return_type is not None and isinstance(message, method_return_type):
                 if (processor.agent_messages and not is_user_message) or (processor.user_messages and is_user_message):
                     message = processor.process(session=session, message=message)
         return message

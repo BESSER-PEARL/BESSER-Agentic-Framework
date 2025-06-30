@@ -40,10 +40,11 @@ class AudioLanguageDetectionProcessor(Processor):
         _nlp_engine (NLPEngine): The NLP Engine the Agent uses
         _speech2text (Speech2Text or None): The Speech-to-Text System used for transcribing the audio bytes
     """
-    def __init__(self, agent: 'Agent', llm_name, user_messages: bool = False, agent_messages: bool = False):
-        super().__init__(agent=agent, user_messages=user_messages, agent_messages=agent_messages)
+    def __init__(self, agent: 'Agent', llm_name):
+        super().__init__(agent=agent, user_messages=True, agent_messages=False)
         self._llm_name: str = llm_name
         self._nlp_engine: NLPEngine = agent.nlp_engine
+        
 
     def process(self, session: Session, message: bytes) -> str:
         """Method to process a message and predict the message's language.
@@ -59,7 +60,6 @@ class AudioLanguageDetectionProcessor(Processor):
         """
         # transcribe audio bytes
         #message = self._speech2text.speech2text(message)
-        print("dfdfdmf.f.m")
         #print("message: " + message)
 
 
