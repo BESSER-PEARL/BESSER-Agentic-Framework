@@ -5,7 +5,12 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 
 class OpenAISpeech2Text(Speech2Text):
-    """Speech2Text using OpenAI Whisper API."""
+    """
+    Speech2Text using OpenAI Whisper API.
+
+    Args:
+        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+    """
 
     def __init__(self, nlp_engine: 'NLPEngine'):
         super().__init__(nlp_engine)

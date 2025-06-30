@@ -1,3 +1,7 @@
+# You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
+# import sys
+# sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
+
 # Besser Agentic Framework Hugging Face Text-to-Speech example agent
 
 # imports
@@ -9,9 +13,6 @@ from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent import nlp
 
-from besser.agent.nlp.text2speech.openai_text2speech import OpenAIText2Speech
-from besser.agent.nlp.nlp_engine import NLPEngine
-
 from besser.agent.core.file import File
 from besser.agent.library.transition.events.base_events import ReceiveFileEvent
 
@@ -20,22 +21,21 @@ from besser.agent.library.transition.events.base_events import ReceiveFileEvent
 logger.setLevel(logging.INFO)
 
 # Create the agent
-agent = Agent('OpenAI Text-to-Speech Agent')
+agent = Agent('Huggingface Text-to-Speech Agent')
 
 # Load agent properties stored in a dedicated file
 agent.load_properties('config.ini')
 # set agent properties (or define them in the config file)
-agent.set_property(nlp.NLP_TTS_OPENAI_MODEL, 'gpt-4o-mini-tts')
-agent.set_property(nlp.NLP_TTS_OPENAI_MODEL, 'tts-1-hd')
-agent.set_property(nlp.NLP_TTS_OPENAI_VOICE, 'alloy')
+#agent.set_property(nlp.NLP_TTS_HF_MODEL, 'denZLS/luxembourgish-female-vits-tts')
+agent.set_property(nlp.NLP_TTS_HF_RT, 'pt')
+
+# Other models
+#agent.set_property(nlp.NLP_TTS_HF_MODEL, 'suno/bark-small')
+agent.set_property(nlp.NLP_TTS_HF_MODEL, 'facebook/mms-tts-eng')
+#agent.set_property(nlp.NLP_TTS_HF_MODEL, 'microsoft/speecht5_tts')
 
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
-
-# Define NLP Engine
-eng = NLPEngine(agent)
-
-tts = OpenAIText2Speech(eng)
 
 # States
 initial_state = agent.new_state('initial_state', initial=True)
@@ -54,6 +54,7 @@ initial_state.when_no_intent_matched().go_to(tts_state)
 
 
 def tts_body(session: Session):
+    tts = session._agent._nlp_engine._text2speech
     audio = tts.text2speech(session.event.message)
     websocket_platform.reply_speech(session, audio)
 
@@ -63,6 +64,7 @@ tts_state.go_to(initial_state)
 
 # Execute when a file is received
 def tts_file_body(session: Session):
+    tts = session._agent._nlp_engine._text2speech
     event: ReceiveFileEvent = session.event
     file: File = event.file
 

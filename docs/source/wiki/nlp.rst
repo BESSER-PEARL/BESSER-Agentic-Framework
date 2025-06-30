@@ -21,3 +21,5 @@ Table of contents
    nlp/llm
    nlp/rag
    nlp/speech2text
+   nlp/text2speech
+   nlp/speech2speech

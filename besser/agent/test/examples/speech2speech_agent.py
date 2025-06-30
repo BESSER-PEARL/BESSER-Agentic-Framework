@@ -1,84 +1,55 @@
+# You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
+# import sys
+# sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
+
 # Besser Agentic Framework Luxembourgish speech-to-speech example agent (LuxASR STT and Piper TTS)
-# Add the parent directory to the system path
+
 # imports
 import logging
 import base64
-import os
-
-from requests import session
 
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent import nlp
-from besser.agent import db
 
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
-from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
-from besser.agent.nlp.speech2text.openai_speech2text import OpenAISpeech2Text
-
-from besser.agent.nlp.speech2text.luxasr_speech2text import LuxASRSpeech2Text
-from besser.agent.nlp.text2speech.openai_text2speech import OpenAIText2Speech
-from besser.agent.nlp.text2speech.piper_text2speech import PiperText2Speech
-from besser.agent.nlp.nlp_engine import NLPEngine
 
 from besser.agent.core.file import File
 from besser.agent.library.transition.events.base_events import ReceiveFileEvent, ReceiveMessageEvent
 from besser.agent.library.transition.events.base_events import ReceiveJSONEvent
-
-from besser.agent.db.monitoring_ui.monitoring_ui import start_ui
-from besser.agent.test.examples.piper_text2speech_agent import initial_state
-
-from besser.agent.core.processors.audio_language_detection_processor import AudioLanguageDetectionProcessor
+from besser.agent.platforms.websocket import WEBSOCKET_PORT, STREAMLIT_PORT
 
 # Configure the logging module (optional)
 logger.setLevel(logging.INFO)
 
 # Create the agent
-agent = Agent('Speech-to-Speech Agent')
+agent = Agent('Luxembourgish Speech-to-Speech Agent')
 
 # Load agent properties stored in a dedicated file
 agent.load_properties('config.ini')
 # set agent properties (or define them in the config file)
-#agent.set_property(nlp.NLP_STT_HF_MODEL, 'openai/whisper-large')
-agent.set_property(nlp.NLP_STT_OPENAI_MODEL, 'openai/whisper-large')
 agent.set_property(nlp.NLP_STT_MIME_TYPE, 'application/octet-stream')
 agent.set_property(nlp.NLP_TTS_PIPER_MODEL, 'mbarnig/lb_rhasspy_piper_tts')
-agent.set_property(nlp.NLP_TTS_OPENAI_MODEL, 'gpt-4o-mini-tts')
-#agent.set_property(nlp.NLP_TTS_OPENAI_MODEL, 'tts-1-hd')
-agent.set_property(nlp.NLP_TTS_OPENAI_VOICE, 'alloy')
 
 # More properties (optional)
 #agent.set_property(nlp.NLP_STT_DIARIZATION, 'Enabled')  # set Diarization property
 #agent.set_property(nlp.NLP_STT_OUT_FMT, 'text')  # set output format
 
+agent.set_property(WEBSOCKET_PORT, 5001)
+agent.set_property(STREAMLIT_PORT, 6001)
+
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
-
-# Run the Monitoring UI
-#dirname = os.path.dirname(__file__)
-#config_path = os.path.join(dirname, 'config.ini')
-#start_ui(config_path, agent.get_property(db.DB_MONITORING_HOST), agent.get_property(db.DB_MONITORING_PORT))
-
-# Define NLP Engine
-eng = NLPEngine(agent)
-
-# LuxASR SpeechToText
-stt = OpenAISpeech2Text(eng)
-tts = OpenAIText2Speech(eng)
-
 
 # Create the LLM
 gpt = LLMOpenAI(
     agent=agent,
     name='gpt-4.1',
     parameters={},
-    num_previous_messages=10,
-    global_context='You are a helpful assistant. Always match and answer in the language the user is speaking to you. Keep your answers concise and to the point. Do not use any formatting or bullet points.',
+    num_previous_messages=100,
+    global_context='You only answer and speak Luxembourgish.'
 )
-
-# Define processor
-process = AudioLanguageDetectionProcessor(agent, 'gpt-4.1', True, False)
 
 # States
 initial_state = agent.new_state('initial_state', initial=True)
@@ -107,27 +78,11 @@ awaiting_state.when_event(ReceiveJSONEvent()).go_to(sts_state)  # when Audio is 
 awaiting_state.when_no_intent_matched().go_to(sts_state)
 
 def stt_message_body(session: Session):
+    tts = session._agent._nlp_engine._text2speech
     # only transcribe message if the user spoke
     if isinstance(session.event, ReceiveJSONEvent) or isinstance(session.event, ReceiveMessageEvent):
         session.reply("User: " + session.event.message)
-    #session.reply("User: " + session.event.message)
-    #print(session.get_chat_history(n=100)[-1].content)
-    # TODO ONLY FOR NEXUS EVENT
-    global stt
-    global tts
-    ln = session.get('detected_audio_language')
-    if ln == 'de' or ln == 'lb':
-        stt = LuxASRSpeech2Text(eng)
-        tts = PiperText2Speech(eng)
-        
-    else:
-        stt = OpenAISpeech2Text(eng)
-        tts = OpenAIText2Speech(eng)
-
-    # TODO END
-    print("message is " + session.event.message)
-
-    answer = gpt.predict(session.event.message)
+    answer = gpt.chat(session)
     audio = tts.text2speech(answer)
     websocket_platform.reply_speech(session, audio)
     session.reply(answer)
@@ -139,6 +94,8 @@ sts_state.go_to(awaiting_state)
 
 # Execute when a file is received
 def stt_file_body(session: Session):
+    stt = session._agent._nlp_engine._speech2text
+    tts = session._agent._nlp_engine._text2speech
     event: ReceiveFileEvent = session.event
     file: File = event.file
 
@@ -172,14 +129,17 @@ def stt_file_body(session: Session):
         # call LuxASR Speech2Text and get transcription
         text= stt.speech2text(file_bytes)
         session.reply("User: " + text)
-        answer = gpt.predict(text)
-        #session.reply(answer)
+        answer = gpt.chat(session)
+        # answer = gpt.predict(text)
         file_text = answer
     else:
         # convert file to byte representation
         base64_content = file._base64
         # Decode the base64 string into text
-        file_text = base64.b64decode(base64_content).decode('utf-8')
+        decoded = base64.b64decode(base64_content).decode('utf-8')
+        session.reply("User: " + decoded)
+        answer = gpt.chat(session)
+        file_text = answer
 
     # call HF Speech2Text and get transcription
     audio = tts.text2speech(file_text)

@@ -1,3 +1,7 @@
+# You may need to add your working directory to the Python path. To do so, uncomment the following lines of code
+# import sys
+# sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
+
 # Besser Agentic Framework Hugging Face Speech-to-text example agent
 
 # imports
@@ -11,13 +15,8 @@ from besser.agent import nlp
 
 from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
 
-from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
-from besser.agent.nlp.nlp_engine import NLPEngine
-
 from besser.agent.core.file import File
 from besser.agent.library.transition.events.base_events import ReceiveFileEvent
-
-from besser.agent.core.processors.audio_language_detection_processor import AudioLanguageDetectionProcessor
 
 
 # Configure the logging module (optional)
@@ -38,9 +37,6 @@ agent.set_property(nlp.NLP_STT_HF_MODEL, 'openai/whisper-large-v3')
 
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
-
-# Define NLP Engine
-eng = NLPEngine(agent)
 
 # Create the LLM
 gpt = LLMOpenAI(
@@ -84,7 +80,7 @@ stt_state.go_to(initial_state)
 
 # Execute when a file is received
 def stt_file_body(session: Session):
-    stt = session._agent._nlpengine._speech2text
+    stt = session._agent._nlp_engine._speech2text
     event: ReceiveFileEvent = session.event
     file: File = event.file
 

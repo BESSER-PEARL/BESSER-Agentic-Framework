@@ -349,11 +349,11 @@ class WebSocketPlatform(Platform):
         Args:
             session (Session): the user session
             audio_dict (dict): the speech synthesis as a dictionary containing 2 keys:
-                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
-                    where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
-                    of samples in the audio
-                sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
-                    one second of audio
+                - audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
+                where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                of samples in the audio
+                - sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
+                one second of audio
         """
         audio_array = audio_dict['audio']
         sample_rate = audio_dict['sampling_rate']
