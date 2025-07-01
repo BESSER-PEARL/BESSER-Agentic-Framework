@@ -6,7 +6,7 @@ SECTION_NLP = 'nlp'
 
 NLP_LANGUAGE = Property(SECTION_NLP, 'nlp.language', str, 'en')
 """
-The agenr language. This is the expected language the users will talk to the agent. Using another language may 
+The agent language. This is the expected language the users will talk to the agent. Using another language may 
 affect the quality of some NLP processes.
 
 The list of available languages can be found at `snowballstemmer <https://pypi.org/project/snowballstemmer/>`_.
