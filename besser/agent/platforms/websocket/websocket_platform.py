@@ -340,7 +340,7 @@ class WebSocketPlatform(Platform):
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
-    def reply_speech(self, session: Session, audio_dict: dict) -> None:
+    def reply_speech(self, session: Session, message: str) -> None:
         """Send an audio reply to a specific user.
 
         Before being sent, the audio is encoded as a Base64 string. This must be done before decoding
@@ -355,6 +355,8 @@ class WebSocketPlatform(Platform):
                 - sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
                 one second of audio
         """
+        
+        audio_dict = session._agent.nlp_engine.text2speech(session, message)
         audio_array = audio_dict['audio']
         sample_rate = audio_dict['sampling_rate']
         dtype = audio_array.dtype

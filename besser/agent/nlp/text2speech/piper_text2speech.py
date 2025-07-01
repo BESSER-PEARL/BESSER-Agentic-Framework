@@ -10,6 +10,7 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
@@ -34,9 +35,9 @@ class PiperText2Speech(Text2Speech):
         _sample_rate (int): The model's actual sample rate
         _dtype (): The audio dtype
     """
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_PIPER_MODEL)
+    def __init__(self, agent: 'Agent', model_name: str = "mbarnig/lb_rhasspy_piper_tts", language: str = None):
+        super().__init__(agent, language=language)
+        self._model_name = model_name
         self._piper_api_url = "http://localhost:8000/synthesize"
         self._sample_rate = 22500  # NEEDS TO MATCH SAMPLE RATE IN main.py within the docker container
         self._dtype = np.int16  # Because the service sends audio/l16
@@ -59,7 +60,7 @@ class PiperText2Speech(Text2Speech):
             logger.info(f"Received {len(audio_bytes)} audio bytes.")
 
             if not audio_bytes:
-                print("Received empty audio response.")
+                logger.info("Received empty audio response.")
 
             # Convert PCM bytes to NumPy array
             audio_array = np.frombuffer(audio_bytes, dtype=self._dtype)
@@ -74,9 +75,9 @@ class PiperText2Speech(Text2Speech):
             logger.error(f"Error during API request to Piper TTS service: {e}")
             # Print response body if it contains error details
             try:
-                logger.error("Service Response:", response.json())
+                logger.error(f"Service Response: {response.json()}")
             except:  # Handle cases where response is not JSON
-                logger.error("Service Response (raw):", response.text)
+                logger.error(f"Service Response (raw): {response.text}")
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
             # import traceback

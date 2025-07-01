@@ -9,6 +9,7 @@ from besser.agent.nlp.speech2text.speech2text import Speech2Text
 from besser.agent.exceptions.exceptions import SREngineNotFound
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
@@ -37,11 +38,9 @@ class APISpeech2Text(Speech2Text):
         _language (str): the chosen language
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        if self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE) not in engines:
-            raise SREngineNotFound(self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE), engines)
-        self._sr_engine = self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE)
+    def __init__(self, agent: Agent, sr_engine: str = "Google Speech Recognition", language: str = None):
+        super().__init__(agent, language=language)
+        self._sr_engine = sr_engine
         self._language = self._nlp_engine.get_property(nlp.NLP_LANGUAGE)
 
     def speech2text(self, speech: bytes):
@@ -55,6 +54,7 @@ class APISpeech2Text(Speech2Text):
                 # Recognize the audio data
                 # add other platforms here
                 if self._sr_engine == "Google Speech Recognition":
+                    # this needs to be changed to take into account dynamic language changes 
                     if self._language is None:
                         # use english per default
                         text = r.recognize_google(audio_data)

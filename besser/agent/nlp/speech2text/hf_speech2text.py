@@ -8,20 +8,32 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
     import librosa
 except ImportError:
-    logger.warning("librosa dependencies in HFSpeech2Text could not be imported. You can install them from "
-                   "the requirements/requirements-extras.txt file")
+    logger.warning(
+        "librosa dependencies in HFSpeech2Text could not be imported. You can install them from "
+        "the requirements/requirements-extras.txt file"
+    )
 
 try:
-    from transformers import AutoProcessor, AutoModelForCTC, TFAutoModelForSpeechSeq2Seq, logging, pipeline
+    from transformers import (
+        AutoProcessor,
+        AutoModelForCTC,
+        TFAutoModelForSpeechSeq2Seq,
+        logging,
+        pipeline,
+    )
+
     logging.set_verbosity_error()
 except ImportError:
-    logger.warning("transformers dependencies in HFSpeech2Text could not be imported. You can install them from "
-                   "the requirements/requirements-llms.txt file")
+    logger.warning(
+        "transformers dependencies in HFSpeech2Text could not be imported. You can install them from "
+        "the requirements/requirements-llms.txt file"
+    )
 
 
 class HFSpeech2Text(Speech2Text):
@@ -48,34 +60,47 @@ class HFSpeech2Text(Speech2Text):
         _asr (): the transformer ASR pipeline
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
+    def __init__(
+        self,
+        agent: "Agent",
+        model_name: str,
+        load_from_pytorch: bool = False,
+        language: str = None,
+    ):
+        super().__init__(agent, language=language)
         # TODO: IMPLEMENT CHUNK BATCHING FOR LONG AUDIO FILES
         # https://huggingface.co/docs/transformers/pipeline_tutorial
-        self._from_pt: bool = self._nlp_engine.get_property(nlp.NLP_STT_FROM_PT)
-        self._model_name: str = self._nlp_engine.get_property(nlp.NLP_STT_HF_MODEL)
+        self._from_pt: bool = load_from_pytorch
+        self._model_name: str = model_name
         self._sampling_rate: int = 16000
         # Only for OpenAI Whisper Models
         if self._model_name.startswith("openai/whisper"):
             self._processor = AutoProcessor.from_pretrained(self._model_name)
-            self._model = TFAutoModelForSpeechSeq2Seq.from_pretrained(self._model_name, from_pt=self._from_pt)
+            self._model = TFAutoModelForSpeechSeq2Seq.from_pretrained(
+                self._model_name, from_pt=self._from_pt
+            )
             # self.model.config.forced_decoder_ids = None
             self._forced_decoder_ids = self._processor.get_decoder_prompt_ids(
-                language=self._nlp_engine.get_property(nlp.NLP_LANGUAGE), task="transcribe"
+                language=self._nlp_engine.get_property(nlp.NLP_LANGUAGE),
+                task="transcribe",
             )
         else:
             self._asr = pipeline("automatic-speech-recognition", model=self._model_name)
-
-
 
     def speech2text(self, speech: bytes):
         wav_stream = io.BytesIO(speech)
         # Only for OpenAI Whisper Models
         if self._model_name.startswith("openai/whisper"):
             audio, sampling_rate = librosa.load(wav_stream, sr=self._sampling_rate)
-            input_features = self._processor(audio, sampling_rate=self._sampling_rate, return_tensors="tf").input_features
-            predicted_ids = self._model.generate(input_features, forced_decoder_ids=self._forced_decoder_ids)
-            transcriptions = self._processor.batch_decode(predicted_ids, skip_special_tokens=True)
+            input_features = self._processor(
+                audio, sampling_rate=self._sampling_rate, return_tensors="tf"
+            ).input_features
+            predicted_ids = self._model.generate(
+                input_features, forced_decoder_ids=self._forced_decoder_ids
+            )
+            transcriptions = self._processor.batch_decode(
+                predicted_ids, skip_special_tokens=True
+            )
             return transcriptions[0]
         else:
             audio, sampling_rate = librosa.load(wav_stream, sr=self._sampling_rate)

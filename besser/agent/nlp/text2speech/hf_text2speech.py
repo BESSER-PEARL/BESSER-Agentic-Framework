@@ -7,6 +7,7 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
@@ -28,8 +29,19 @@ class HFText2Speech(Text2Speech):
 
     It loads a Speech2Text Hugging Face model to perform the Speech2Text task.
 
+
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): The agent instance.
+        model_name (str): The Hugging Face model name.
+        language (str, optional): Language code.
+        return_tensor (str, optional): Property for the HFText2Speech agent component. If set, will return tensors instead of list of python integers. Acceptable values are:
+            'tf': Return TensorFlow tf.constant objects.
+            'pt': Return PyTorch torch.Tensor objects.
+            'np': Return Numpy np.ndarray objects.
+            name: ``nlp.text2speech.hf.rt``
+            type: ``str``
+            default value: ``None``
+
 
     Attributes:
         _model_name (str): The Hugging Face model name
@@ -37,9 +49,17 @@ class HFText2Speech(Text2Speech):
         _tokenizer (): The Vits Tokenizer. Also supports MMS-TTS.
         _model (): The complete VITS model
     """
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_HF_MODEL)
+    def __init__(
+        self,
+        agent: 'Agent',
+        model_name: str,
+        language: str = None,
+        return_tensor: str = None
+    ):
+
+        super().__init__(agent, language=language)
+        self._model_name = model_name
+        self._return_tensor = return_tensor
         # for Facebook models
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
             self._tokenizer = VitsTokenizer.from_pretrained(self._model_name)
@@ -47,10 +67,11 @@ class HFText2Speech(Text2Speech):
         else:
             self._tts = pipeline("text-to-speech", model=self._model_name)
 
+
     def text2speech(self, text: str) -> dict:
         # TODO Improve quality of SpeechT5: https://huggingface.co/microsoft/speecht5_tts
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
-            inputs = self._tokenizer(text=text, return_tensors=self._nlp_engine.get_property(nlp.NLP_TTS_HF_RT))
+            inputs = self._tokenizer(text=text, return_tensors=self._return_tensor)
             with torch.no_grad():
                 outputs = self._model(**inputs)
             # also need to convert the torch tensor to numpy array

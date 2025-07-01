@@ -10,6 +10,7 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 
@@ -22,11 +23,12 @@ class LuxASRSpeech2Text(Speech2Text):
         nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        self._diarization = self._nlp_engine.get_property(nlp.NLP_STT_DIARIZATION)
-        self._output_format = self._nlp_engine.get_property(nlp.NLP_STT_OUT_FMT)
-        self._mime_type = self._nlp_engine.get_property(nlp.NLP_STT_MIME_TYPE)
+    def __init__(self, agent: 'Agent', language: str = None):
+        super().__init__(agent, language=language)
+        # these should be parameters of the constructor, but for now we set them to default values
+        self._diarization = 'Enabled'  # Default diarization setting
+        self._output_format = 'text'  # Default output format
+        self._mime_type = 'application/octet-stream'
 
     def speech2text(self, speech: bytes) -> str:
         url = f"https://luxasr.uni.lu/v2/asr?diarization={self._diarization}&outfmt={self._output_format}"

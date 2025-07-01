@@ -10,13 +10,21 @@ from besser.agent.core.property import Property
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.intent_classifier.intent_classifier import IntentClassifier
-from besser.agent.nlp.intent_classifier.intent_classifier_configuration import LLMIntentClassifierConfiguration, \
-    SimpleIntentClassifierConfiguration
-from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction, \
-    fallback_intent_prediction
+from besser.agent.nlp.intent_classifier.intent_classifier_configuration import (
+    LLMIntentClassifierConfiguration,
+    SimpleIntentClassifierConfiguration,
+)
+from besser.agent.nlp.intent_classifier.intent_classifier_prediction import (
+    IntentClassifierPrediction,
+    fallback_intent_prediction,
+)
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
-from besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch import SimpleIntentClassifierTorch
-from besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow import SimpleIntentClassifierTF
+from besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch import (
+    SimpleIntentClassifierTorch,
+)
+from besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow import (
+    SimpleIntentClassifierTF,
+)
 from besser.agent.nlp.llm.llm import LLM
 from besser.agent.nlp.ner.ner import NER
 from besser.agent.nlp.ner.simple_ner import SimpleNER
@@ -55,13 +63,13 @@ class NLPEngine:
         _text2speech (Text2Speech or None): The Text-to-Speech system of the NLPEngine
     """
 
-    def __init__(self, agent: 'Agent'):
-        self._agent: 'Agent' = agent
+    def __init__(self, agent: "Agent"):
+        self._agent: "Agent" = agent
         self._llms: dict[str, LLM] = {}
-        self._intent_classifiers: dict['State', IntentClassifier] = {}
+        self._intent_classifiers: dict["State", IntentClassifier] = {}
         self._ner: NER or None = None
-        self._speech2text: Speech2Text or None = None
-        self._text2speech: Text2Speech or None = None
+        self._language_to_speech2text_module: dict[str, Speech2Text] = {}
+        self._language_to_text2speech_module: dict[str, Text2Speech] = {}
         self._rag: RAG = None
 
     @property
@@ -75,35 +83,27 @@ class NLPEngine:
             # Set the language to ISO 639-1 format (e.g., 'english' => 'en')
             self._agent.set_property(
                 nlp.NLP_LANGUAGE,
-                list(lang_map.keys())[list(lang_map.values()).index(self.get_property(nlp.NLP_LANGUAGE))]
+                list(lang_map.keys())[
+                    list(lang_map.values()).index(self.get_property(nlp.NLP_LANGUAGE))
+                ],
             )
         for llm_name, llm in self._llms.items():
             self._llms[llm_name].initialize()
         for state in self._agent.states:
             if state not in self._intent_classifiers and state.intents:
                 if isinstance(state.ic_config, SimpleIntentClassifierConfiguration):
-                    if state.ic_config.framework == 'pytorch':
-                        self._intent_classifiers[state] = SimpleIntentClassifierTorch(self, state)
-                    elif state.ic_config.framework == 'tensorflow':
-                        self._intent_classifiers[state] = SimpleIntentClassifierTF(self, state)
+                    if state.ic_config.framework == "pytorch":
+                        self._intent_classifiers[state] = SimpleIntentClassifierTorch(
+                            self, state
+                        )
+                    elif state.ic_config.framework == "tensorflow":
+                        self._intent_classifiers[state] = SimpleIntentClassifierTF(
+                            self, state
+                        )
                 elif isinstance(state.ic_config, LLMIntentClassifierConfiguration):
                     self._intent_classifiers[state] = LLMIntentClassifier(self, state)
         # TODO: Only instantiate the NER if asked (maybe an agent does not need NER), via agent properties
         self._ner = SimpleNER(self, self._agent)
-        if self.get_property(nlp.NLP_STT_HF_MODEL):
-            self._speech2text = HFSpeech2Text(self)
-        elif self.get_property(nlp.NLP_STT_OPENAI_MODEL):
-            self._speech2text = OpenAISpeech2Text(self)
-        elif self.get_property(nlp.NLP_STT_SR_ENGINE):
-            self._speech2text = APISpeech2Text(self)
-        elif self.get_property(nlp.NLP_STT_MIME_TYPE):
-            self._speech2text = LuxASRSpeech2Text(self)
-        if self.get_property(nlp.NLP_TTS_HF_MODEL):
-            self._text2speech = HFText2Speech(self)
-        elif self.get_property(nlp.NLP_TTS_OPENAI_VOICE) and self.get_property(nlp.NLP_TTS_OPENAI_MODEL):
-            self._text2speech = OpenAIText2Speech(self)
-        elif self.get_property(nlp.NLP_TTS_PIPER_MODEL):
-            self._text2speech = PiperText2Speech(self)
 
     def get_property(self, prop: Property) -> Any:
         """Get a NLP property's value from the NLPEngine's agent.
@@ -124,7 +124,9 @@ class NLPEngine:
         logger.info(f"NER successfully trained.")
         for state, intent_classifier in self._intent_classifiers.items():
             if not state.intents:
-                logger.info(f"Intent classifier in {state.name} not trained (no intents found).")
+                logger.info(
+                    f"Intent classifier in {state.name} not trained (no intents found)."
+                )
             else:
                 intent_classifier.train()
                 logger.info(f"Intent classifier in {state.name} successfully trained.")
@@ -144,16 +146,19 @@ class NLPEngine:
             return fallback_intent
         intent_classifier = self._intent_classifiers[session.current_state]
         # TODO: check if state is different to run prediction
-        intent_classifier_predictions: list[IntentClassifierPrediction] = intent_classifier.predict(message)
-        best_intent_prediction = self.get_best_intent_prediction(intent_classifier_predictions)
+        intent_classifier_predictions: list[IntentClassifierPrediction] = (
+            intent_classifier.predict(message)
+        )
+        best_intent_prediction = self.get_best_intent_prediction(
+            intent_classifier_predictions
+        )
         if best_intent_prediction is None:
             best_intent_prediction = fallback_intent
         best_intent_prediction.state = session.current_state.name
         return best_intent_prediction
 
     def get_best_intent_prediction(
-            self,
-            intent_classifier_predictions: list[IntentClassifierPrediction]
+        self, intent_classifier_predictions: list[IntentClassifierPrediction]
     ) -> IntentClassifierPrediction or None:
         """Get the best intent prediction out of a list of intent predictions. If none of the predictions is well
         enough to be considered, return nothing.
@@ -187,32 +192,41 @@ class NLPEngine:
         Returns:
             str: the speech transcription
         """
-        processed_speech = speech
+
+        logger.info(f"Processing speech2text for session: {session.id}")
         # for processing and detecting the spoken language of the audio bytes before STT is performed
         for processor in self._agent.processors:
             sig = inspect.signature(processor.process)
             params = sig.parameters
-            if 'message' in params and params['message'].annotation is bytes:
+            if "message" in params and params["message"].annotation is bytes:
                 try:
-                    processor.process(session=session, message=speech)
-                    ln = session.get('detected_audio_language')
+                    speech = processor.process(session=session, message=speech)
                 except Exception as e:
-                    print("Exception in processor.process:", e)
-        # TODO: DO ONLY FOR NEXUS EVENT REMOVE BEFORE PUSHING
-        try:
-            if ln == "de" or ln == "lb" or ln == "svg" or ln == "lt" or ln == "ht" or ln == "mk":
-                self._speech2text = LuxASRSpeech2Text(self)
-                print("lux if: ", type(speech), len(speech))
-            # TODO END
-        except Exception as e:
-            print("Exception in language detection:", e)
+                    logger.error(f"Exception in processor.process: {e}")
 
-        text = self._speech2text.speech2text(speech)
+        user_language = "en"
+        try:
+            user_language = session.get("user_language", "en")
+            if user_language not in self._language_to_speech2text_module:
+                user_language = "en"
+
+        except Exception as e:
+            logger.error(f"Exception in getting user language: {e}")
+
+        text = ""
+
+        try:
+            text = self._language_to_speech2text_module[user_language].speech2text(
+                speech
+            )
+        except Exception as e:
+            logger.error(f"[Speech2Text] Error transcribing audio message: {e}")
+            text = "Error transcribing audio message"
 
         logger.info(f"[Speech2Text] Transcribed audio message: '{text}'")
         return text
 
-    def text2speech(self, text: str):
+    def text2speech(self, session: Session, text: str):
         """Synthesize a text into its corresponding voice audio.
 
         Args:
@@ -220,13 +234,16 @@ class NLPEngine:
 
         Returns:
             dict: the speech synthesis as a dictionary containing 2 keys:
-                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
-                    where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels,
+                audio_length), where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
                     of samples in the audio
                 sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
                     one second of audio
         """
-        tts = self._text2speech.text2speech(text)
-        logger.info(f"[Text2Speech] Synthesized {tts['audio'].shape[1]} sample frames and {tts['audio'].shape[1]} "
-                    f"audio channels with a sampling rate of {tts['sampling_rate']}")
-        return tts
+
+        user_language = session.get("user_language", "en")
+
+        if user_language not in self._language_to_text2speech_module:
+            user_language = "en"
+
+        return self._language_to_text2speech_module[user_language].text2speech(text)

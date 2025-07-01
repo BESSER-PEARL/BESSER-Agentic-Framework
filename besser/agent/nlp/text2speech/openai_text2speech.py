@@ -9,6 +9,7 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 
@@ -45,15 +46,16 @@ class OpenAIText2Speech(Text2Speech):
         _model_name (str): The Hugging Face model name
         _voice (str): The voice to use when generating the audio
     """
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        self._model_name = self._nlp_engine.get_property(nlp.NLP_TTS_OPENAI_MODEL)
-        self._voice = self._nlp_engine.get_property(nlp.NLP_TTS_OPENAI_VOICE)
+    def __init__(self, agent: 'Agent', model_name: str, voice: str = "alloy", language: str = None):
+        super().__init__(agent, language=language)
+        self._model_name = model_name
+        self._voice = voice
         self._sampling_rate: int = 24000
+        self._api_key = self._nlp_engine.get_property(nlp.OPENAI_API_KEY)
 
     def text2speech(self, text: str) -> dict:
         client = OpenAI(
-            api_key=self._nlp_engine.get_property(nlp.OPENAI_API_KEY)
+            api_key=self._api_key
         )
         try:
             # Make the standard API call (without with_streaming_response)
