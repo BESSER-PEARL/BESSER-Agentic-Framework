@@ -179,7 +179,7 @@ class Session:
         """
         self._dictionary[key] = value
 
-    def get(self, key: str) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """Get an entry of the session private data storage.
 
         Args:
@@ -189,6 +189,8 @@ class Session:
             Any: the entry value, or None if the key does not exist
         """
         if key not in self._dictionary:
+            if default:
+                return default
             return None
         return self._dictionary[key]
 
