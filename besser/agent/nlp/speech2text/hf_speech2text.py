@@ -46,7 +46,10 @@ class HFSpeech2Text(Speech2Text):
         Only tested with ``openai/whisper-*`` models
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): the agent instance using this Speech2Text component
+        model_name (str): the Hugging Face model name to load
+        load_from_pytorch (bool, optional, defaults to False): Load the model weights from a PyTorch checkpoint save file
+        language (str, optional): the language to use for transcription
 
     Attributes:
         _from_pt (bool, optional, defaults to False):  Load the model weights from a PyTorch checkpoint save file

@@ -23,7 +23,8 @@ engines = ["Google Speech Recognition"]
 
 
 class APISpeech2Text(Speech2Text):
-    """Makes use of the python speech_recognition library.
+    """
+    Makes use of the python speech_recognition library.
 
     The library calls to different speech recognition engines/APIs.
 
@@ -31,7 +32,9 @@ class APISpeech2Text(Speech2Text):
         Google Speech Recognition
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): the agent instance using this speech-to-text class
+        sr_engine (str, optional): the chosen speech recognition engine. Defaults to "Google Speech Recognition".
+        language (str, optional): the chosen language. Defaults to None.
 
     Attributes:
         _sr_engine (str): the chosen SR engine

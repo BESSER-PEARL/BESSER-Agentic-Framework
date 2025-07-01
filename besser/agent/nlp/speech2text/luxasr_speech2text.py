@@ -15,12 +15,19 @@ if TYPE_CHECKING:
 
 
 class LuxASRSpeech2Text(Speech2Text):
-    """Makes use of the LuxASR API (Note: This only works with Luxembourgish speech)
+    """
+    Makes use of the LuxASR API (Note: This only works with Luxembourgish speech)
 
     It calls the LuxASR API provided by the University of Luxembourg: https://luxasr.uni.lu/
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): The agent instance using this speech-to-text service.
+        language (str, optional): The language code for recognition (default: None).
+
+    Attributes:
+        _diarization (str): Diarization setting for the API request (default: 'Enabled').
+        _output_format (str): Output format for the API response (default: 'text').
+        _mime_type (str): MIME type for the audio file sent to the API (default: 'application/octet-stream').
     """
 
     def __init__(self, agent: 'Agent', language: str = None):
