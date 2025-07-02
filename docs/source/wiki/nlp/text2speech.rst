@@ -20,7 +20,7 @@ BAF supports a variety of implementations for text-to-speech:
   ``voice`` (default ``alloy``). Example model ``gpt-4o-mini-tts``.
 
 - :class:`~besser.agent.nlp.text2speech.piper_text2speech.PiperText2Speech`: For the `Piper <https://github.com/rhasspy/piper>`_
-  TTS implementation (Only tested with the following HuggingFace Model mbarnig/lb_rhasspy_piper_tts). You need to download
+  TTS implementation (Only tested with the HuggingFace Model mbarnig/lb_rhasspy_piper_tts). You need to download
   the model and run it through a Docker container as Piper currently only works on Linux. Example Model:
   ``mbarnig/lb_rhasspy_piper_tts`` (default).
 

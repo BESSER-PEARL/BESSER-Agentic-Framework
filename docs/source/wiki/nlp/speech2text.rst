@@ -20,7 +20,9 @@ BAF supports a variety of implementations for speech-to-text:
   `OpenAI <https://platform.openai.com/docs/guides/speech-to-text>`_ STT models. Example model: ``whisper-1``
 
 - :class:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`: For the `LuxASR <https://luxasr.uni.lu/>`_
-  API. Optional parameters for :meth:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text.speech2text`:
+  API.
+
+Optional parameters for :meth:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text.speech2text`:
 
 - ``mime_type``. Example: ``audio/mpeg`` or ``plain/text``,
   defaults to ``application/octet-stream`` for voice inputs.

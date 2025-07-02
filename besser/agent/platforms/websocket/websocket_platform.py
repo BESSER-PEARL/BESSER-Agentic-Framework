@@ -364,7 +364,7 @@ class WebSocketPlatform(Platform):
         dtype = audio_array.dtype
         shape = audio_array.shape
 
-        #TODO: the sped up / slowed down audio sounds like in an echo chamber, not so good
+        # TODO: the speed up / slowed down audio sounds like in an echo chamber, not so good
         # Adjust audio speed if needed, preserving pitch (avoid chipmunk effect)
         if audio_speed and audio_speed != 1.0:
             # librosa expects float32 audio

@@ -6,11 +6,9 @@ from typing import TYPE_CHECKING
 from besser.agent import nlp
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
-from besser.agent.exceptions.exceptions import SREngineNotFound
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-    from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
     import speech_recognition as sr
@@ -57,7 +55,7 @@ class APISpeech2Text(Speech2Text):
                 # Recognize the audio data
                 # add other platforms here
                 if self._sr_engine == "Google Speech Recognition":
-                    # this needs to be changed to take into account dynamic language changes 
+                    # TODO: this needs to be changed to take into account dynamic language changes
                     if self._language is None:
                         # use english per default
                         text = r.recognize_google(audio_data)

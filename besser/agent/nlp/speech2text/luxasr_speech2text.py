@@ -5,13 +5,10 @@ import requests
 
 from typing import TYPE_CHECKING
 
-from besser.agent import nlp
-from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-    from besser.agent.nlp.nlp_engine import NLPEngine
 
 
 class LuxASRSpeech2Text(Speech2Text):

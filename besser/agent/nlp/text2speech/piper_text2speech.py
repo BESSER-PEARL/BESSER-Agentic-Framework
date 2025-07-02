@@ -5,7 +5,6 @@ import requests
 
 from typing import TYPE_CHECKING
 
-from besser.agent import nlp
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
 
@@ -46,13 +45,13 @@ class PiperText2Speech(Text2Speech):
         """Sends text to the Dockerized Piper service and plays the audio."""
         try:
             payload = {"text": text}
-            print(f"Sending request to {self._piper_api_url}...")
+            logger.info(f"Sending request to {self._piper_api_url}...")
             response = requests.post(self._piper_api_url, json=payload)
             response.raise_for_status()  # Check for HTTP errors (like 4xx, 5xx)
 
             # Check content type (optional but good practice)
             content_type = response.headers.get('content-type')
-            print(f"Received response with Content-Type: {content_type}")
+            logger.info(f"Received response with Content-Type: {content_type}")
             # Ideally, parse sample rate/channels from content_type if possible
 
             # Get raw audio bytes (PCM data)

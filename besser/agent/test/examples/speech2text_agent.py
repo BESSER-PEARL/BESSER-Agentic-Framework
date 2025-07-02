@@ -68,8 +68,7 @@ def awaiting_body(session:Session):
     pass
 
 awaiting_state.set_body(awaiting_body)
-awaiting_state.when_file_received(allowed_types=("audio/wav", "audio/mpeg", "audio/mp4")).go_to(
-    stt_file_state)  # Only Allow Wav, MP3, MP4 files
+awaiting_state.when_file_received(allowed_types=("audio/wav", "audio/mpeg", "audio/mp4")).go_to(stt_file_state)  # Only Allow Wav, MP3, MP4 files
 awaiting_state.when_no_intent_matched().go_to(stt_state)
 
 

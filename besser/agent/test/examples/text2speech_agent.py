@@ -11,7 +11,6 @@ import base64
 from besser.agent.core.agent import Agent
 from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
-from besser.agent import nlp
 
 from besser.agent.nlp.text2speech.hf_text2speech import HFText2Speech
 

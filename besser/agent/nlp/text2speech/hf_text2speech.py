@@ -2,13 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from besser.agent import nlp
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-    from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
     import torch
@@ -58,7 +56,6 @@ class HFText2Speech(Text2Speech):
             self._model = VitsModel.from_pretrained(self._model_name)
         else:
             self._tts = pipeline("text-to-speech", model=self._model_name)
-
 
     def text2speech(self, text: str, return_tensor: str = "pt") -> dict:
         """Synthesize a text into its corresponding audio speech signal.

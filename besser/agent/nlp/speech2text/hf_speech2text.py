@@ -9,7 +9,6 @@ from besser.agent.nlp.speech2text.speech2text import Speech2Text
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
-    from besser.agent.nlp.nlp_engine import NLPEngine
 
 try:
     import librosa
