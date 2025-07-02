@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.nlp.nlp_engine import NLPEngine
 
 
@@ -15,14 +16,22 @@ class Speech2Text(ABC):
     can process them like regular text messages.
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): The Agent the Speech2Text system belongs to
+        language (str): The user language for the Speech2Text system
 
     Attributes:
         _nlp_engine (): The NLPEngine that handles the NLP processes of the agent
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        self._nlp_engine: 'NLPEngine' = nlp_engine
+    def __init__(self, agent: 'Agent', language: str = None):
+        self._nlp_engine: 'NLPEngine' = agent.nlp_engine
+        if language is None:
+            # if no language is specified, we assume English 
+            # if en is already set, we do not overwrite it
+            if "en" not in self._nlp_engine._language_to_speech2text_module:
+                self._nlp_engine._language_to_speech2text_module["en"] = self
+        else:
+            self._nlp_engine._language_to_speech2text_module[language] = self
 
     @abstractmethod
     def speech2text(self, speech: bytes) -> str:

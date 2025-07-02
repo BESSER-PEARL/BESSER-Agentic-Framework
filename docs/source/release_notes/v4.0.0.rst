@@ -1,0 +1,32 @@
+Version 4.0.0
+=============
+
+Multilingual Speech2Speech Agents are here!
+-------------------------------------------
+
+You can now create your own Multilingual :doc:`Speech-to-Speech <../wiki/nlp/speech2speech>` Agent with BAF, supporting the latest OpenAI Speech Models and more. Also works for Luxembourgish!
+Try it out:
+
+New Features
+------------
+
+- Added :doc:`Text2Speech <../wiki/nlp/text2speech>` support:
+    - Supports State-of-the-art OpenAI Models
+    - Supports a variety of HF Models
+    - Supports Luxembourgish Piper Model
+- Added more :doc:`Speech2Text <../wiki/nlp/speech2text>` models:
+    - Added support for all other HF Models (not just Whisper models)
+    - Added support for OpenAI models (through the OpenAI API)
+    - Added support for Luxembourgish speech recognition model (`LuxASR <https://luxasr.uni.lu/>`_)
+- Added the :class:`~besser.agent.core.processors.audio_language_detection_processor` class:
+    - Allows you to recognize the language the user speaks and automatically assign the best model
+
+Improvements
+------------
+
+- Monitoring DB has been updated to store audio messages
+
+Changes
+-------
+
+- NLPEngine.speech2text(): :meth:`besser.agent.nlp.nlp_engine.NLPEngine.speech2text` now requires a Session parameter

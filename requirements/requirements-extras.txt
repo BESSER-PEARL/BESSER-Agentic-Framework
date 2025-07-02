@@ -7,6 +7,9 @@ scikit-learn==1.6.1
 librosa==0.10.1
 SpeechRecognition==3.10.0
 
+# Text-to-speech
+soundfile==0.13.1
+
 # Image
 opencv-python==4.10.0.84
 
@@ -18,4 +21,4 @@ chromadb==0.5.4
 langchain==0.2.9
 langchain-community==0.2.7
 pypdf==4.3.1
-tiktoken==0.7.0
+tiktoken==0.9.0

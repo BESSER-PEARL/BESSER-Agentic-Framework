@@ -46,7 +46,7 @@ class LLMOpenAI(LLM):
 
     def __init__(self, agent: 'Agent', name: str, parameters: dict, num_previous_messages: int = 1,
                  global_context: str = None):
-        super().__init__(agent.nlp_engine, name, parameters, global_context=global_context)
+        super().__init__(agent, name, parameters, global_context=global_context)
         self.client: OpenAI = None
         self.num_previous_messages: int = num_previous_messages
 
@@ -96,7 +96,7 @@ class LLMOpenAI(LLM):
         messages = [
             {'role': 'user' if message.is_user else 'assistant', 'content': message.content}
             for message in chat_history
-            if message.type in [MessageType.STR, MessageType.LOCATION]
+            if message.type in [MessageType.STR, MessageType.LOCATION, MessageType.JSON]
         ]
         context_messages = []
         if self._global_context:
