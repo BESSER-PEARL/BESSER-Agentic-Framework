@@ -19,12 +19,6 @@ from besser.agent.nlp.intent_classifier.intent_classifier_prediction import (
     fallback_intent_prediction,
 )
 from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
-from besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch import (
-    SimpleIntentClassifierTorch,
-)
-from besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow import (
-    SimpleIntentClassifierTF,
-)
 from besser.agent.nlp.llm.llm import LLM
 from besser.agent.nlp.ner.ner import NER
 from besser.agent.nlp.ner.simple_ner import SimpleNER
@@ -92,10 +86,14 @@ class NLPEngine:
             if state not in self._intent_classifiers and state.intents:
                 if isinstance(state.ic_config, SimpleIntentClassifierConfiguration):
                     if state.ic_config.framework == "pytorch":
+                        from besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch import \
+                            SimpleIntentClassifierTorch
                         self._intent_classifiers[state] = SimpleIntentClassifierTorch(
                             self, state
                         )
                     elif state.ic_config.framework == "tensorflow":
+                        from besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow import \
+                            SimpleIntentClassifierTF
                         self._intent_classifiers[state] = SimpleIntentClassifierTF(
                             self, state
                         )
@@ -239,7 +237,6 @@ class NLPEngine:
                 of samples in the audio
                 - sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
                 one second of audio
-
         """
 
         user_language = session.get("user_language", "en")
