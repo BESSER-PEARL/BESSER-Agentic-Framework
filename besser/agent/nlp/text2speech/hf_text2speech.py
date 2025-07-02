@@ -34,13 +34,6 @@ class HFText2Speech(Text2Speech):
         agent (Agent): The agent instance.
         model_name (str): The Hugging Face model name.
         language (str, optional): Language code.
-        return_tensor (str, optional): Property for the HFText2Speech agent component. If set, will return tensors instead of list of python integers. Acceptable values are:
-            'tf': Return TensorFlow tf.constant objects.
-            'pt': Return PyTorch torch.Tensor objects.
-            'np': Return Numpy np.ndarray objects.
-            name: ``nlp.text2speech.hf.rt``
-            type: ``str``
-            default value: ``pt``
 
 
     Attributes:
@@ -54,7 +47,6 @@ class HFText2Speech(Text2Speech):
         agent: 'Agent',
         model_name: str,
         language: str = None,
-        return_tensor: str = None
     ):
 
         super().__init__(agent, language=language)
@@ -69,6 +61,27 @@ class HFText2Speech(Text2Speech):
 
 
     def text2speech(self, text: str, return_tensor: str = "pt") -> dict:
+        """Synthesize a text into its corresponding audio speech signal.
+
+        Args:
+            text (str): the text that wants to be synthesized
+            return_tensor (str, optional): Property for the HFText2Speech agent component. If set, will return tensors instead of list of python integers. Acceptable values are:
+            'tf': Return TensorFlow tf.constant objects.
+            'pt': Return PyTorch torch.Tensor objects.
+            'np': Return Numpy np.ndarray objects.
+            name: ``nlp.text2speech.hf.rt``
+            type: ``str``
+            default value: ``pt``
+
+
+        Returns:
+            dict: the speech synthesis as a dictionary containing 2 keys:
+                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
+                    where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                    of samples in the audio
+                sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
+                    one second of audio
+        """
         # TODO Improve quality of SpeechT5: https://huggingface.co/microsoft/speecht5_tts
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
             inputs = self._tokenizer(text=text, return_tensors=return_tensor)
