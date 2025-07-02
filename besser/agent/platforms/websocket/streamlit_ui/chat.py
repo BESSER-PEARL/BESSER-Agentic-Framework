@@ -35,7 +35,13 @@ def write_message(message: Message, key_count: int, stream: bool = False):
     key = f'message_{key_count}'
     with st.chat_message(user_type[message.is_user]):
         if message.type == MessageType.AUDIO:
-            st.audio(message.content, format="audio/wav")
+            # only do for the TTS component, as it returns a dictionary through Payload message
+            if isinstance(message.content, dict):
+                audio = message.content['audio']
+                sample_rate = message.content['sampling_rate']
+                st.audio(audio, format="audio/mpeg", sample_rate=sample_rate, loop=False, autoplay=True)
+            else:
+                st.audio(message.content, format="audio/wav")
 
         elif message.type == MessageType.FILE:
             file: File = File.from_dict(message.content)

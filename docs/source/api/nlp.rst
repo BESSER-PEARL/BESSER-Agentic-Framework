@@ -29,4 +29,10 @@ nlp
    nlp/rag
    nlp/api_speech2text
    nlp/hf_speech2text
+   nlp/luxasr_speech2text
+   nlp/openai_speech2text
    nlp/speech2text
+   nlp/hf_text2speech
+   nlp/openai_text2speech
+   nlp/piper_text2speech
+   nlp/text2speech

@@ -56,7 +56,7 @@ class UserAdaptationProcessor(Processor):
                 You are free to adapt the messages in any way you like.\
                 The user should relate more. This is the user's profile\n \
                 {str(self._user_model[session.id])}"
-        prompt = f"You need to adapt this message: {message}\n Only respond with the adapated message!"
+        prompt = f"You need to adapt this message: {message}\n Only respond with the adapted message!"
         llm_response: str = llm.predict(prompt, session=session, system_message=user_context)
         return llm_response
 

@@ -44,7 +44,7 @@ class LLMReplicate(LLM):
 
     def __init__(self, agent: 'Agent', name: str, parameters: dict, num_previous_messages: int = 1,
                  global_context: str = None):
-        super().__init__(agent.nlp_engine, name, parameters, global_context=global_context)
+        super().__init__(agent, name, parameters, global_context=global_context)
         self.num_previous_messages: int = num_previous_messages
 
     def set_model(self, name: str) -> None:

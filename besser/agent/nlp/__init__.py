@@ -6,7 +6,7 @@ SECTION_NLP = 'nlp'
 
 NLP_LANGUAGE = Property(SECTION_NLP, 'nlp.language', str, 'en')
 """
-The agenr language. This is the expected language the users will talk to the agent. Using another language may 
+The agent language. This is the expected language the users will talk to the agent. Using another language may 
 affect the quality of some NLP processes.
 
 The list of available languages can be found at `snowballstemmer <https://pypi.org/project/snowballstemmer/>`_.
@@ -79,29 +79,6 @@ type: ``float``
 default value: ``0.4``
 """
 
-NLP_STT_HF_MODEL = Property(SECTION_NLP, 'nlp.speech2text.hf.model', str, None)
-"""
-The name of the Hugging Face model for the HFSpeech2Text agent component. If none is provided, the component will not be 
-activated.
-
-name: ``nlp.speech2text.hf.model``
-
-type: ``str``
-
-default value: ``None``
-"""
-
-NLP_STT_SR_ENGINE = Property(SECTION_NLP, 'nlp.speech2text.sr.engine', str, None)
-"""
-The name of the transcription engine for the Speech Recognition agent component. If none is provided, the component will
-not be activated.
-
-name: ``nlp.speech2text.sr.engine``
-
-type: ``str``
-
-default value: ``None``
-"""
 
 OPENAI_API_KEY = Property(SECTION_NLP, 'nlp.openai.api_key', str, None)
 """

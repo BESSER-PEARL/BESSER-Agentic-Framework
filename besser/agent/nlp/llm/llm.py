@@ -5,6 +5,7 @@ from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
 
 if TYPE_CHECKING:
+    from besser.agent.core.agent import Agent
     from besser.agent.core.session import Session
     from besser.agent.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
     from besser.agent.nlp.nlp_engine import NLPEngine
@@ -34,8 +35,8 @@ class LLM(ABC):
             user specific context to be provided to the LLM for each request
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine', name: str, parameters: dict, global_context: str = None):
-        self._nlp_engine: 'NLPEngine' = nlp_engine
+    def __init__(self, agent: 'Agent', name: str, parameters: dict, global_context: str = None):
+        self._nlp_engine: 'NLPEngine' = agent.nlp_engine
         self.name: str = name
         self.parameters: dict = parameters
         self._nlp_engine._llms[name] = self

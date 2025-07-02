@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING
 from besser.agent import nlp
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
-from besser.agent.exceptions.exceptions import SREngineNotFound
 
 if TYPE_CHECKING:
-    from besser.agent.nlp.nlp_engine import NLPEngine
+    from besser.agent.core.agent import Agent
 
 try:
     import speech_recognition as sr
@@ -22,7 +21,8 @@ engines = ["Google Speech Recognition"]
 
 
 class APISpeech2Text(Speech2Text):
-    """Makes use of the python speech_recognition library.
+    """
+    Makes use of the python speech_recognition library.
 
     The library calls to different speech recognition engines/APIs.
 
@@ -30,18 +30,18 @@ class APISpeech2Text(Speech2Text):
         Google Speech Recognition
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): the agent instance using this speech-to-text class
+        sr_engine (str, optional): the chosen speech recognition engine. Defaults to "Google Speech Recognition".
+        language (str, optional): the chosen language. Defaults to None.
 
     Attributes:
         _sr_engine (str): the chosen SR engine
         _language (str): the chosen language
     """
 
-    def __init__(self, nlp_engine: 'NLPEngine'):
-        super().__init__(nlp_engine)
-        if self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE) not in engines:
-            raise SREngineNotFound(self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE), engines)
-        self._sr_engine = self._nlp_engine.get_property(nlp.NLP_STT_SR_ENGINE)
+    def __init__(self, agent: Agent, sr_engine: str = "Google Speech Recognition", language: str = None):
+        super().__init__(agent, language=language)
+        self._sr_engine = sr_engine
         self._language = self._nlp_engine.get_property(nlp.NLP_LANGUAGE)
 
     def speech2text(self, speech: bytes):
@@ -55,6 +55,7 @@ class APISpeech2Text(Speech2Text):
                 # Recognize the audio data
                 # add other platforms here
                 if self._sr_engine == "Google Speech Recognition":
+                    # TODO: this needs to be changed to take into account dynamic language changes
                     if self._language is None:
                         # use english per default
                         text = r.recognize_google(audio_data)
