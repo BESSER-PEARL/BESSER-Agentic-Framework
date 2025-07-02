@@ -42,6 +42,11 @@ except ImportError:
     logger.warning("plotly dependencies in WebSocketPlatform could not be imported. You can install them from "
                    "the requirements/requirements-extras.txt file")
 
+try:
+    import librosa
+except ImportError:
+    logger.warning("librosa dependencies in WebSocketPlatform could not be imported. You can install them from "
+                   "the requirements/requirements-extras.txt file")
 
 class WebSocketPlatform(Platform):
     """The WebSocket Platform allows an agent to communicate with the users using the
@@ -340,20 +345,17 @@ class WebSocketPlatform(Platform):
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
-    def reply_speech(self, session: Session, message: str) -> None:
+    def reply_speech(self, session: Session, message: str, audio_speed: float = None) -> None:
         """Send an audio reply to a specific user.
 
-        Before being sent, the audio is encoded as a Base64 string. This must be done before decoding
-        the Audio on the client side.
+        The text message is converted to speech and sent to the user. Before being sent, the audio is encoded as a
+        Base64 string. This must be taken into account when decoding the audio on the client side.
 
         Args:
             session (Session): the user session
-            audio_dict (dict): the speech synthesis as a dictionary containing 2 keys:
-                - audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
-                where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
-                of samples in the audio
-                - sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
-                one second of audio
+            message (str): the text message to be converted to speech and sent to the user.
+            audio_speed (float, optional): The speed of the audio. If not provided, the speed is retrieved from the
+            session, or defaults to 1.0. 0.5 is half speed, 2.0 is double speed, etc. Defaults to None.
         """
         
         audio_dict = session._agent.nlp_engine.text2speech(session, message)
@@ -362,28 +364,32 @@ class WebSocketPlatform(Platform):
         dtype = audio_array.dtype
         shape = audio_array.shape
 
-        # Get speed from session, default to 1.0
-        speed = session.get("speed")
-        if speed is None:
-            speed = 1.0
+        #TODO: the sped up / slowed down audio sounds like in an echo chamber, not so good
+        # Adjust audio speed if needed, preserving pitch (avoid chipmunk effect)
+        if audio_speed and audio_speed != 1.0:
+            # librosa expects float32 audio
+            audio_array = audio_array.astype(np.float32)
 
-        # Adjust audio speed if needed
-        if speed != 1.0:
-            # If mono, shape = (audio_length,), if multi-channel, shape = (channels, audio_length)
             if audio_array.ndim == 1:
-                # Mono
-                indices = np.arange(0, audio_array.shape[0], 1/speed)
-                indices = indices[indices < audio_array.shape[0]]
-                audio_array = np.interp(indices, np.arange(audio_array.shape[0]), audio_array)
+                # Mono audio
+                audio_array = librosa.effects.time_stretch(audio_array, rate=audio_speed)
+
             elif audio_array.ndim == 2:
-                # Multi-channel
-                channels, length = audio_array.shape
-                indices = np.arange(0, length, 1/speed)
-                indices = indices[indices < length]
-                audio_array = np.stack([
-                    np.interp(indices, np.arange(length), audio_array[ch])
-                    for ch in range(channels)
-                ])
+                # Multi-channel audio: librosa doesn't support stereo directly,
+                # so apply time_stretch per channel and pad to equal lengths if needed
+                channels = []
+                for ch in range(audio_array.shape[0]):
+                    stretched = librosa.effects.time_stretch(audio_array[ch], rate=audio_speed)
+                    channels.append(stretched)
+                
+                # Find the length of the longest stretched channel
+                max_len = max([c.shape[0] for c in channels])
+                
+                # Pad shorter channels with zeros to match
+                channels = [np.pad(c, (0, max_len - c.shape[0])) for c in channels]
+                
+                audio_array = np.stack(channels, axis=0)
+
             # Update shape and dtype after speed change
             shape = audio_array.shape
             dtype = audio_array.dtype
