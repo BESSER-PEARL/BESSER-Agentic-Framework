@@ -30,15 +30,8 @@ from besser.agent.nlp.ner.ner import NER
 from besser.agent.nlp.ner.simple_ner import SimpleNER
 from besser.agent.nlp.preprocessing.pipelines import lang_map
 from besser.agent.nlp.rag.rag import RAG
-from besser.agent.nlp.speech2text.hf_speech2text import HFSpeech2Text
-from besser.agent.nlp.speech2text.openai_speech2text import OpenAISpeech2Text
-from besser.agent.nlp.speech2text.api_speech2text import APISpeech2Text
-from besser.agent.nlp.speech2text.luxasr_speech2text import LuxASRSpeech2Text
 from besser.agent.nlp.speech2text.speech2text import Speech2Text
 from besser.agent.nlp.text2speech.text2speech import Text2Speech
-from besser.agent.nlp.text2speech.openai_text2speech import OpenAIText2Speech
-from besser.agent.nlp.text2speech.hf_text2speech import HFText2Speech
-from besser.agent.nlp.text2speech.piper_text2speech import PiperText2Speech
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -59,8 +52,14 @@ class NLPEngine:
         _intent_classifiers (dict[State, IntentClassifier]): The collection of Intent Classifiers of the NLPEngine.
             There is one for each agent state (only states with transitions triggered by intent matching)
         _ner (NER or None): The NER (Named Entity Recognition) system of the NLPEngine
-        _speech2text (Speech2Text or None): The Speech-to-Text system of the NLPEngine
-        _text2speech (Text2Speech or None): The Text-to-Speech system of the NLPEngine
+        _language_to_speech2text_module (dict[str, Speech2Text]): A dictionary mapping the user language to a Speech-to-Text
+            system of the NLPEngine. The user language is either automatically recognized if audio_language_detection_processor
+            is set, or it can be set by the user, defaults to english. Keys are the language names and values are the
+            Speech2Text system itself.
+        _language_to_text2speech_module (dict[str, Text2Speech]): A dictionary mapping the user language to a Text-to-Speech
+            system of the NLPEngine. The user language is set by the user, defaults to english. Keys are the language
+            names and values are the Text2Speech system itself.
+        _rag (RAG): The RAG system of the NLPEngine
     """
 
     def __init__(self, agent: "Agent"):
@@ -230,15 +229,17 @@ class NLPEngine:
         """Synthesize a text into its corresponding voice audio.
 
         Args:
+            session (Session): The Session of the Agent the Text2Speech system belongs to
             text (str): the text that wants to be synthesized
 
         Returns:
             dict: the speech synthesis as a dictionary containing 2 keys:
-                audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels,
+                - audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels,
                 audio_length), where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
-                    of samples in the audio
-                sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
-                    one second of audio
+                of samples in the audio
+                - sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
+                one second of audio
+
         """
 
         user_language = session.get("user_language", "en")

@@ -16,7 +16,8 @@ class Speech2Text(ABC):
     can process them like regular text messages.
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): The Agent the Speech2Text system belongs to
+        language (str): The user language for the Speech2Text system
 
     Attributes:
         _nlp_engine (): The NLPEngine that handles the NLP processes of the agent

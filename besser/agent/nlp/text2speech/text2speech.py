@@ -16,7 +16,8 @@ class Text2Speech(ABC):
     signals like regular spoken language
 
     Args:
-        nlp_engine (NLPEngine): the NLPEngine that handles the NLP processes of the agent
+        agent (Agent): The Agent the Text2Speech system belongs to
+        language (str): The user language for the Text2Speech system
 
     Attributes:
         _nlp_engine (): The NLPEngine that handles the NLP processes of the agent
@@ -44,7 +45,7 @@ class Text2Speech(ABC):
                 audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels, audio_length),
                     where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
                     of samples in the audio
-                sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
+                sampling_rate (int): an integer value containing the sampling rate, e.g. how many samples correspond to
                     one second of audio
         """
         pass

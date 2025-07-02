@@ -184,9 +184,10 @@ class Session:
 
         Args:
             key (str): the entry key
+            default (Any): The default value to be returned, if the dictionary does not contain the key
 
         Returns:
-            Any: the entry value, or None if the key does not exist
+            Any: the entry value, default or None if the key does not exist
         """
         if key not in self._dictionary:
             if default:

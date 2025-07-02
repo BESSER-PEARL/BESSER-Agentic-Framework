@@ -40,7 +40,7 @@ class HFText2Speech(Text2Speech):
             'np': Return Numpy np.ndarray objects.
             name: ``nlp.text2speech.hf.rt``
             type: ``str``
-            default value: ``None``
+            default value: ``pt``
 
 
     Attributes:
@@ -59,7 +59,7 @@ class HFText2Speech(Text2Speech):
 
         super().__init__(agent, language=language)
         self._model_name = model_name
-        self._return_tensor = return_tensor
+        #self._return_tensor = return_tensor
         # for Facebook models
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
             self._tokenizer = VitsTokenizer.from_pretrained(self._model_name)
@@ -68,10 +68,10 @@ class HFText2Speech(Text2Speech):
             self._tts = pipeline("text-to-speech", model=self._model_name)
 
 
-    def text2speech(self, text: str) -> dict:
+    def text2speech(self, text: str, return_tensor: str = "pt") -> dict:
         # TODO Improve quality of SpeechT5: https://huggingface.co/microsoft/speecht5_tts
         if self._model_name.startswith('facebook/') or "vits" in self._model_name:
-            inputs = self._tokenizer(text=text, return_tensors=self._return_tensor)
+            inputs = self._tokenizer(text=text, return_tensors=return_tensor)
             with torch.no_grad():
                 outputs = self._model(**inputs)
             # also need to convert the torch tensor to numpy array

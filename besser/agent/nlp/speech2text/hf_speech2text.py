@@ -41,10 +41,6 @@ class HFSpeech2Text(Speech2Text):
 
     It loads a Speech2Text Hugging Face model to perform the Speech2Text task.
 
-    .. warning::
-
-        Only tested with ``openai/whisper-*`` models
-
     Args:
         agent (Agent): the agent instance using this Speech2Text component
         model_name (str): the Hugging Face model name to load

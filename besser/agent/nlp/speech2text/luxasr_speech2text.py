@@ -25,25 +25,32 @@ class LuxASRSpeech2Text(Speech2Text):
         language (str, optional): The language code for recognition (default: None).
 
     Attributes:
-        _diarization (str): Diarization setting for the API request (default: 'Enabled').
-        _output_format (str): Output format for the API response (default: 'text').
         _mime_type (str): MIME type for the audio file sent to the API (default: 'application/octet-stream').
     """
 
     def __init__(self, agent: 'Agent', language: str = None):
         super().__init__(agent, language=language)
         # these should be parameters of the constructor, but for now we set them to default values
-        self._diarization = 'Enabled'  # Default diarization setting
-        self._output_format = 'text'  # Default output format
         self._mime_type = 'application/octet-stream'
 
-    def speech2text(self, speech: bytes) -> str:
-        url = f"https://luxasr.uni.lu/v2/asr?diarization={self._diarization}&outfmt={self._output_format}"
+    def speech2text(self, speech: bytes, mime_type: str = 'application/octet-stream', diarization: str = 'Enabled',
+                    output_format: str = 'text') -> str:
+        """Transcribe a voice audio into its corresponding text representation.
+
+        Args:
+            speech (bytes): the recorded voice that wants to be transcribed
+            mime_type (str): the mime_type of the file send to the LuxASR API. For a spoken user message, this defaults to
+            application/octet-stream
+            diarization (str): Diarization setting for the API request (default: 'Enabled').
+            output_format (str): Output format for the API response (default: 'text').
+
+        Returns:
+            str: the speech transcription
+        """
+        url = f"https://luxasr.uni.lu/v2/asr?diarization={diarization}&outfmt={output_format}"
         headers = {
             "accept": "application/json"
         }
-        # Set MIME type
-        mime_type = self._mime_type
         files = {
             "audio_file": ("recorded_speech", speech, mime_type)
         }

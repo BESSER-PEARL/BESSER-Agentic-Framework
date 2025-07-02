@@ -11,41 +11,42 @@ Available Speech-to-Text models
 BAF supports a variety of implementations for speech-to-text:
 
 - :class:`~besser.agent.nlp.speech2text.hf_speech2text.HFSpeech2Text`: For `HuggingFace <https://huggingface.co/>`_ STT
-  models, you need to set the :obj:`~besser.agent.nlp.NLP_STT_HF_MODEL` agent property. Example model: ``openai/whisper-tiny`` (very lightweight model)
+  models. Example model: ``openai/whisper-tiny`` (very lightweight model)
 
 - :class:`~besser.agent.nlp.speech2text.api_speech2text.APISpeech2Text`: For the
-  `SpeechRecognition <https://github.com/Uberi/speech_recognition>`_ Python library. You need to set the
-  :obj:`~besser.agent.nlp.NLP_STT_SR_ENGINE` agent property (Currently only supports Google Speech Recognition).
+  `SpeechRecognition <https://github.com/Uberi/speech_recognition>`_ Python library. Currently only supports Google Speech Recognition.
 
 - :class:`~besser.agent.nlp.speech2text.openai_speech2text.OpenAISpeech2Text`: For
-  `OpenAI <https://platform.openai.com/docs/guides/speech-to-text>`_ STT models. You need to set the
-  :obj:`~besser.agent.nlp.NLP_STT_OPENAI_MODEL` agent property. Example model: ``whisper-1``
+  `OpenAI <https://platform.openai.com/docs/guides/speech-to-text>`_ STT models. Example model: ``whisper-1``
 
 - :class:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`: For the `LuxASR <https://luxasr.uni.lu/>`_
-  API. You need to set the :obj:`~besser.agent.nlp.NLP_STT_MIME_TYPE` agent property. Example: ``application/octet-stream``.
-  Optional agent properties:
+  API. Optional parameters for :meth:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text.speech2text`:
 
-- :obj:`~besser.agent.nlp.NLP_STT_DIARIZATION`. Example ``Enabled`` (default)
+- ``mime_type``. Example: ``audio/mpeg`` or ``plain/text``,
+  defaults to ``application/octet-stream`` for voice inputs.
 
-- :obj:`~besser.agent.nlp.NLP_STT_OUT_FMT`. Example ``text`` (default)
+- ``diarization``. Example ``Enabled`` (default)
+
+- ``output_format``. Example ``text`` (default)
 
 How to use
 ----------
 
 Let's see how to seamlessly integrate a Speech2Text model into our agent. You can also check the :doc:`../../examples/speech2text_agent` for a complete example.
 
-We are going to implement the HFSpeech2Text class (make sure the the corresponding agent property is set
-accordingly). We start by creating our Agent:
+We are going to implement the HFSpeech2Text class. We start by creating our Agent and define the STT model(s):
 
 .. code:: python
 
     agent = Agent('example_agent')
 
+    # Define STT and TTS Models
+    stt = HFSpeech2Text(agent=agent, model_name="openai/whisper-tiny")
 
-The Agent builds the NLP Engine, which implements the corresponding Speech2Text class in the background (eg. HFSpeech2Text) based on the set
-agent property. The Speech2Text component will be automatically called when the user speaks into the microphone through
-the Streamlit UI and the transcribed message can be used within any agent state and simply accessed through the Session
-parameter.
+
+The Agent builds the NLP Engine, which implements the corresponding Speech2Text class in the background (eg. HFSpeech2Text).
+The Speech2Text component will be automatically called when the user speaks into the microphone through the Streamlit UI
+and the transcribed message can be used within any agent state and simply accessed through the Session parameter.
 
 .. code:: python
 
@@ -88,7 +89,7 @@ API References
 - APISpeech2Text: :class:`besser.agent.nlp.speech2text.api_speech2text.APISpeech2Text`
 - HFSpeech2Text: :class:`besser.agent.nlp.speech2text.hf_speech2text.HFSpeech2Text`
 - LuxASRSpeech2Text: :class:`besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`
-- NLPEngine: :class:`besser.agent.core.nlp.nlp_engine.NLPEngine`
+- NLPEngine: :class:`besser.agent.nlp.nlp_engine.NLPEngine`
 - OpenAISpeech2Text: :class:`besser.agent.nlp.speech2text.openai_speech2text.OpenAISpeech2Text`
 - Session: :class:`besser.agent.core.session.Session`
 - Session.reply(): :meth:`besser.agent.core.session.Session.reply`
