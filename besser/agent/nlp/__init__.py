@@ -112,3 +112,25 @@ type: ``str``
 
 default value: ``None``
 """
+
+OLLAMA_HOST = Property(SECTION_NLP, 'nlp.ollama.host', str, 'localhost')
+"""
+The Ollama server host address. Necessary to use an Ollama LLM
+
+name: ``nlp.ollama.host``
+
+type: ``str``
+
+default value: ``localhost``
+"""
+
+OLLAMA_PORT = Property(SECTION_NLP, 'nlp.ollama.port', int, 11434)
+"""
+The Ollama server address port. Necessary to use an Ollama LLM.
+
+name: ``nlp.ollama.port``
+
+type: ``int``
+
+default value: ``11434``
+"""

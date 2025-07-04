@@ -15,6 +15,7 @@ nlp
    nlp/llm
    nlp/llm_huggingface
    nlp/llm_huggingface_api
+   nlp/llm_ollama
    nlp/llm_openai_api
    nlp/llm_replicate_api
    nlp/matched_parameter

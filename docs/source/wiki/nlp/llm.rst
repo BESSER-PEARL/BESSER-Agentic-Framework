@@ -107,6 +107,7 @@ These are the currently available LLM wrappers in BAF:
 - :class:`~besser.agent.nlp.llm.llm_huggingface.LLMHuggingFace`: For `HuggingFace <https://huggingface.co/>`_ LLMs locally deployed
 - :class:`~besser.agent.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`: For HuggingFace LLMs, through its `Inference API <https://huggingface.co/docs/api-inference>`_
 - :class:`~besser.agent.nlp.llm.llm_replicate_api.LLMReplicate`: For `Replicate <https://replicate.com/>`_ LLMs, through its API
+- :class:`~besser.agent.nlp.llm.llm_ollama.LLMOllama`: For `Ollama <https://ollama.com/>`_ LLMs
 
 .. note::
 
@@ -123,6 +124,7 @@ API References
 - LLM.remove_user_context(): :meth:`besser.agent.nlp.llm.llm.LLM.remove_user_context`
 - LLMHuggingFace: :class:`besser.agent.nlp.llm.llm_huggingface.LLMHuggingFace`:
 - LLMHuggingFaceAPI: :class:`besser.agent.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`:
+- LLMOllama: :class:`besser.agent.nlp.llm.llm_ollama.LLMOllama`:
 - LLMOpenAI: :class:`besser.agent.nlp.llm.llm_openai_api.LLMOpenAI`
 - LLMReplicate: :class:`besser.agent.nlp.llm.llm_replicate_api.LLMReplicate`:
 - Session: :class:`besser.agent.core.session.Session`
