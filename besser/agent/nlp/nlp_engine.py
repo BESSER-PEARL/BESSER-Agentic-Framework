@@ -46,11 +46,11 @@ class NLPEngine:
         _intent_classifiers (dict[State, IntentClassifier]): The collection of Intent Classifiers of the NLPEngine.
             There is one for each agent state (only states with transitions triggered by intent matching)
         _ner (NER or None): The NER (Named Entity Recognition) system of the NLPEngine
-        _language_to_speech2text_module (dict[str, Speech2Text]): A dictionary mapping the user language to a Speech-to-Text
+        _speech2text (dict[str, Speech2Text]): A dictionary mapping the user language to a Speech-to-Text
             system of the NLPEngine. The user language is either automatically recognized if audio_language_detection_processor
             is set, or it can be set by the user, defaults to english. Keys are the language names and values are the
             Speech2Text system itself.
-        _language_to_text2speech_module (dict[str, Text2Speech]): A dictionary mapping the user language to a Text-to-Speech
+        _text2speech (dict[str, Text2Speech]): A dictionary mapping the user language to a Text-to-Speech
             system of the NLPEngine. The user language is set by the user, defaults to english. Keys are the language
             names and values are the Text2Speech system itself.
         _rag (RAG): The RAG system of the NLPEngine
@@ -61,8 +61,8 @@ class NLPEngine:
         self._llms: dict[str, LLM] = {}
         self._intent_classifiers: dict["State", IntentClassifier] = {}
         self._ner: NER or None = None
-        self._language_to_speech2text_module: dict[str, Speech2Text] = {}
-        self._language_to_text2speech_module: dict[str, Text2Speech] = {}
+        self._speech2text: dict[str, Speech2Text] = {}
+        self._text2speech: dict[str, Text2Speech] = {}
         self._rag: RAG = None
 
     @property
@@ -204,7 +204,7 @@ class NLPEngine:
         user_language = "en"
         try:
             user_language = session.get("user_language", "en")
-            if user_language not in self._language_to_speech2text_module:
+            if user_language not in self._speech2text:
                 user_language = "en"
 
         except Exception as e:
@@ -213,7 +213,7 @@ class NLPEngine:
         text = ""
 
         try:
-            text = self._language_to_speech2text_module[user_language].speech2text(
+            text = self._speech2text[user_language].speech2text(
                 speech
             )
         except Exception as e:
@@ -241,7 +241,7 @@ class NLPEngine:
 
         user_language = session.get("user_language", "en")
 
-        if user_language not in self._language_to_text2speech_module:
+        if user_language not in self._text2speech:
             user_language = "en"
 
-        return self._language_to_text2speech_module[user_language].text2speech(text)
+        return self._text2speech[user_language].text2speech(text)

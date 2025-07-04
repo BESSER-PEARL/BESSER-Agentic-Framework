@@ -28,10 +28,10 @@ class Text2Speech(ABC):
         if language is None:
             # if no language is specified, we assume English
             # if en is already set, we do not overwrite it
-            if "en" not in self._nlp_engine._language_to_text2speech_module:
-                self._nlp_engine._language_to_text2speech_module["en"] = self
+            if "en" not in self._nlp_engine._text2speech:
+                self._nlp_engine._text2speech["en"] = self
         else:
-            self._nlp_engine._language_to_text2speech_module[language] = self
+            self._nlp_engine._text2speech[language] = self
 
     @abstractmethod
     def text2speech(self, text: str) -> dict:

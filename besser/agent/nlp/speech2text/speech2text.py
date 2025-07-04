@@ -28,10 +28,10 @@ class Speech2Text(ABC):
         if language is None:
             # if no language is specified, we assume English 
             # if en is already set, we do not overwrite it
-            if "en" not in self._nlp_engine._language_to_speech2text_module:
-                self._nlp_engine._language_to_speech2text_module["en"] = self
+            if "en" not in self._nlp_engine._speech2text:
+                self._nlp_engine._speech2text["en"] = self
         else:
-            self._nlp_engine._language_to_speech2text_module[language] = self
+            self._nlp_engine._speech2text[language] = self
 
     @abstractmethod
     def speech2text(self, speech: bytes) -> str:

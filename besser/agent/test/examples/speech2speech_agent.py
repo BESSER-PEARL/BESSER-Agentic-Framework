@@ -104,7 +104,7 @@ def stt_file_body(session: Session):
     # get user language
     lang = session.get("user_language", "en")
     # access STT system based on language mapping
-    s2t = session._agent._nlp_engine._language_to_speech2text_module[lang]
+    s2t = session._agent._nlp_engine._speech2text[lang]
     event: ReceiveFileEvent = session.event
     file: File = event.file
 
