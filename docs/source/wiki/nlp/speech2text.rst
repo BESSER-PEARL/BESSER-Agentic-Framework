@@ -22,7 +22,7 @@ BAF supports a variety of implementations for speech-to-text:
 - :class:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`: For the `LuxASR <https://luxasr.uni.lu/>`_
   API.
 
-Optional parameters for :meth:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text.speech2text`:
+Optional parameters for LuxASR :meth:`~besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text.speech2text`:
 
 - ``mime_type``. Example: ``audio/mpeg`` or ``plain/text``,
   defaults to ``application/octet-stream`` for voice inputs.
