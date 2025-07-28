@@ -37,6 +37,9 @@ def flow_graph(monitoring_db: MonitoringDB):
         if source_state not in state_set:
             state_set.add(source_state)
             nt.add_node(source_state, group=1)
+        if dest_state not in state_set:
+            state_set.add(dest_state)
+            nt.add_node(dest_state, group=1)
         if (source_state, dest_state, event, info) not in transition_dict:
             transition_dict[(source_state, dest_state, event, info)] = 1
         else:
