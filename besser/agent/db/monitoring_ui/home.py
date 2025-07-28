@@ -72,6 +72,11 @@ def agent_filter(monitoring_db: MonitoringDB):
     agent_names = st.multiselect(label='Select one or more agents', options=agents, placeholder='All agents')
     return agent_names
 
+def session_filter(monitoring_db: MonitoringDB):
+    sessions = monitoring_db.get_table(TABLE_SESSION)['session_id'].unique()
+    session_ids = st.multiselect(label='Select one or more sessions', options=sessions, placeholder='All sessions')
+    return session_ids
+
 
 def get_matched_intents_ratio(monitoring_db: MonitoringDB, agent_names=[]):
     table_intent_prediction = monitoring_db.get_table(TABLE_INTENT_PREDICTION)
