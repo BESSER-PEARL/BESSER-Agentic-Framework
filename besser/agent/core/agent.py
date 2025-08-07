@@ -1,6 +1,8 @@
 import asyncio
 import operator
 import threading
+import uuid
+import json
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Callable, get_type_hints
@@ -30,6 +32,7 @@ from besser.agent.platforms.telegram.telegram_platform import TelegramPlatform
 from besser.agent.platforms.websocket.websocket_platform import WebSocketPlatform
 from besser.agent.platforms.github.github_platform import GitHubPlatform
 from besser.agent.platforms.gitlab.gitlab_platform import GitLabPlatform
+from besser.agent.core.protocol.a2a.agent_card import AgentCard
 
 
 class Agent:
@@ -588,3 +591,26 @@ class Agent:
                 session = self._sessions[event.session_id]
             thread = threading.Thread(target=self._monitoring_db.insert_event, args=(session, event))
             thread.start()
+    
+    def metadata(self, endpoints: list[str], capabilities: list[str], version: str = "1.0", id: str = str(uuid.uuid4()), description: list[str] = [], provider: str = "BESSER-Agentic-Framework"):
+        """Create an agent card with metadata about the agent.
+
+        Args:
+            endpoints (list[str]): the endpoints to contact the agent
+            capabilities (list[str]): the capabilities of the agent
+            version (str): the version of the agent
+            id (str): the agent id
+            description (str): a description of the agent
+            provider (str): the provider of the agent
+        """
+        self.agent_card = AgentCard(name=self._name, id=id, endpoints=endpoints, capabilities=capabilities, version=version, description=description, provider=provider)
+    
+    def get_agent_card(self) -> json:
+        """Get the agent card as a JSON string.
+
+        Returns:
+            json: the agent card in JSON format
+        """
+        if not hasattr(self, 'agent_card'):
+            raise ValueError("Agent card metadata has not been set. Set it using agent.metadata(...).")
+        return self.agent_card.to_json()
