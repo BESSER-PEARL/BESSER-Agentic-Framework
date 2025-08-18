@@ -6,6 +6,7 @@ import json
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Callable, get_type_hints
+from fastapi import FastAPI
 
 from besser.agent.core.transition.event import Event
 from besser.agent.core.message import Message, MessageType
@@ -592,18 +593,20 @@ class Agent:
             thread = threading.Thread(target=self._monitoring_db.insert_event, args=(session, event))
             thread.start()
     
-    def metadata(self, endpoints: list[str], capabilities: list[str], version: str = "1.0", id: str = str(uuid.uuid4()), description: list[str] = [], provider: str = "BESSER-Agentic-Framework"):
+    def metadata(self, endpoints: list[str], capabilities: list[str], version: str = "1.0", id: str = str(uuid.uuid4()), description: list[str] = [], skills: list[str] = [], examples: list[str] = [], provider: str = "BESSER-Agentic-Framework"):
         """Create an agent card with metadata about the agent.
 
         Args:
             endpoints (list[str]): the endpoints to contact the agent
-            capabilities (list[str]): the capabilities of the agent
+            capabilities (list[str]): the capabilities of the agent - serial output, http connection and so on
             version (str): the version of the agent
             id (str): the agent id
             description (str): a description of the agent
+            skills (list[str]): the skills of the agent - code generation, text summarization, websearch and so on
+            examples (list[str]): the examples of the agent - how to use it, inputs, prompts and so on
             provider (str): the provider of the agent
         """
-        self.agent_card = AgentCard(name=self._name, id=id, endpoints=endpoints, capabilities=capabilities, version=version, description=description, provider=provider)
+        self.agent_card = AgentCard(name=self._name, id=id, endpoints=endpoints, capabilities=capabilities, version=version, description=description, skills=skills, examples=examples, provider=provider)
     
     def get_agent_card(self) -> json:
         """Get the agent card as a JSON string.
