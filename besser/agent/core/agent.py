@@ -1,12 +1,10 @@
 import asyncio
 import operator
 import threading
-import uuid
 import json
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Callable, get_type_hints
-from fastapi import FastAPI
 
 from besser.agent.core.transition.event import Event
 from besser.agent.core.message import Message, MessageType
