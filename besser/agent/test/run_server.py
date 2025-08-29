@@ -17,7 +17,7 @@ def main():
     #             capabilities=["search", "summarise"])
     # print(agent.get_agent_card())
 
-    uvicorn.run("besser.agent.core.protocol.a2a.server:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
+    uvicorn.run("besser.agent.platforms.A2A.server:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
 
 #required on windows for multiprocessing
 if __name__ == '__main__':
