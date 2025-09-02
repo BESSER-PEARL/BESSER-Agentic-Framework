@@ -19,12 +19,18 @@ class Task:
 tasks = {}  # id -> Task
 
 def create_task(method: str, params: dict):
+    '''
+    Creates a new task and adds it to the tasks dictionary.
+    '''
     t = Task(method, params)
     tasks[t.id] = t
     return {"task_id": t.id, 
             "status": t.status}
 
 def get_status(task_id: str):
+    '''
+    Gets the status of a task given its task_id.
+    '''
     if task_id not in tasks:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
     t = tasks.get(task_id)

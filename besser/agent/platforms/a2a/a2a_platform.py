@@ -29,8 +29,8 @@ class A2APlatform(Platform):
                  endpoints: list[str] = ["http://localhost:8000/a2a"],
                  descriptions: list[str] = [], 
                  skills: list[str] = [], 
-                 examples: list[str] = [],
-                 methods: list[str] = [],
+                 examples: list[dict] | list[str] = [],
+                 methods: list[dict] = [],
                  provider = "BESSER-Agentic-Framework"):
         super().__init__()
         self._agent: Agent = agent
@@ -49,6 +49,7 @@ class A2APlatform(Platform):
                                                provider=provider)
 
     def get_agent_card(self) -> AgentCard:
+        """Returns the agent card in JSON format."""
         return self.agent_card.to_json()
     
     def initialize(self) -> None:
@@ -100,15 +101,27 @@ class A2APlatform(Platform):
                 logger.warning(f"No example is provided for {self._agent.name}")
             self.agent_card.skills.extend([skill])
     
-    def add_methods(self, methods: list[str] | str):
-        if isinstance(methods, str):
-            methods = [methods]
+    def add_methods(self, methods: list[dict]):
+        """Enables adding methods manually to the agent_card.methods."""
+        if not hasattr(self.agent_card, "methods") or self.agent_card.methods is None:
+            self.agent_card.methods = []
+
         for mth in methods:
-            if not mth:
-                logger.warning(f"No method is present in {self._agent.name}")
+            if not mth.get("name") or mth.get("name") not in self.router.methods:
+                logger.warning(f"Method {mth.get('name')} is not registered in the router of {self._agent.name}")
+            if any(mth["name"] == existing["name"] for existing in self.agent_card.methods):
+                continue
             self.agent_card.methods.extend([mth])
+
+    def populate_methods_from_router(self):
+        """Automatically fetch registered methods from router and add it to the agent_card.methods."""
+        method_list = []
+        for name, func in self.router.methods.items():
+            doc = func.__doc__ or ""
+            method_list.append({"name": name, "description": doc})
+        self.add_methods(method_list)
     
-    def add_examples(self, examples: list[str] | str):
+    def add_examples(self, examples: list[dict] | list[str]):
         if isinstance(examples, str):
             examples = [examples]
         for eg in examples:
