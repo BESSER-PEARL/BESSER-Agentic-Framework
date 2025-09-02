@@ -60,7 +60,7 @@ class A2APlatform(Platform):
         self._agent.get_or_create_session("A2A_Session_" + str(self.__hash__()), self)
         self.running = True
         self._app.router.add_post("/a2a", self.router.aiohttp_handler)
-        self._app.router.add_get("/agent-card", lambda _: web.json_response(self.get_agent_card()))
+        self._app.router.add_get("/agent-card", lambda _: web.json_response(self.get_agent_card(), content_type="application/json"))
         web.run_app(self._app, port=self._port, handle_signals=False)
     
     def stop(self):
