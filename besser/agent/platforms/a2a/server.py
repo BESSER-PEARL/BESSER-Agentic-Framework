@@ -2,6 +2,7 @@
 # from fastapi.responses import JSONResponse
 from aiohttp.web_request import Request
 from aiohttp import web
+from besser.agent.platforms.a2a.error_handler import error_middleware
 
 from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 
@@ -26,7 +27,7 @@ async def add_peer(request: web.Request):
     return web.json_response({"ok": True, "peers": peers})
 
 def create_app(platform: A2APlatform) -> web.Application:
-    app = web.Application()
+    app = web.Application(middlewares=[error_middleware])
     app["a2a_platform"] = platform
     app.router.add_get("/agent-card", get_agent_card)
     app.router.add_post("/a2a", a2a_handler)
