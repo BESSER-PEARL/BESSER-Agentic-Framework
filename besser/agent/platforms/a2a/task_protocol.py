@@ -1,6 +1,8 @@
 import uuid, time
 from enum import Enum
 
+from besser.agent.platforms.a2a.errors import TaskError
+
 class TaskStatus(str, Enum):
     PENDING="PENDING"; RUNNING="RUNNING"; DONE="DONE"; ERROR="ERROR"
 
@@ -24,9 +26,17 @@ def create_task(method: str, params: dict):
 
 def get_status(task_id: str):
     if task_id not in tasks:
-        return {"error": "Task not found"}
+        raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
     t = tasks.get(task_id)
+
+    if t.status == TaskStatus.PENDING:
+        raise TaskError("TASK_PENDING", "Task is still pending")
+
+    if t.status == TaskStatus.ERROR:
+        raise TaskError("TASK_FAILED", t.error)
+    
     return {"task_id": t.id, 
             "status": t.status, 
-            "result": t.result, 
-            "error": t.error}
+            "result": t.result,
+            "error": t.error
+            }
