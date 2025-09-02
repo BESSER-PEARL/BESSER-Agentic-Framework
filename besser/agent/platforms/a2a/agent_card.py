@@ -14,6 +14,7 @@ class AgentCard(BaseModel):
     provider: str
     skills: list[str]
     examples: list[str] = []
+    methods: list[str] = []
 
     def to_json(self):
         return self.model_dump_json(indent=4)

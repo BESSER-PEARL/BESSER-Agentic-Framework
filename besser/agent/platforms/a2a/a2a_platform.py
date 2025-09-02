@@ -30,6 +30,7 @@ class A2APlatform(Platform):
                  descriptions: list[str] = [], 
                  skills: list[str] = [], 
                  examples: list[str] = [],
+                 methods: list[str] = [],
                  provider = "BESSER-Agentic-Framework"):
         super().__init__()
         self._agent: Agent = agent
@@ -43,7 +44,8 @@ class A2APlatform(Platform):
                                                capabilities=capabilities, 
                                                descriptions=descriptions, 
                                                skills=skills, 
-                                               examples=examples, 
+                                               examples=examples,
+                                               methods=methods,
                                                provider=provider)
 
     def get_agent_card(self) -> AgentCard:
@@ -97,6 +99,14 @@ class A2APlatform(Platform):
             if not skill:
                 logger.warning(f"No example is provided for {self._agent.name}")
             self.agent_card.skills.extend([skill])
+    
+    def add_methods(self, methods: list[str] | str):
+        if isinstance(methods, str):
+            methods = [methods]
+        for mth in methods:
+            if not mth:
+                logger.warning(f"No method is present in {self._agent.name}")
+            self.agent_card.methods.extend([mth])
     
     def add_examples(self, examples: list[str] | str):
         if isinstance(examples, str):
