@@ -19,6 +19,10 @@ class JSONRPCError(Exception):
         self.message = message
         self.data = data
 
+class AgentNotFound(JSONRPCError):
+    def __init__(self, message="Agent not found"):
+        super().__init__(-32003, message)
+
 class MethodNotFound(JSONRPCError):
     def __init__(self, message="Method not found"):
         super().__init__(-32601, message)

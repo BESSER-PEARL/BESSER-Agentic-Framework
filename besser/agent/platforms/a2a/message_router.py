@@ -15,7 +15,7 @@ class A2ARouter:
     async def handle(self, method_name: str, params: dict):
         
         if method_name not in self.methods:
-                raise MethodNotFound()
+                raise MethodNotFound(message=f"Method '{method_name}' not found")
         
         if not isinstance(params, dict):
             raise InvalidParams()

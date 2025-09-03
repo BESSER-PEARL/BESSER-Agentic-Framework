@@ -63,5 +63,5 @@ a2a_platform.add_methods(methods_info)
 a2a_platform.populate_methods_from_router()
 a2a_platform.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"hellloooo1\"}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
 
-app = create_app(a2a_platform)
+app = create_app(platform=a2a_platform)
 web.run_app(app, port=8000)
