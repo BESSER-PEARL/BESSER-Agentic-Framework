@@ -2,8 +2,8 @@ import inspect
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from besser.agent.platforms.a2a.errors import JSONRPCError, MethodNotFound, InvalidParams, TaskError
-from besser.agent.platforms.a2a.errors import INTERNAL_ERROR, PARSE_ERROR, INVALID_REQUEST, TASK_PENDING, TASK_FAILED, TASK_NOT_FOUND
+from besser.agent.platforms.a2a.error_handler import JSONRPCError, MethodNotFound, InvalidParams, TaskError
+from besser.agent.platforms.a2a.error_handler import INTERNAL_ERROR, PARSE_ERROR, INVALID_REQUEST, TASK_PENDING, TASK_FAILED, TASK_NOT_FOUND
 
 class A2ARouter:
     def __init__(self):

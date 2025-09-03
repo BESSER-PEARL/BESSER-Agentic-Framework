@@ -8,8 +8,7 @@ from aiohttp import web
 from besser.agent.core.agent import Agent
 # from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 from besser.agent.platforms.a2a.server import create_app
-from besser.agent.platforms.a2a.task_protocol import create_task, get_status
-from besser.agent.platforms.a2a.task_executor import execute_task
+from besser.agent.platforms.a2a.task_protocol import create_task, get_status, execute_task
 
 agent = Agent('TestAgent')
 
