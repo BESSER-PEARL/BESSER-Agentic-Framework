@@ -11,13 +11,14 @@ class AgentRegistry:
 
     def register(self, agent_id: str, platform: A2APlatform):
         if agent_id in self._agents:
-            raise ValueError(f"Agent {agent_id} already registered")
-        logger.info(f"Registering agent {agent_id}")
+            logger.error(f'Agent ID "{agent_id}" already registered')
+            raise ValueError(f'Agent ID "{agent_id}" already registered')
+        logger.info(f'Registering agent {agent_id}')
         self._agents[agent_id] = platform
 
     def get(self, agent_id: str) -> A2APlatform:
         if agent_id not in self._agents:
-            raise ValueError(f"Agent {agent_id} not found")
+            raise ValueError(f'Agent ID "{agent_id}" not found')
         return self._agents[agent_id]
 
     def list(self) -> dict:
