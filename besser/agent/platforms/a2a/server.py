@@ -24,12 +24,7 @@ async def a2a_handler(request: Request):
     platform = request.app["registry"].get(agent_id)
 
     if not platform:
-        raise AgentNotFound(message=f"Agent '{agent_id}' not found")
-        # return web.json_response({
-        #     "jsonrpc": "2.0",
-        #     "error": {"code": -32003, "message": f"Agent '{agent_id}' not found"},
-        #     "id": body.get("id")
-        # })
+        raise AgentNotFound(message=f'Agent ID "{agent_id}" not found')
     
     return await platform.router.aiohttp_handler(request)
 
