@@ -70,8 +70,6 @@ class A2ARouter:
             "TASK_FAILED": TASK_FAILED,
             "TASK_NOT_FOUND": TASK_NOT_FOUND
             }
-            print("TASK_FAILED error_map:", error_map["TASK_FAILED"])
-            print(error_map.get(e.code))
             return web.json_response({
                 "jsonrpc": "2.0", 
                 "error": error_map.get(e.code, INTERNAL_ERROR), 
