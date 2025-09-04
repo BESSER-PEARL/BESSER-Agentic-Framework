@@ -16,6 +16,10 @@ class AgentRegistry:
         logger.info(f'Registering agent {agent_id}')
         self._agents[agent_id] = platform
 
+        # Auto-register the methods that are common to all agents.
+        if hasattr(platform, "router") and platform.router:
+            platform.router.register_task_methods()
+
     def get(self, agent_id: str) -> A2APlatform:
         if agent_id not in self._agents:
             raise ValueError(f'Agent ID "{agent_id}" not found')
