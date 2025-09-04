@@ -57,16 +57,6 @@ class A2ARouter:
             "result": result,
             "id": request_id
             })
-        # except ValueError as e:
-        #     error_map = {
-        #     "METHOD_NOT_FOUND": METHOD_NOT_FOUND,
-        #     "INVALID_PARAMS": INVALID_PARAMS,
-        #     }
-        #     return web.json_response({
-        #         "jsonrpc": "2.0", 
-        #         "error": error_map.get(e.code, INTERNAL_ERROR), 
-        #         "id": request_id
-        #         })
         except JSONRPCError as e:
             return web.json_response({
                 "jsonrpc": "2.0", 
