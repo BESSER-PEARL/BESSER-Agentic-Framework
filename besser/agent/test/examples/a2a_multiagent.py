@@ -43,24 +43,8 @@ app = create_app(registry=registry)
 #     '''
 #     raise Exception('exception_raised')
 
-# a2a_platform1.router.register("echo_message", echo)
-# a2a_platform1.router.register("task_create", create_task)
-# a2a_platform1.router.register("task_status", get_status)
-# a2a_platform1.router.register("failing_method", failing_method)
-
-# async def create_and_execute_task(method: str, params: dict, router):
-#     '''
-#     Creates a task and runs it in the background.
-#     '''
-#     task_info = create_task(method, params)
-#     asyncio.create_task(execute_task(task_info["task_id"], router))
-#     return task_info
-
-# async def rpc_create_task(method: str, params: dict):
-#     '''
-#     Creates a task and waits for its execution to be completed before providing the result.
-#     '''
-#     return await create_and_execute_task(method, params, a2a_platform1.router)
+a2a_platform1.router.register("echo_message", echo)
+a2a_platform2.router.register("do_summation", do_summation)
 
 # a2a_platform1.router.register("create_task_and_run", rpc_create_task)
 

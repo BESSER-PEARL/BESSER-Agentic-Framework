@@ -85,3 +85,25 @@ class A2ARouter:
                             "message": str(e)},
                 "id": request_id
             })
+    
+    async def create_and_execute_task(self, method: str, params: dict):
+        '''
+        This is an internal method. It creates a task and runs it in the background.
+        '''
+        task_info = create_task(method, params)
+        asyncio.create_task(execute_task(task_info["task_id"], self))
+        return task_info
+    
+    async def rpc_create_task(self, method: str, params: dict):
+        '''
+        This is an internal method. It creates a task and waits for its execution to be completed before providing the result.
+        '''
+        return await self.create_and_execute_task(method, params)
+    
+    def register_task_methods(self):
+        '''
+        Auto-register task endpoints.
+        '''
+        self.register("create_task_and_run", self.rpc_create_task)
+        self.register("task_create", create_task)
+        self.register("task_status", get_status)
