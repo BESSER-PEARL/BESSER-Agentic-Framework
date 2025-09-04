@@ -57,9 +57,9 @@ a2a_platform.router.register("create_task_and_run", rpc_create_task)
 a2a_platform.add_capabilities('Prints the entered message')
 a2a_platform.add_descriptions(['Waits for 60 seconds and then provides the entered message'])
 
-methods_info = [{"name": 'create_task_and_run', "description": 'Creates a task and waits for its execution to be completed before providing the result.'}, {"name": "My method", "description": "My method description"}]
+# methods_info = [{"name": 'create_task_and_run', "description": 'Creates a task and waits for its execution to be completed before providing the result.'}, {"name": "My method", "description": "My method description"}]
 
-a2a_platform.add_methods(methods_info)
+# a2a_platform.add_methods(methods_info)
 a2a_platform.populate_methods_from_router()
 a2a_platform.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"hellloooo1\"}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
 
