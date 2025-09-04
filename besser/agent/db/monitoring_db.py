@@ -158,6 +158,7 @@ class MonitoringDB:
             timestamp=datetime.now(),
         )
         self.run_statement(stmt)
+        
 
     def insert_intent_prediction(
             self,
@@ -300,6 +301,63 @@ class MonitoringDB:
             table.c.session_id == session.id
         )
         return pd.read_sql_query(stmt, self.conn)
+    
+    def session_exists(self, agent_name: str, platform_name: str, session_id: str) -> bool:
+        """
+        Checks whether there is an entry with the given agent_name, platform_name, and session_id in the sessions table.
+
+        Args:
+            agent_name (str): The agent name to check.
+            platform_name (str): The platform name to check.
+            session_id (str): The session ID to check.
+
+        Returns:
+            bool: True if the session exists, False otherwise.
+        """
+        table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        print(agent_name, platform_name, session_id)
+        stmt = select(table).where(
+            table.c.agent_name == agent_name,
+            table.c.platform_name == platform_name,
+            table.c.session_id == session_id
+        )
+        result = self.conn.execute(stmt)
+        return result.first() is not None
+    
+    def get_last_state_of_session(self, agent_name: str, platform_name: str, session_id: str) -> str | None:
+        """
+        Retrieves the last dest_state for a given session from the transition table.
+
+        Args:
+            agent_name (str): The agent name.
+            platform_name (str): The platform name.
+            session_id (str): The session ID.
+
+        Returns:
+            str | None: The last dest_state value, or None if not found.
+        """
+        # Get session id
+        table_session = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        stmt_session = select(table_session.c.id).where(
+            table_session.c.agent_name == agent_name,
+            table_session.c.platform_name == platform_name,
+            table_session.c.session_id == session_id
+        )
+        result_session = self.conn.execute(stmt_session).first()
+        if not result_session:
+            return None
+        session_db_id = result_session[0]
+
+        # Get last dest_state from transition table
+        table_transition = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
+        stmt_transition = (
+            select(table_transition.c.dest_state)
+            .where(table_transition.c.session_id == session_db_id)
+            .order_by(desc(table_transition.c.timestamp))
+            .limit(1)
+        )
+        result_transition = self.conn.execute(stmt_transition).first()
+        return result_transition[0] if result_transition else None
 
     def select_chat(self, session: Session, n: int) -> pd.DataFrame:
         """Retrieves a conversation history from the chat table of the database.

@@ -362,7 +362,7 @@ class Agent:
         Args:
             event (Event): the received event
         """
-        session = None
+        session: Session = None
         if event.is_broadcasted():
             for session in self._sessions.values():
                 session.events.appendleft(event)
@@ -462,9 +462,20 @@ class Agent:
             raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
-        self._monitoring_db_insert_session(session)
+        if self._monitoring_db_session_exists(session_id, platform):
+            dest_state = self._monitoring_db_get_last_state_of_session(session_id, platform)
+            if dest_state:
+                for state in self.states:
+                    if state.name == dest_state:
+                        print("found existing state")
+                        session._current_state = state
+                        break
+
+        else:
+            self._monitoring_db_insert_session(session)
+            session.current_state.run(session)
+
         # ADD LOOP TO CHECK TRANSITIONS HERE
-        session.current_state.run(session)
         session._run_event_thread()
         return session
 
@@ -538,6 +549,40 @@ class Agent:
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             # Not in thread since we must ensure it is added before running a state (the chat table needs the session)
             self._monitoring_db.insert_session(session)
+
+    def _monitoring_db_session_exists(self, session_id: str, platform: Platform) -> bool:
+        """
+        Check if a session with the given session_id exists in the monitoring database.
+
+        Args:
+            session_id (str): The session ID to check.
+            platform (Platform): The platform to check.
+
+        Returns:
+            bool: True if the session exists in the database, False otherwise
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db and self._monitoring_db.connected:
+            result = self._monitoring_db.session_exists(self.name, platform.__class__.__name__, session_id)
+            return result
+        return False
+
+    def _monitoring_db_get_last_state_of_session(
+            self,
+            session_id: str,
+            platform: Platform
+    ) -> str | None:
+        """Get the last state of a session from the monitoring database.
+
+        Args:
+            session_id (str): The session ID to check.
+            platform (Platform): The platform to check.
+
+        Returns:
+            str | None: The last state of the session if it exists, None otherwise.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db and self._monitoring_db.connected:
+            return self._monitoring_db.get_last_state_of_session(self.name, platform.__class__.__name__, session_id)
+        return None
 
     def _monitoring_db_insert_intent_prediction(
             self,
