@@ -21,7 +21,7 @@ tasks = {}  # Stores task_id and status -> Task
 
 def create_task(method: str, params: dict):
     '''
-    Creates a new task and adds it to the tasks dictionary.
+    This is an internal method. It creates a new task and adds it to the tasks dictionary.
     '''
     t = Task(method, params)
     tasks[t.id] = t
@@ -30,7 +30,7 @@ def create_task(method: str, params: dict):
 
 def get_status(task_id: str):
     '''
-    Gets the status of a task given its task_id.
+    This is an internal method. It gets the status of a task given its task_id.
     '''
     if task_id not in tasks:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
