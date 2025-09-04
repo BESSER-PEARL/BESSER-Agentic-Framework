@@ -9,7 +9,6 @@ from besser.agent.core.agent import Agent
 from besser.agent.platforms.a2a.agent_registry import AgentRegistry
 # from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 from besser.agent.platforms.a2a.server import create_app
-from besser.agent.platforms.a2a.task_protocol import create_task, get_status, execute_task
 
 registry = AgentRegistry()
 
