@@ -22,7 +22,7 @@ a2a_platform3 = agent3.use_a2a_platform()
 
 registry.register('EchoAgent', a2a_platform1)
 registry.register('SummationAgent', a2a_platform2)
-registry.register('ThirdAgent', a2a_platform2)
+registry.register('ThirdAgent', a2a_platform3)
 
 # print(f"Total registered agents: {registry.count()}")
 # print(registry.get("EchoAgent")._agent.name)
@@ -58,7 +58,7 @@ a2a_platform1.router.register("echo_message", echo)
 a2a_platform2.router.register("do_summation", do_summation)
 
 a2a_platform1.add_capabilities('Prints the entered message')
-a2a_platform1.add_descriptions(['Waits for 60 seconds and then provides the entered message'])
+a2a_platform1.add_descriptions(['Waits for 45 seconds and then provides the entered message'])
 
 # methods_info = [{"name": 'create_task_and_run', "description": 'Creates a task and waits for its execution to be completed before providing the result.'}, {"name": "My method", "description": "My method description"}]
 
@@ -67,7 +67,7 @@ a2a_platform1.populate_methods_from_router()
 a2a_platform1.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"hellloooo1\"}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
 
 a2a_platform2.add_capabilities('Prints summation of two numbers')
-a2a_platform2.add_descriptions(['Waits for 60 seconds and then provides the summation of two entered numbers'])
+a2a_platform2.add_descriptions(['Waits for 45 seconds and then provides the summation of two entered numbers'])
 a2a_platform2.populate_methods_from_router()
 a2a_platform2.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"do_summation\",\"params\":{\"int1\":2, \"int2\":4}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
 

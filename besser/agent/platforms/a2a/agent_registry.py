@@ -35,7 +35,7 @@ class AgentRegistry:
                 "name": platform.agent_card.name,
                 "description": platform.agent_card.descriptions,
                 "capabilities": platform.agent_card.capabilities,
-                "endpoints": platform.agent_card.endpoints
+                "card_url": f"/agents/{agent_id}/agent-card"
             }
             for agent_id, platform in self._agents.items()
         ]

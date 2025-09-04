@@ -13,10 +13,10 @@ from besser.agent.platforms import a2a
 from besser.agent.platforms.a2a.agent_card import AgentCard
 # from besser.agent.platforms.a2a.client import *
 # from besser.agent.platforms.a2a.server import *
-# from besser.agent.platforms.a2a.task_protocol import *
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.a2a.message_router import A2ARouter
 from besser.agent.platforms.platform import Platform
+from besser.agent.platforms.a2a.task_protocol import list_all_tasks
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -25,8 +25,8 @@ class A2APlatform(Platform):
     def __init__(self, agent: Agent, 
                  version: str = '1.0',
                  capabilities: list[str] = [],
-                 id: str = str(uuid.uuid4()), 
-                 endpoints: list[str] = ["http://localhost:8000/a2a"],
+                 id: str = str(uuid.uuid4()),
+                 endpoints: list[str] = ["http://localhost:8000/a2a", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/agents"],
                  descriptions: list[str] = [], 
                  skills: list[str] = [], 
                  examples: list[dict] | list[str] = [],
@@ -51,6 +51,10 @@ class A2APlatform(Platform):
     def get_agent_card(self) -> AgentCard:
         """Returns the agent card in JSON format."""
         return self.agent_card.to_json()
+    
+    def list_tasks(self) -> list:
+        
+        return list_all_tasks()
     
     def initialize(self) -> None:
         if self._port is not None:

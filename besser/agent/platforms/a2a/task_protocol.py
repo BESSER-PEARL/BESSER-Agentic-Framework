@@ -48,6 +48,20 @@ def get_status(task_id: str):
             "error": t.error
             }
 
+def list_all_tasks() -> list:
+    '''
+    Return status info for all tasks.
+    '''
+    return [
+        {
+            "task_id": t.id,
+            "status": t.status,
+            "result": t.result,
+            "error": t.error
+        }
+        for t in tasks.values()
+    ]
+
 async def execute_task(task_id: str, router):
     if task_id not in tasks:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
