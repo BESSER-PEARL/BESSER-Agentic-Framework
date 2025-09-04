@@ -20,7 +20,11 @@ async def get_agent_card(request: Request):
 
 async def a2a_handler(request: Request):
     body = await request.json()
-    agent_id = body.get("agent_id")
+    # if you want to make agent_id mandatory in the input, remove "default" and raise exception/error.
+    # In the case of multi-agent setup, the client (user) must specify which agent to talk to through agent_id.
+    # If agent_id is not specified, it defaults to "default" which is the single agent in single-agent setup.
+    # Also, if the method is not registered with the specified agent, it might raise MethodNotFound error.
+    agent_id = body.get("agent_id", "default") 
     platform = request.app["registry"].get(agent_id)
 
     if not platform:
