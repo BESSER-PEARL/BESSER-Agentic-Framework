@@ -26,8 +26,6 @@ def create_task(method: str, params: dict, task_storage: dict = None):
     t = Task(method, params)
     target_storage = task_storage if task_storage is not None else tasks
     target_storage[t.id] = t
-    print(f'Task_Storage is {task_storage}')
-    print(f'Global tasks is {tasks}')
     return {"task_id": t.id, 
             "status": t.status}
     
@@ -36,8 +34,6 @@ def get_status(task_id: str, task_storage: dict = None):
     '''
     This is an internal method. It gets the status of a task given its task_id.
     '''
-    print(f'From get: Task_Storage is {task_storage}')
-    print(f'From get: Global tasks is {tasks}')
     store = task_storage if task_storage is not None else tasks
     if task_id not in store:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
