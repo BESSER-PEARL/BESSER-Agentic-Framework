@@ -19,9 +19,11 @@ class A2ARouter:
     async def handle(self, method_name: str, params: dict) -> web.json_response:
         
         if method_name not in self.methods:
+                logger.error(f"Method '{method_name}' not found")
                 raise MethodNotFound(message=f"Method '{method_name}' not found")
         
         if not isinstance(params, dict):
+            logger.error(f"Params must be a dictionary")
             raise InvalidParams()
         
         method = self.methods[method_name]
@@ -38,6 +40,7 @@ class A2ARouter:
             body = await request.json()
             request_id = body.get("id")
         except Exception:
+            logger.error(PARSE_ERROR)
             return web.json_response({
                 "jsonrpc": "2.0", 
                 "error": PARSE_ERROR,
@@ -45,6 +48,7 @@ class A2ARouter:
                 })
         
         if "method" not in body or not isinstance(body["method"], str):
+            logger.error(INVALID_REQUEST)
             return web.json_response({
                 "jsonrpc": "2.0", 
                 "error": INVALID_REQUEST, 
@@ -74,6 +78,7 @@ class A2ARouter:
             "TASK_FAILED": TASK_FAILED,
             "TASK_NOT_FOUND": TASK_NOT_FOUND
             }
+            logger.error(error_map.get(e.code, INTERNAL_ERROR))
             return web.json_response({
                 "jsonrpc": "2.0", 
                 "error": error_map.get(e.code, INTERNAL_ERROR), 
@@ -81,6 +86,7 @@ class A2ARouter:
                 })
         except Exception as e:
             # print(f"Error: \n{e}")
+            logger.error(f"Internal error: {str(e)}")
             return web.json_response({
                 "jsonrpc": "2.0",
                 "error": {**INTERNAL_ERROR, 
