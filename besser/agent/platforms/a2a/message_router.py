@@ -105,3 +105,9 @@ class A2ARouter:
         self.register("create_task_and_run", platform.rpc_create_task)
         self.register("task_create", platform.create_task)
         self.register("task_status", platform.get_status)
+    
+    def register_orchestration_methods(self, platform: 'A2APlatform', registry: AgentRegistry) -> None:
+        async def call_agent_rpc(target_agent_id: str, method: str, params: dict):
+            return await platform.rpc_call_agent(target_agent_id, method, params, registry)
+
+        self.register("call_agent", call_agent_rpc)

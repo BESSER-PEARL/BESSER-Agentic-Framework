@@ -13,8 +13,10 @@ from besser.agent.platforms import a2a
 from besser.agent.platforms.a2a.agent_card import AgentCard
 # from besser.agent.platforms.a2a.client import *
 # from besser.agent.platforms.a2a.server import *
+from besser.agent.platforms.a2a.agent_registry import AgentRegistry
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.a2a.message_router import A2ARouter
+from besser.agent.platforms.a2a.error_handler import AgentNotFound
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.a2a.task_protocol import list_all_tasks, create_task, get_status, execute_task
 
@@ -145,9 +147,20 @@ class A2APlatform(Platform):
     async def execute_task(self, task_id):
         return await execute_task(task_id, self.router, task_storage=self.tasks)
     
+    # Warpper for agent orchestration function in router
+    async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry):
+        target_platform = registry.get(target_agent_id)
+        if not target_platform:
+            raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')
+        task_info = await target_platform.rpc_create_task(method, params)
+        return task_info
+        # above lines can be replaced with the following one, if one expects a synchronous call and wait for the result.
+        # return await registry.call_agent_method(target_agent_id, method, params)
+    
+    # Task execution methods
     async def create_and_execute_task(self, method: str, params: dict):
         '''
-        This is an internal method. It creates a task and runs it in the background.
+        This is an internal method. It creates a task and runs it in the background (asynchronous).
         '''
         task_info = self.create_task(method, params)
         asyncio.create_task(execute_task(task_info["task_id"], self.router, self.tasks))
@@ -155,6 +168,6 @@ class A2APlatform(Platform):
     
     async def rpc_create_task(self, method: str, params: dict):
         '''
-        This is an internal method. It creates a task and waits for its execution to be completed before providing the result.
+        This is an internal method. It creates an asynchronous task and set the status to PENDING execution or RUNNING depending on the tasks queued in the server. Once the execution is done, results will be available here.
         '''
         return await self.create_and_execute_task(method, params)

@@ -3,6 +3,7 @@
 #     from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 
 from besser.agent.exceptions.logger import logger
+from besser.agent.platforms.a2a.error_handler import AgentNotFound
 
 class AgentRegistry:
     '''
@@ -45,3 +46,10 @@ class AgentRegistry:
 
     def count(self) -> int:
         return len(self._agents)
+    
+    # Used for synchronous agent orchestration calls
+    async def call_agent_method(self, target_agent_id: str, method: str, params: dict):
+        target_platform = self.get(target_agent_id)
+        if not target_platform:
+            raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')
+        return await target_platform.router.handle(method, params)
