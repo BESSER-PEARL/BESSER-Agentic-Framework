@@ -12,7 +12,7 @@ from besser.agent.core.message import MessageType, Message
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.payload import PayloadAction, Payload
 from besser.agent.platforms.websocket.streamlit_ui.session_management import get_streamlit_session
-from besser.agent.platforms.websocket.streamlit_ui.vars import QUEUE
+from besser.agent.platforms.websocket.streamlit_ui.vars import QUEUE, HISTORY
 
 try:
     import cv2
@@ -30,9 +30,14 @@ def on_message(ws, payload_str):
     streamlit_session = get_streamlit_session()
     payload: Payload = Payload.decode(payload_str)
     content = None
+    is_user = False
     if payload.action == PayloadAction.AGENT_REPLY_STR.value:
         content = payload.message
         t = MessageType.STR
+    elif payload.action == PayloadAction.USER_MESSAGE.value:
+        content = payload.message
+        t = MessageType.STR
+        is_user = True
     elif payload.action == PayloadAction.AGENT_REPLY_MARKDOWN.value:
         content = payload.message
         t = MessageType.MARKDOWN
@@ -95,8 +100,14 @@ def on_message(ws, payload_str):
         t = MessageType.RAG_ANSWER
         content = payload.message
     if content is not None:
-        message = Message(t=t, content=content, is_user=False, timestamp=datetime.now())
-        streamlit_session._session_state[QUEUE].put(message)
+        message = Message(t=t, content=content, is_user=is_user, timestamp=datetime.now())
+        try:
+            if payload.history:
+                streamlit_session._session_state[HISTORY].append(message)
+            else:
+                streamlit_session._session_state[QUEUE].put(message)
+        except Exception as e:
+            logger.error(f"Error putting message in queue: {e}")
 
     streamlit_session._handle_rerun_script_request()
 

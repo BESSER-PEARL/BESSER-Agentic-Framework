@@ -27,6 +27,13 @@ from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncode
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.websocket.streamlit_ui import streamlit_ui
 from besser.agent.core.file import File
+from besser.agent.platforms.websocket import (
+    DB_STREAMLIT_HOST,
+    DB_STREAMLIT_PORT,
+    DB_STREAMLIT_DATABASE,
+    DB_STREAMLIT_USERNAME,
+    DB_STREAMLIT_PASSWORD,
+)
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -74,12 +81,13 @@ class WebSocketPlatform(Platform):
             (sessions) and incoming messages
     """
 
-    def __init__(self, agent: 'Agent', use_ui: bool = True):
+    def __init__(self, agent: 'Agent', use_ui: bool = True, persist_users: bool = False):
         super().__init__()
         self._agent: 'Agent' = agent
         self._host: str = None
         self._port: int = None
         self._use_ui: bool = use_ui
+        self.persist_users = persist_users
         self._connections: dict[str, ServerConnection] = {}
         self._websocket_server: WebSocketServer = None
 
@@ -89,19 +97,45 @@ class WebSocketPlatform(Platform):
             Args:
                 conn (ServerConnection): the user connection
             """
-            self._connections[str(conn.id)] = conn
-            session = self._agent.get_or_create_session(str(conn.id), self)
+            session: Session = None
             try:
                 for payload_str in conn:
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if payload.action == PayloadAction.USER_MESSAGE.value:
-                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
-                            message=payload.message,
-                            session=session,
-                            human=True)
-                        self._agent.receive_event(event)
+                    if session == None:
+                        if payload.user_id:
+                            session = self._agent.get_or_create_session(payload.user_id, self)
+                            self._connections[str(payload.user_id)] = conn
+                        else:
+                            session = self._agent.get_or_create_session(str(conn.id), self)
+                            self._connections[str(conn.id)] = conn
+                    if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
+                        try:
+                            rr = session.get_chat_history()
+                            for message in rr:
+                                payload = None
+                                if message.is_user:
+                                    payload = Payload(action=PayloadAction.USER_MESSAGE,
+                                                    message=message.content,
+                                                    user_id=session.id,
+                                                    history=True
+                                                    )
+                                else:
+                                    payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
+                                                    message=message.content,
+                                                    user_id=session.id,
+                                                    history=True
+                                                    )
+                                self._send(session.id, payload)
+                        except Exception as e:
+                            print("Error fetching chat history:", e)
+                    elif payload.action == PayloadAction.USER_MESSAGE.value:
+                            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
+                                message=payload.message,
+                                session=session,
+                                human=True)
+                            self._agent.receive_event(event)
                     elif payload.action == PayloadAction.USER_VOICE.value:
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
@@ -151,6 +185,22 @@ class WebSocketPlatform(Platform):
         if self._use_ui:
             def run_streamlit() -> None:
                 """Run the Streamlit UI in a dedicated thread."""
+                if self.persist_users:
+                    db_host = self._agent.get_property(DB_STREAMLIT_HOST)
+                    db_port = self._agent.get_property(DB_STREAMLIT_PORT)
+                    db_name = self._agent.get_property(DB_STREAMLIT_DATABASE)
+                    db_user = self._agent.get_property(DB_STREAMLIT_USERNAME)
+                    db_password = self._agent.get_property(DB_STREAMLIT_PASSWORD)
+                    env_vars = {
+                        **os.environ,
+                        "STREAMLIT_DB_HOST": str(db_host) if db_host else "",
+                        "STREAMLIT_DB_PORT": str(db_port) if db_port else "",
+                        "STREAMLIT_DB_NAME": str(db_name) if db_name else "",
+                        "STREAMLIT_DB_USER": str(db_user) if db_user else "",
+                        "STREAMLIT_DB_PASSWORD": str(db_password) if db_password else "",
+                    }
+                else:
+                    env_vars = os.environ
                 subprocess.run([
                     "streamlit", "run",
                     "--server.address", self._agent.get_property(websocket.STREAMLIT_HOST),
@@ -190,7 +240,9 @@ class WebSocketPlatform(Platform):
             raise PlatformMismatchError(self, session)
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
-                          message=message)
+                          message=message,
+                          user_id=session.id
+                          )
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 

@@ -497,7 +497,7 @@ class Agent:
         self._sessions[session_id]._stop_event_thread()
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True) -> WebSocketPlatform:
+    def use_websocket_platform(self, use_ui: bool = True, persist_users: bool = False) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
@@ -506,7 +506,7 @@ class Agent:
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui)
+        websocket_platform = WebSocketPlatform(self, use_ui, persist_users)
         self._platforms.append(websocket_platform)
         return websocket_platform
 

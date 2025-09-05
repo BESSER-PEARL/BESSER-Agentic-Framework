@@ -70,6 +70,9 @@ class PayloadAction(Enum):
     dictionary containing the audio data (as a base 64 String) and the metadata to reconstruct the audio array, composed
     of sample_rate, dtype and shape."""
 
+    FETCH_USER_MESSAGES = 'fetch_user_messages'
+    """PayloadAction: Request to fetch old messages for a given user."""
+
 
 class Payload:
     """Represents a payload object used for encoding and decoding messages between an agent and any other external agent.
@@ -89,14 +92,19 @@ class Payload:
         payload_dict = json.loads(payload_str)
         payload_action = payload_dict['action']
         payload_message = payload_dict['message']
+        user_id = payload_dict.get('user_id')
+        history = payload_dict.get('history', False)
+
         for action in PayloadAction:
             if action.value == payload_action:
-                return Payload(action, payload_message)
+                return Payload(action, payload_message, user_id=user_id, history=history)
         return None
 
-    def __init__(self, action: PayloadAction, message: str or dict = None):
+    def __init__(self, action: PayloadAction, message: str or dict = None, user_id: str = None, history: bool = False):
         self.action: str = action.value
         self.message: str or dict = message
+        self.user_id: str = user_id
+        self.history: bool = history
 
 
 class PayloadEncoder(json.JSONEncoder):
@@ -123,6 +131,8 @@ class PayloadEncoder(json.JSONEncoder):
             payload_dict = {
                 'action': obj.action,
                 'message': obj.message,
+                'user_id': getattr(obj, 'user_id', None),
+                'history': getattr(obj, 'history', None),
             }
             return payload_dict
         return super().default(obj)

@@ -9,9 +9,16 @@ from besser.agent.platforms.websocket.streamlit_ui.chat import load_chat
 from besser.agent.platforms.websocket.streamlit_ui.initialization import initialize
 from besser.agent.platforms.websocket.streamlit_ui.message_input import message_input
 from besser.agent.platforms.websocket.streamlit_ui.sidebar import sidebar
+from besser.agent.platforms.websocket.streamlit_ui.login import login_page
 
 
 def main():
+    if not st.session_state.get("authenticated", False):
+        login_page()
+        # If login was successful, rerun the app to load main page
+        if st.session_state.get("authenticated", False):
+            st.rerun()
+        st.stop()
     try:
         # We get the websocket host and port from the script arguments
         agent_name = sys.argv[1]

@@ -24,7 +24,7 @@ def message_input():
         message = Message(t=MessageType.STR, content=user_input, is_user=True, timestamp=datetime.now())
         st.session_state.history.append(message)
         payload = Payload(action=PayloadAction.USER_MESSAGE,
-                          message=user_input)
+                          message=user_input, user_id=st.session_state.get("username", "Guest"))
         try:
             ws = st.session_state[WEBSOCKET]
             ws.send(json.dumps(payload, cls=PayloadEncoder))

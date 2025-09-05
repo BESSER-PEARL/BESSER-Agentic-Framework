@@ -58,7 +58,7 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                 option = st.session_state[key]
                 message = Message(t=MessageType.STR, content=option, is_user=True, timestamp=datetime.now())
                 st.session_state.history.append(message)
-                payload = Payload(action=PayloadAction.USER_MESSAGE, message=option)
+                payload = Payload(action=PayloadAction.USER_MESSAGE, message=option, user_id=st.session_state.get("username", "Guest"))
                 ws = st.session_state[WEBSOCKET]
                 ws.send(json.dumps(payload, cls=PayloadEncoder))
 
@@ -94,6 +94,17 @@ def write_message(message: Message, key_count: int, stream: bool = False):
 
 
 def load_chat():
+    # Only fetch user messages once per session
+    if st.session_state.get("username") and not st.session_state.get("fetched_user_messages", False):
+        ws = st.session_state[WEBSOCKET]
+        payload = Payload(
+            action=PayloadAction.FETCH_USER_MESSAGES,
+            message=None,
+            user_id=st.session_state["username"]
+        )
+        ws.send(json.dumps(payload, cls=PayloadEncoder))
+        st.session_state["fetched_user_messages"] = True
+
     key_count = 0
     for message in st.session_state[HISTORY]:
         write_message(message, key_count, stream=False)
