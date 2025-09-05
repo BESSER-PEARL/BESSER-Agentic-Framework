@@ -71,9 +71,29 @@ a2a_platform2.add_descriptions(['Waits for 45 seconds and then provides the summ
 a2a_platform2.populate_methods_from_router()
 a2a_platform2.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"do_summation\",\"params\":{\"int1\":2, \"int2\":4}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
 
-#For orchestration, register the orchestration methods in each agent's router.
+# For orchestration, register the orchestration methods in each agent's router. This enables an agent (e.g., EchoAgent) to call another agent (e.g., SummationAgent).
 for agent_id, platform in registry._agents.items():
     if hasattr(platform, "router"):
         platform.router.register_orchestration_methods(platform, registry)
+
+# Separate agent for orchestration (only orchestration, no tasks)
+async def orchestrate_echo_and_sum(platform, params, registry):
+    '''
+    Orchestrates EchoAgent and SummationAgent tasks.
+    params: dict containing {'msg': str, 'num1': int, 'num2': int}
+    '''
+    echo_task = await platform.rpc_call_agent(
+        "EchoAgent", "echo_message", {"msg": params["msg"]}, registry
+    )
+    sum_task = await platform.rpc_call_agent(
+        "SummationAgent", "do_summation", {"num1": params["num1"], "num2": params["num2"]}, registry
+    )
+    return {"echo_task": echo_task, "sum_task": sum_task}
+
+a2a_platform3.register_orchestration_task("orchestrate_tasks", orchestrate_echo_and_sum, registry)
+
+
+# Run the platform with registry containing registered agents.
 app = create_app(registry=registry)
 web.run_app(app, port=8000)
+

@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 import asyncio
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 from aiohttp import web
 
 from besser.agent.library.coroutine.async_helpers import sync_coro_call
@@ -19,6 +19,7 @@ from besser.agent.platforms.a2a.message_router import A2ARouter
 from besser.agent.platforms.a2a.error_handler import AgentNotFound
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.a2a.task_protocol import list_all_tasks, create_task, get_status, execute_task
+
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -147,7 +148,7 @@ class A2APlatform(Platform):
     async def execute_task(self, task_id):
         return await execute_task(task_id, self.router, task_storage=self.tasks)
     
-    # Warpper for agent orchestration function in router
+    # Warppers for agent orchestration function in router
     async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry):
         target_platform = registry.get(target_agent_id)
         if not target_platform:
@@ -156,6 +157,11 @@ class A2APlatform(Platform):
         return task_info
         # above lines can be replaced with the following one, if one expects a synchronous call and wait for the result.
         # return await registry.call_agent_method(target_agent_id, method, params)
+    
+    def register_orchestration_task(self, name: str, func: Callable, registry: AgentRegistry):
+        async def wrapper(**params: dict):
+            return await func(self, params, registry)
+        self.router.register(name, wrapper)
     
     # Task execution methods
     async def create_and_execute_task(self, method: str, params: dict):
