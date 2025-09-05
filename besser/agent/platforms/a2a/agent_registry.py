@@ -18,7 +18,7 @@ class AgentRegistry:
 
         # Auto-register the methods that are common to all agents.
         if hasattr(platform, "router") and platform.router:
-            platform.router.register_task_methods()
+            platform.router.register_task_methods(platform)
 
     def get(self, agent_id: str) -> A2APlatform:
         if agent_id not in self._agents:

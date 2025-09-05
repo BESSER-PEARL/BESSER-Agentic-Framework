@@ -19,22 +19,29 @@ class Task:
 
 tasks = {}  # Stores task_id and status -> Task
 
-def create_task(method: str, params: dict):
+def create_task(method: str, params: dict, task_storage: dict = None):
     '''
     This is an internal method. It creates a new task and adds it to the tasks dictionary.
     '''
     t = Task(method, params)
-    tasks[t.id] = t
+    target_storage = task_storage if task_storage is not None else tasks
+    target_storage[t.id] = t
+    print(f'Task_Storage is {task_storage}')
+    print(f'Global tasks is {tasks}')
     return {"task_id": t.id, 
             "status": t.status}
+    
 
-def get_status(task_id: str):
+def get_status(task_id: str, task_storage: dict = None):
     '''
     This is an internal method. It gets the status of a task given its task_id.
     '''
-    if task_id not in tasks:
+    print(f'From get: Task_Storage is {task_storage}')
+    print(f'From get: Global tasks is {tasks}')
+    store = task_storage if task_storage is not None else tasks
+    if task_id not in store:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
-    t = tasks.get(task_id)
+    t = store.get(task_id)
 
     if t.status == TaskStatus.PENDING:
         raise TaskError("TASK_PENDING", "Task is still pending")
@@ -48,10 +55,11 @@ def get_status(task_id: str):
             "error": t.error
             }
 
-def list_all_tasks() -> list:
+def list_all_tasks(task_storage: dict = None) -> list:
     '''
     Return status info for all tasks.
     '''
+    store = task_storage if task_storage is not None else tasks
     return [
         {
             "task_id": t.id,
@@ -59,14 +67,19 @@ def list_all_tasks() -> list:
             "result": t.result,
             "error": t.error
         }
-        for t in tasks.values()
+        for t in store.values()
     ]
 
-async def execute_task(task_id: str, router):
-    if task_id not in tasks:
+async def execute_task(task_id: str, router, task_storage: dict = None):
+
+    '''
+    This is an internal method. It executes a task given its task_id.
+    '''
+    store = task_storage if task_storage is not None else tasks
+    if task_id not in store:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
     
-    t = tasks.get(task_id)
+    t = store.get(task_id)
     # print(f"[EXECUTOR] Starting execution of task {t}")
     
     try:

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import uuid
+import asyncio
 
 from typing import TYPE_CHECKING
-
 from aiohttp import web
 
 from besser.agent.library.coroutine.async_helpers import sync_coro_call
@@ -16,7 +16,7 @@ from besser.agent.platforms.a2a.agent_card import AgentCard
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.a2a.message_router import A2ARouter
 from besser.agent.platforms.platform import Platform
-from besser.agent.platforms.a2a.task_protocol import list_all_tasks
+from besser.agent.platforms.a2a.task_protocol import list_all_tasks, create_task, get_status, execute_task
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -37,6 +37,7 @@ class A2APlatform(Platform):
         self._port: int = self._agent.get_property(a2a.A2A_WEBOSKET_PORT)
         self._app: web.Application = web.Application()
         self.router: A2ARouter = A2ARouter()
+        self.tasks = {}
         self.agent_card: AgentCard = AgentCard(name=agent._name,
                                                version=version,
                                                id=id, 
@@ -49,12 +50,10 @@ class A2APlatform(Platform):
                                                provider=provider)
 
     def get_agent_card(self) -> AgentCard:
-        """Returns the agent card in JSON format."""
+        '''
+        Returns the agent card in JSON format.
+        '''
         return self.agent_card.to_json()
-    
-    def list_tasks(self) -> list:
-        
-        return list_all_tasks()
     
     def initialize(self) -> None:
         if self._port is not None:
@@ -133,6 +132,29 @@ class A2APlatform(Platform):
                 logger.warning(f"No example is provided for {self._agent.name}")
             self.agent_card.examples.extend([eg])
     
+    # Wrappers for task specific functions (given in task_protocol.py) in each platform/agent
+    def create_task(self, method, params):
+        return create_task(method, params, task_storage=self.tasks)
 
-        
+    def get_status(self, task_id):
+        return get_status(task_id, task_storage=self.tasks)
+
+    def list_tasks(self):
+        return list_all_tasks(task_storage=self.tasks)
+
+    async def execute_task(self, task_id):
+        return await execute_task(task_id, self.router, task_storage=self.tasks)
     
+    async def create_and_execute_task(self, method: str, params: dict):
+        '''
+        This is an internal method. It creates a task and runs it in the background.
+        '''
+        task_info = self.create_task(method, params)
+        asyncio.create_task(execute_task(task_info["task_id"], self.router, self.tasks))
+        return task_info
+    
+    async def rpc_create_task(self, method: str, params: dict):
+        '''
+        This is an internal method. It creates a task and waits for its execution to be completed before providing the result.
+        '''
+        return await self.create_and_execute_task(method, params)
