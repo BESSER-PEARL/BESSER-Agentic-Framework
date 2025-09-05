@@ -1,4 +1,7 @@
-from besser.agent.platforms.a2a.a2a_platform import A2APlatform
+# from typing import TYPE_CHECKING
+# if TYPE_CHECKING:
+#     from besser.agent.platforms.a2a.a2a_platform import A2APlatform
+
 from besser.agent.exceptions.logger import logger
 
 class AgentRegistry:
@@ -7,9 +10,9 @@ class AgentRegistry:
     '''
 
     def __init__(self):
-        self._agents: dict[str, A2APlatform] = {}
+        self._agents: dict[str, 'A2APlatform'] = {}
 
-    def register(self, agent_id: str, platform: A2APlatform):
+    def register(self, agent_id: str, platform: 'A2APlatform') -> None:
         if agent_id in self._agents:
             logger.error(f'Agent ID "{agent_id}" already registered')
             raise ValueError(f'Agent ID "{agent_id}" already registered')
@@ -20,7 +23,7 @@ class AgentRegistry:
         if hasattr(platform, "router") and platform.router:
             platform.router.register_task_methods(platform)
 
-    def get(self, agent_id: str) -> A2APlatform:
+    def get(self, agent_id: str) -> 'A2APlatform':
         if agent_id not in self._agents:
             raise ValueError(f'Agent ID "{agent_id}" not found')
         return self._agents[agent_id]
