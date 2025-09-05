@@ -10,13 +10,13 @@ from besser.agent.platforms.a2a.error_handler import INTERNAL_ERROR, PARSE_ERROR
 from besser.agent.platforms.a2a.task_protocol import create_task, get_status, execute_task, list_all_tasks
 
 class A2ARouter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.methods = {}
 
-    def register(self, method_name, func):
+    def register(self, method_name, func) -> None:
         self.methods[method_name] = func
 
-    async def handle(self, method_name: str, params: dict):
+    async def handle(self, method_name: str, params: dict) -> web.json_response:
         
         if method_name not in self.methods:
                 raise MethodNotFound(message=f"Method '{method_name}' not found")
@@ -88,7 +88,7 @@ class A2ARouter:
                 "id": request_id
             })
     
-    def register_task_methods(self, platform):
+    def register_task_methods(self, platform) -> None:
         '''
         Auto-register task endpoints.
         '''
