@@ -365,6 +365,40 @@ class MonitoringDB:
         )
         result = self.conn.execute(stmt)
         return result.first() is not None
+
+    def delete_session(self, session: Session) -> None:
+        """
+        Deletes the session information, chat messages, and transitions related to the given session from the monitoring database.
+
+        Args:
+            session (Session): The session to delete.
+        """
+        # Get session DB id
+        table_session = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        stmt_session_id = select(table_session.c.id).where(
+            table_session.c.agent_name == session._agent.name,
+            table_session.c.platform_name == session.platform.__class__.__name__,
+            table_session.c.session_id == session.id
+        )
+        result_session_id = self.conn.execute(stmt_session_id).first()
+        if not result_session_id:
+            logger.error(f"Session not found for deletion: {session.id}")
+            return
+        session_db_id = result_session_id[0]
+
+        # Delete chat messages
+        table_chat = Table(TABLE_CHAT, MetaData(), autoload_with=self.conn)
+        stmt_delete_chat = table_chat.delete().where(table_chat.c.session_id == session_db_id)
+        self.run_statement(stmt_delete_chat)
+
+        # Delete transitions
+        table_transition = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
+        stmt_delete_transition = table_transition.delete().where(table_transition.c.session_id == session_db_id)
+        self.run_statement(stmt_delete_transition)
+
+        # Delete session itself
+        stmt_delete_session = table_session.delete().where(table_session.c.id == session_db_id)
+        self.run_statement(stmt_delete_session)
     
     def get_last_state_of_session(self, agent_name: str, platform_name: str, session_id: str) -> str | None:
         """
