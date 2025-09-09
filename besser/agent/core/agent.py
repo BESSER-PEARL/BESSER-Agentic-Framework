@@ -469,6 +469,7 @@ class Agent:
                     if state.name == dest_state:
                         print("found existing state")
                         session._current_state = state
+                        self._monitoring_db_load_session_variables(session)
                         break
 
         else:
@@ -583,6 +584,30 @@ class Agent:
         if self.get_property(DB_MONITORING) and self._monitoring_db and self._monitoring_db.connected:
             return self._monitoring_db.get_last_state_of_session(self.name, platform.__class__.__name__, session_id)
         return None
+
+    def _monitoring_db_store_session_variables(
+            self,
+            session: Session
+    ) -> None:
+        """Store the chat history of a session in the monitoring database.
+
+        Args:
+            session (Session): The session to store the history for.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            self._monitoring_db.store_session_variables(session)
+
+    def _monitoring_db_load_session_variables(
+            self,
+            session: Session
+    ) -> None:
+        """Load the chat history of a session from the monitoring database.
+
+        Args:
+            session (Session): The session to load the history for.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            self._monitoring_db.load_session_variables(session)
 
     def _monitoring_db_insert_intent_prediction(
             self,

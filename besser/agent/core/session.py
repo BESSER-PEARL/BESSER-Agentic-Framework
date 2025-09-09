@@ -178,6 +178,7 @@ class Session:
             value (Any): the entry value
         """
         self._dictionary[key] = value
+        self._agent._monitoring_db_store_session_variables(self)
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get an entry of the session private data storage.
@@ -190,7 +191,7 @@ class Session:
             Any: the entry value, default or None if the key does not exist
         """
         if key not in self._dictionary:
-            if default:
+            if default is not None:
                 return default
             return None
         return self._dictionary[key]
@@ -205,6 +206,15 @@ class Session:
             del self._dictionary[key]
         except Exception as e:
             return None
+        
+    def get_dictionary(self) -> dict[str, Any]:
+        """
+        Returns the private data dictionary for this session.
+
+        Returns:
+            dict[str, Any]: The session's private data storage.
+        """
+        return self._dictionary
 
     def move(self, transition: Transition) -> None:
         """Move to another agent state.

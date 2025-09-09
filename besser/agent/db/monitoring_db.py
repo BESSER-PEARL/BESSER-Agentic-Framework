@@ -92,6 +92,7 @@ class MonitoringDB:
             session_id = Column(String, nullable=False)
             platform_name = Column(String, nullable=False)
             timestamp = Column(DateTime, nullable=False)
+            variables = Column(String, nullable=True)
             __table_args__ = (
                 UniqueConstraint('agent_name', 'session_id'),
             )
@@ -156,9 +157,50 @@ class MonitoringDB:
             session_id=session.id,
             platform_name=session.platform.__class__.__name__,
             timestamp=datetime.now(),
+            variables="{}"
         )
         self.run_statement(stmt)
         
+    def store_session_variables(self, session: Session) -> None:
+        """
+        Stores the current session variables (dictionary) as a JSON string in the monitoring database,
+        replacing the old value for the given session.
+
+        Args:
+            session (Session): The session whose variables should be stored.
+        """
+        table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        session_dict = session.get_dictionary()
+        json_variables = json.dumps(session_dict)
+        stmt = (
+            table.update()
+            .where(
+                table.c.agent_name == session._agent.name,
+                table.c.platform_name == session.platform.__class__.__name__,
+                table.c.session_id == session.id
+            )
+            .values(variables=json_variables)
+        )
+        self.run_statement(stmt)
+
+    def load_session_variables(self, session: Session) -> None:
+        """
+        Loads the session variables from the monitoring database, transforms the JSON string into a dictionary,
+        and sets each key-value pair in the session using session.set(key, value).
+
+        Args:
+            session (Session): The session whose variables should be loaded.
+        """
+        session_entry = self.select_session(session)
+        if session_entry.empty:
+            return
+        variables_json = session_entry.iloc[0]['variables']
+        try:
+            variables_dict = json.loads(variables_json) if variables_json else {}
+            for key, value in variables_dict.items():
+                session.set(key, value)
+        except Exception as e:
+            logger.error(f"Error loading session variables: {e}")
 
     def insert_intent_prediction(
             self,
