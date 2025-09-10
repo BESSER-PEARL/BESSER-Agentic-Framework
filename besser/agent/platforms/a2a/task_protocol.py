@@ -66,10 +66,12 @@ def list_all_tasks(task_storage: dict = None) -> list:
         for t in store.values()
     ]
 
-async def execute_task(task_id: str, router, task_storage: dict = None):
+async def execute_task(task_id: str, router, task_storage: dict = None, coroutine_func=None, params=None):
 
     '''
     This is an internal method. It executes a task given its task_id.
+    In the case of Orchestration tasks, a coroutine function can be provided that
+    will be awaited with task parameters instead of the default method handler.
     '''
     store = task_storage if task_storage is not None else tasks
     if task_id not in store:
@@ -80,7 +82,11 @@ async def execute_task(task_id: str, router, task_storage: dict = None):
     
     try:
         t.status = TaskStatus.RUNNING
-        result = await router.handle(t.method, t.params)
+        if coroutine_func:
+            result = await coroutine_func(router, params or t.params)
+        else:
+            result = await router.handle(t.method, t.params)
+        
         # print(f"Before execution: method={t.method}, got={result}, type={type(result)}")
         if inspect.iscoroutine(result):
             result = await result
@@ -92,6 +98,7 @@ async def execute_task(task_id: str, router, task_storage: dict = None):
         raise TaskError("TASK_FAILED", t.error)
     # print(f"After Execution: method={t.method}, got={result}, type={type(result)}")
     # print(f"[EXECUTOR] Finished execution of task {t}, status={t.status}. Got {t.result}")
+    
     return {
         "task_id": t.id,
         "status": t.status,

@@ -18,6 +18,9 @@ class A2ARouter:
         self.methods = {}
 
     def register(self, method_name, func) -> None:
+        '''
+        Register a method (coupled to its name, also called as key) that can be called via RPC.
+        '''
         self.methods[method_name] = func
 
     async def handle(self, method_name: str, params: dict) -> web.json_response:
@@ -106,6 +109,7 @@ class A2ARouter:
         self.register("task_create", platform.create_task)
         self.register("task_status", platform.get_status)
     
+    # 
     def register_orchestration_methods(self, platform: 'A2APlatform', registry: AgentRegistry) -> None:
         async def call_agent_rpc(target_agent_id: str, method: str, params: dict):
             return await platform.rpc_call_agent(target_agent_id, method, params, registry)

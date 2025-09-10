@@ -18,7 +18,7 @@ from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.a2a.message_router import A2ARouter
 from besser.agent.platforms.a2a.error_handler import AgentNotFound
 from besser.agent.platforms.platform import Platform
-from besser.agent.platforms.a2a.task_protocol import list_all_tasks, create_task, get_status, execute_task
+from besser.agent.platforms.a2a.task_protocol import list_all_tasks, create_task, get_status, execute_task, TaskStatus
 
 
 if TYPE_CHECKING:
@@ -150,18 +150,129 @@ class A2APlatform(Platform):
     
     # Warppers for agent orchestration function in router
     async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry):
+        '''
+        Calls another agent as a subtask, waits for it to complete, and returns its task info, results and so on.
+        Orchestration task cannot track subtask statuses. They can be tracked in the respective agent_id/tasks endpoint.
+        '''
         target_platform = registry.get(target_agent_id)
         if not target_platform:
             raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')
         task_info = await target_platform.rpc_create_task(method, params)
         return task_info
-        # above lines can be replaced with the following one, if one expects a synchronous call and wait for the result.
+        # All the above lines can be replaced with the following one, if one expects a synchronous call and wait for the result.
         # return await registry.call_agent_method(target_agent_id, method, params)
     
-    def register_orchestration_task(self, name: str, func: Callable, registry: AgentRegistry):
+    async def rpc_call_agent_tracked(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry, parent_task=None):
+        '''
+        Calls another agent as a subtask, waits for it to complete, and returns its task info, results and so on.
+        Ensures the orchestration task can track subtask statuses.
+        '''
+        target_platform = registry.get(target_agent_id)
+        if not target_platform:
+            raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')
+
+        # Create task on the target agent
+        # subtask_coroutine = target_platform.create_and_execute_task(method, params)
+        # subtask_task = asyncio.create_task(subtask_coroutine)
+        subtask_info = await target_platform.create_and_execute_task(method, params)
+
+        # Track under parent task (ThirdAgent’s orchestration task)
+        if parent_task:
+            orchestration_task = self.tasks[parent_task["task_id"]]
+            orchestration_task.status = TaskStatus.RUNNING
+            
+            if orchestration_task.result is None:
+                orchestration_task.result = {}
+            if "subtasks" not in orchestration_task.result:
+                orchestration_task.result["subtasks"] = []
+            
+            orchestration_task.result["subtasks"].append({
+            "task_id": subtask_info["task_id"],
+            "agent_id": target_agent_id,
+            "method": method,
+            "status": TaskStatus.PENDING,
+            "result": None,
+            "error": None
+            })
+        
+        # Launch a watcher coroutine to update parent status in real time
+        async def watch_subtask():
+            while True:
+                t = target_platform.tasks[subtask_info["task_id"]]
+                for st in orchestration_task.result.get("subtasks", []):
+                    if st["task_id"] == subtask_info["task_id"]:
+                        st["status"] = t.status
+                        st["result"] = t.result
+                        st["error"] = t.error
+                        break
+                if t.status in [TaskStatus.DONE, TaskStatus.ERROR]:
+                    break
+                await asyncio.sleep(0.05)
+
+        asyncio.create_task(watch_subtask())
+
+        return subtask_info
+    
+    # For agent orchestration (no task registration on orchestration agent, only orchestration)
+    def register_orchestration_task_on_resp_agent(self, name: str, func: Callable, registry: AgentRegistry):
+        '''
+        This function is only for async execution of multiple agents, does not register the execution as a task in Orchestrator's task endpoint. 
+        Will register tasks on the respective agent's router. So tasks can be tracked only in their respective agent_id/tasks.
+        '''
         async def wrapper(**params: dict):
             return await func(self, params, registry)
         self.router.register(name, wrapper)
+    
+    # For agent orchestration, with orchestration registered as a task. Status can be viewed in the agent_id/tasks endpoint.
+    def register_orchestration_as_task(self, name, coroutine_func, registry):
+        '''
+        Wrap an async orchestration function as a tracked task. Tracking can be done in the orchestration agent_id/tasks endpoint.
+        Backward compatible with coro_func.
+        '''
+        async def runner(**params):
+            task_info = self.create_task(name, params) # A separate task for orchestration agent
+            orchestration_task = self.tasks[task_info["task_id"]]
+            orchestration_task.status = TaskStatus.RUNNING
+            orchestration_task.result = {"subtasks": []}
+            
+            async def orchestration_coroutine(self_inner, p):
+                # call the user-provided coroutine_func and await results for all subtasks.
+                async def tracked_call(target_agent_id, method, sub_params, registry):
+                    # wrapper to inject parent_task info for tracking, in the case of tracked orchestration calls.
+                    subtask_info = await self_inner.rpc_call_agent_tracked(
+                        target_agent_id, method, sub_params, registry, parent_task=task_info
+                    )
+                    return subtask_info
+                
+                result = await coroutine_func(self_inner, p, registry, tracked_call)
+
+                 # Wait for all subtasks (internal Agent's tasks) to finish and update Orchestration Agent's task status
+                subtasks = orchestration_task.result.get("subtasks", [])
+                if subtasks:
+                    while any(registry.get(st["agent_id"]).tasks[st["task_id"]].status not in [TaskStatus.DONE, TaskStatus.ERROR]
+                            for st in subtasks):
+                        await asyncio.sleep(0.05)
+                
+                # Update orchestration task result with final results from coroutine_func
+                for key, val in result.items():
+                    if key != "subtasks": # to avoid overwriting the tracked subtasks info
+                        orchestration_task.result[key] = val
+                orchestration_task.status = TaskStatus.DONE
+                return orchestration_task.result
+            
+            asyncio.create_task(
+                execute_task(
+                    task_id=task_info["task_id"], 
+                    router=self,
+                    task_storage=self.tasks, 
+                    coroutine_func=orchestration_coroutine, 
+                    params=params
+                    )
+                )
+
+            return task_info
+    
+        self.router.register(name, runner)
     
     # Task execution methods
     async def create_and_execute_task(self, method: str, params: dict):
@@ -171,7 +282,7 @@ class A2APlatform(Platform):
         task_info = self.create_task(method, params)
         asyncio.create_task(execute_task(task_info["task_id"], self.router, self.tasks))
         return task_info
-    
+
     async def rpc_create_task(self, method: str, params: dict):
         '''
         This is an internal method. It creates an asynchronous task and set the status to PENDING execution or RUNNING depending on the tasks queued in the server. Once the execution is done, results will be available here.
