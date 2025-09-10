@@ -83,14 +83,42 @@ async def orchestrate_echo_and_sum(platform, params, registry):
     params: dict containing {'msg': str, 'num1': int, 'num2': int}
     '''
     echo_task = await platform.rpc_call_agent(
-        "EchoAgent", "echo_message", {"msg": params["msg"]}, registry
+        "EchoAgent", 
+        "echo_message", 
+        {"msg": params["msg"]}, 
+        registry
     )
     sum_task = await platform.rpc_call_agent(
-        "SummationAgent", "do_summation", {"num1": params["num1"], "num2": params["num2"]}, registry
+        "SummationAgent", 
+        "do_summation", 
+        {"num1": params["num1"], "num2": params["num2"]}, 
+        registry
     )
     return {"echo_task": echo_task, "sum_task": sum_task}
 
-a2a_platform3.register_orchestration_task("orchestrate_tasks", orchestrate_echo_and_sum, registry)
+async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_call):
+    '''
+    Orchestrates EchoAgent and SummationAgent tasks.
+    params: dict containing {'msg': str, 'num1': int, 'num2': int}
+    '''
+    await tracked_call(
+        "EchoAgent", 
+        "echo_message", 
+        {"msg": params["msg"]}, 
+        registry
+    )
+    await tracked_call(
+        "SummationAgent", 
+        "do_summation", 
+        {"num1": params["num1"], "num2": params["num2"]}, 
+        registry
+    )
+    return {}
+    # return {"echo_task": echo_task, "sum_task": sum_task}
+
+# a2a_platform3.register_orchestration_task_on_resp_agent("orchestrate_tasks", orchestrate_echo_and_sum, registry)
+# a2a_platform3.register_orchestration_task("orchestrate_tasks_tracked", a2a_platform3.wrap_as_task("orchestrate_tasks", orchestrate_echo_and_sum), registry)
+a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked", orchestrate_echo_and_sum_tracked, registry)
 
 
 # Run the platform with registry containing registered agents.
