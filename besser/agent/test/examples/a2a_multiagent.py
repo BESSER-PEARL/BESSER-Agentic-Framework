@@ -96,24 +96,32 @@ async def orchestrate_echo_and_sum(platform, params, registry):
     )
     return {"echo_task": echo_task, "sum_task": sum_task}
 
-async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_call):
+async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_call, orchestration_task):
     '''
     Orchestrates EchoAgent and SummationAgent tasks.
     params: dict containing {'msg': str, 'num1': int, 'num2': int}
     '''
-    await tracked_call(
+    echo_task = await tracked_call(
         "EchoAgent", 
         "echo_message", 
         {"msg": params["msg"]}, 
         registry
     )
-    await tracked_call(
+    sum_task = await tracked_call(
         "SummationAgent", 
         "do_summation", 
         {"num1": params["num1"], "num2": params["num2"]}, 
         registry
     )
-    return {}
+    # return {}
+    orchestration_result = {}
+    for st in orchestration_task.result.get("subtasks", []):
+        if st["agent_id"] == "EchoAgent":
+            orchestration_result["echo_task"] = st
+        elif st["agent_id"] == "SummationAgent":
+            orchestration_result["sum_task"] = st
+
+    return orchestration_result
     # return {"echo_task": echo_task, "sum_task": sum_task}
 
 # a2a_platform3.register_orchestration_task_on_resp_agent("orchestrate_tasks", orchestrate_echo_and_sum, registry)

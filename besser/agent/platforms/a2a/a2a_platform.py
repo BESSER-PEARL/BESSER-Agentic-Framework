@@ -244,7 +244,7 @@ class A2APlatform(Platform):
                     )
                     return subtask_info
                 
-                result = await coroutine_func(self_inner, p, registry, tracked_call)
+                result = await coroutine_func(self_inner, p, registry, tracked_call, orchestration_task)
 
                  # Wait for all subtasks (internal Agent's tasks) to finish and update Orchestration Agent's task status
                 subtasks = orchestration_task.result.get("subtasks", [])
@@ -258,6 +258,11 @@ class A2APlatform(Platform):
                     if key != "subtasks": # to avoid overwriting the tracked subtasks info
                         orchestration_task.result[key] = val
                 orchestration_task.status = TaskStatus.DONE
+
+                # Remove subtasks from result to avoid clutter and repetition.
+                if "subtasks" in orchestration_task.result:
+                    orchestration_task.result.pop("subtasks")
+
                 return orchestration_task.result
             
             asyncio.create_task(
