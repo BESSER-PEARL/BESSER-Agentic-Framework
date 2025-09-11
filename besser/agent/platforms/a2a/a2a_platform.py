@@ -245,23 +245,36 @@ class A2APlatform(Platform):
                     return subtask_info
                 
                 result = await coroutine_func(self_inner, p, registry, tracked_call, orchestration_task)
-
-                 # Wait for all subtasks (internal Agent's tasks) to finish and update Orchestration Agent's task status
+                
+                # Wait for all subtasks (internal Agent's tasks) to finish and update Orchestration Agent's task status
                 subtasks = orchestration_task.result.get("subtasks", [])
                 if subtasks:
                     while any(registry.get(st["agent_id"]).tasks[st["task_id"]].status not in [TaskStatus.DONE, TaskStatus.ERROR]
                             for st in subtasks):
                         await asyncio.sleep(0.05)
                 
-                # Update orchestration task result with final results from coroutine_func
+                # Following for loop is required only if the user provides a return from the orchestration function.
+                # In that case, result will not be {}, and this for loop will get executed, else this will be skipped.
+                final_result = {}
+                # Refreshing subtask with live tracked entries
                 for key, val in result.items():
-                    if key != "subtasks": # to avoid overwriting the tracked subtasks info
-                        orchestration_task.result[key] = val
+                    if isinstance(val, dict) and "task_id" in val:
+                        # find live subtask entry
+                        for st in orchestration_task.result.get("subtasks", []):
+                            if st["task_id"] == val["task_id"]:
+                                final_result[key] = st
+                                break
+                    elif key != "subtasks": # to avoid overwriting the tracked subtasks info
+                        final_result[key] = val
+                
+                # Update orchestration task result with final results from coroutine_func
+                orchestration_task.result.update(final_result)
+
                 orchestration_task.status = TaskStatus.DONE
 
-                # Remove subtasks from result to avoid clutter and repetition.
-                if "subtasks" in orchestration_task.result:
-                    orchestration_task.result.pop("subtasks")
+                # Remove subtasks from result as soon as execution is done to avoid clutter and repetition.
+                # if "subtasks" in orchestration_task.result:
+                #     orchestration_task.result.pop("subtasks")
 
                 return orchestration_task.result
             
