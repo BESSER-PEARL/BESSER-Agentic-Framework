@@ -191,14 +191,19 @@ class WebSocketPlatform(Platform):
                     db_name = self._agent.get_property(DB_STREAMLIT_DATABASE)
                     db_user = self._agent.get_property(DB_STREAMLIT_USERNAME)
                     db_password = self._agent.get_property(DB_STREAMLIT_PASSWORD)
-                    env_vars = {
-                        **os.environ,
+                    env_vars = dict(os.environ)  # Start with a copy of the current environment
+                    os.environ["STREAMLIT_DB_HOST"] = str(db_host) if db_host else ""
+                    os.environ["STREAMLIT_DB_PORT"] = str(db_port) if db_port else ""
+                    os.environ["STREAMLIT_DB_NAME"] = str(db_name) if db_name else ""
+                    os.environ["STREAMLIT_DB_USER"] = str(db_user) if db_user else ""
+                    os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
+                    env_vars.update({
                         "STREAMLIT_DB_HOST": str(db_host) if db_host else "",
                         "STREAMLIT_DB_PORT": str(db_port) if db_port else "",
                         "STREAMLIT_DB_NAME": str(db_name) if db_name else "",
                         "STREAMLIT_DB_USER": str(db_user) if db_user else "",
                         "STREAMLIT_DB_PASSWORD": str(db_password) if db_password else "",
-                    }
+                    })
                 else:
                     env_vars = os.environ
                 subprocess.run([
