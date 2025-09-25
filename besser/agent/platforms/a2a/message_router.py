@@ -24,6 +24,9 @@ class A2ARouter:
         self.methods[method_name] = func
 
     async def handle(self, method_name: str, params: dict) -> web.json_response:
+        """
+        Execute the method given its name and parameters
+        """
         
         if method_name not in self.methods:
                 logger.error(f"Method '{method_name}' not found")
@@ -42,6 +45,9 @@ class A2ARouter:
             return method(**params)
     
     async def aiohttp_handler(self, request: Request) -> web.json_response:
+        """
+        Handle HTTP requests from the server
+        """
         request_id = None
         try:
             body = await request.json()
@@ -101,16 +107,19 @@ class A2ARouter:
                 "id": request_id
             })
     
-    def register_task_methods(self, platform) -> None:
-        '''
-        Auto-register task endpoints.
-        '''
+    def register_task_methods(self, platform: 'A2APlatform') -> None:
+        """
+        Auto-register internal methods for creating, executing and getting task status.
+        """
         self.register("create_task_and_run", platform.rpc_create_task)
         self.register("task_create", platform.create_task)
         self.register("task_status", platform.get_status)
     
     # 
     def register_orchestration_methods(self, platform: 'A2APlatform', registry: AgentRegistry) -> None:
+        """
+        Register methods used for orchestration in its router. Enables one agent to call another agent.
+        """
         async def call_agent_rpc(target_agent_id: str, method: str, params: dict):
             return await platform.rpc_call_agent(target_agent_id, method, params, registry)
 

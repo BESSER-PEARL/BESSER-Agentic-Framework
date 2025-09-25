@@ -11,8 +11,6 @@ from besser.agent.core.session import Session
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms import a2a
 from besser.agent.platforms.a2a.agent_card import AgentCard
-# from besser.agent.platforms.a2a.client import *
-# from besser.agent.platforms.a2a.server import *
 from besser.agent.platforms.a2a.agent_registry import AgentRegistry
 from besser.agent.platforms.payload import Payload
 from besser.agent.platforms.a2a.message_router import A2ARouter
@@ -25,6 +23,34 @@ if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
 
 class A2APlatform(Platform):
+    """
+    A2APlatform implements the Agent-to-Agent (A2A) communication platform for agent interactions.
+    This platform enables agents to communicate with each other using a RESTful API and WebSocket connections.
+    It stores agent metadata (e.g., capabilities and examples), registers methods, maintains task creation, execution 
+    and status tracking, supports tracked and untracked agent-to-agent calls, provides synchronous and asynchronous 
+    operations, and supports agent orchestration for coordinating multiple agents.
+    
+    Args:
+        agent (Agent): The agent instance this platform belongs to
+        version (str, optional): Version of the agent. Defaults to '1.0'
+        capabilities (list[str], optional): List of agent capabilities. Defaults to []
+        id (str, optional): Unique identifier for the agent. Defaults to UUID4
+        endpoints (list[str], optional): List of API endpoints. Defaults to standard endpoints at localhost:8000
+        descriptions (list[str], optional): List of agent descriptions. Defaults to []  
+        skills (list[str], optional): List of agent skills. Defaults to []
+        examples (Union[list[dict], list[str]], optional): Usage examples. Defaults to []
+        methods (list[dict], optional): List of available methods. Defaults to []
+        provider (str, optional): Provider name. Defaults to "BESSER-Agentic-Framework"
+    
+    Attributes:
+        _agent (Agent): The agent this platform belongs to
+        agent_card (AgentCard): Contains metadata about the agent's capabilities, interface, connection and so on
+        router (A2ARouter): Handles routing of messages between agents and agent to endpoints via RPC
+        tasks (dict): Storage for registering tasks, managing and monitoring their states
+        _port (int): Port number on which this platform will be hosted
+        _app (web.Application): Web application to run this platform
+    """
+
     def __init__(self, agent: Agent, 
                  version: str = '1.0',
                  capabilities: list[str] = [],
@@ -53,16 +79,22 @@ class A2APlatform(Platform):
                                                provider=provider)
 
     def get_agent_card(self) -> AgentCard:
-        '''
+        """
         Returns the agent card in JSON format.
-        '''
+        """
         return self.agent_card.to_json()
     
     def initialize(self) -> None:
+        """
+        Initializes the platform
+        """
         if self._port is not None:
             self._port = int(self._port)
     
     def start(self) -> None:
+        """
+        Starts the platform
+        """
         logger.info(f'{self._agent.name}\'s A2APlatform starting')
         self._agent.get_or_create_session("A2A_Session_" + str(self.__hash__()), self)
         self.running = True
@@ -70,19 +102,31 @@ class A2APlatform(Platform):
         self._app.router.add_get("/agent-card", lambda _: web.json_response(self.get_agent_card(), content_type="application/json"))
         web.run_app(self._app, port=self._port, handle_signals=False)
     
-    def stop(self):
+    def stop(self) -> None:
+        """
+        Stops the platform
+        """
         self.running = False
         sync_coro_call(self._app.shutdown())
         sync_coro_call(self._app.cleanup())
         logger.info(f'{self._agent.name}\'s A2APlatform stopped')
     
-    def _send(self, session_id, payload: Payload) -> None:
+    def _send(self, session: Session, payload: Payload) -> None:
+        """
+        str: log _send() method not implemented in class
+        """
         logger.warning(f'_send() method not implemented in {self.__class__.__name__}')
 
     def reply(self, session: Session, message: str) -> None:
+        """
+        str: log reply() method not implemented in class
+        """
         logger.warning(f'reply() method not implemented in {self.__class__.__name__}')
     
-    def add_capabilities(self, capability: list[str] | str):
+    def add_capabilities(self, capability: list[str] | str) -> None:
+        """
+        Helper function to add agent's capabilities to the agent_card
+        """
         if isinstance(capability, str):
             capability = [capability]
         for cap in capability:
@@ -91,7 +135,10 @@ class A2APlatform(Platform):
                 # logger.error("Capability cannot be empty")
             self.agent_card.capabilities.extend([cap])
     
-    def add_descriptions(self, descriptions: list[str] | str):
+    def add_descriptions(self, descriptions: list[str] | str) -> None:
+        """
+        Helper function to add agent's description to the agent_card
+        """
         if isinstance(descriptions, str):
             descriptions = [descriptions]
         for desc in descriptions:
@@ -99,7 +146,10 @@ class A2APlatform(Platform):
                 logger.warning(f"No description is provided for {self._agent.name}")
             self.agent_card.descriptions.extend([desc])
     
-    def add_skills(self, skills: list[str] | str):
+    def add_skills(self, skills: list[str] | str) -> None:
+        """
+        Helper function to add agent's skills to the agent_card
+        """
         if isinstance(skills, str):
             skills = [skills]
         for skill in skills:
@@ -107,8 +157,10 @@ class A2APlatform(Platform):
                 logger.warning(f"No example is provided for {self._agent.name}")
             self.agent_card.skills.extend([skill])
     
-    def add_methods(self, methods: list[dict]):
-        """Enables adding methods manually to the agent_card.methods."""
+    def add_methods(self, methods: list[dict]) -> None:
+        """
+        Helper function to add agent's methods manually to the agent_card.
+        """
         if not hasattr(self.agent_card, "methods") or self.agent_card.methods is None:
             self.agent_card.methods = []
 
@@ -119,15 +171,20 @@ class A2APlatform(Platform):
                 continue
             self.agent_card.methods.extend([mth])
 
-    def populate_methods_from_router(self):
-        """Automatically fetch registered methods from router and add it to the agent_card.methods."""
+    def populate_methods_from_router(self) -> None:
+        """
+        Automatically fetch agent's registered methods from router and add it to the agent_card.
+        """
         method_list = []
         for name, func in self.router.methods.items():
             doc = func.__doc__ or ""
             method_list.append({"name": name, "description": doc})
         self.add_methods(method_list)
     
-    def add_examples(self, examples: list[dict] | list[str]):
+    def add_examples(self, examples: list[dict] | list[str]) -> None:
+        """
+        Helper function to add agent execution examples to the agent_card
+        """
         if isinstance(examples, str):
             examples = [examples]
         for eg in examples:
@@ -136,20 +193,20 @@ class A2APlatform(Platform):
             self.agent_card.examples.extend([eg])
     
     # Wrappers for task specific functions (given in task_protocol.py) in each platform/agent
-    def create_task(self, method, params):
+    def create_task(self, method: Callable, params: dict) -> dict:
         return create_task(method, params, task_storage=self.tasks)
 
-    def get_status(self, task_id):
+    def get_status(self, task_id: str) -> dict:
         return get_status(task_id, task_storage=self.tasks)
 
-    def list_tasks(self):
+    def list_tasks(self) -> list:
         return list_all_tasks(task_storage=self.tasks)
 
-    async def execute_task(self, task_id):
+    async def execute_task(self, task_id: str) -> dict:
         return await execute_task(task_id, self.router, task_storage=self.tasks)
     
     # Warppers for agent orchestration function in router
-    async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry):
+    async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry) -> dict:
         '''
         Calls another agent as a subtask, waits for it to complete, and returns its task info, results and so on.
         Orchestration task cannot track subtask statuses. They can be tracked in the respective agent_id/tasks endpoint.
@@ -162,10 +219,10 @@ class A2APlatform(Platform):
         # All the above lines can be replaced with the following one, if one expects a synchronous call and wait for the result.
         # return await registry.call_agent_method(target_agent_id, method, params)
     
-    async def rpc_call_agent_tracked(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry, parent_task=None):
+    async def rpc_call_agent_tracked(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry, parent_task=None) -> dict:
         '''
         Calls another agent as a subtask, waits for it to complete, and returns its task info, results and so on.
-        Ensures the orchestration task can track subtask statuses.
+        Ensures the orchestration task can track subtask statuses at orchestrator agent_id/tasks endpoint.
         '''
         target_platform = registry.get(target_agent_id)
         if not target_platform:
@@ -196,7 +253,7 @@ class A2APlatform(Platform):
             })
         
         # Launch a watcher coroutine to update parent status in real time
-        async def watch_subtask():
+        async def watch_subtask() -> dict:
             while True:
                 t = target_platform.tasks[subtask_info["task_id"]]
                 for st in orchestration_task.result.get("subtasks", []):
@@ -214,7 +271,7 @@ class A2APlatform(Platform):
         return subtask_info
     
     # For agent orchestration (no task registration on orchestration agent, only orchestration)
-    def register_orchestration_task_on_resp_agent(self, name: str, func: Callable, registry: AgentRegistry):
+    def register_orchestration_task_on_resp_agent(self, name: str, func: Callable, registry: AgentRegistry) -> web.json_response:
         '''
         This function is only for async execution of multiple agents, does not register the execution as a task in Orchestrator's task endpoint. 
         Will register tasks on the respective agent's router. So tasks can be tracked only in their respective agent_id/tasks.
@@ -224,18 +281,18 @@ class A2APlatform(Platform):
         self.router.register(name, wrapper)
     
     # For agent orchestration, with orchestration registered as a task. Status can be viewed in the agent_id/tasks endpoint.
-    def register_orchestration_as_task(self, name, coroutine_func, registry):
+    def register_orchestration_as_task(self, name: str, coroutine_func: Callable, registry: AgentRegistry) -> dict:
         '''
         Wrap an async orchestration function as a tracked task. Tracking can be done in the orchestration agent_id/tasks endpoint.
-        Backward compatible with coro_func.
+        Backward compatible with coroutine_func.
         '''
-        async def runner(**params):
+        async def runner(**params: dict) -> dict:
             task_info = self.create_task(name, params) # A separate task for orchestration agent
             orchestration_task = self.tasks[task_info["task_id"]]
             orchestration_task.status = TaskStatus.RUNNING
             orchestration_task.result = {"subtasks": []}
             
-            async def orchestration_coroutine(self_inner, p):
+            async def orchestration_coroutine(self_inner, p: dict):
                 # call the user-provided coroutine_func and await results for all subtasks.
                 async def tracked_call(target_agent_id, method, sub_params, registry):
                     # wrapper to inject parent_task info for tracking, in the case of tracked orchestration calls.
@@ -273,6 +330,10 @@ class A2APlatform(Platform):
                 orchestration_task.status = TaskStatus.DONE
 
                 # Remove subtasks from result as soon as execution is done to avoid clutter and repetition.
+                # Currenlty, the following is commented out as the agent's link to task monitoring endpoint is cut off 
+                # immediately after its execution is finished and before the task status gets updated in the ednpoint. 
+                # This leads the agent's status to be stuck in RUNNING mode even when it is completed. Following line can be
+                # uncommented (each agent should have a return in that case) after this bug is resolved. 
                 # if "subtasks" in orchestration_task.result:
                 #     orchestration_task.result.pop("subtasks")
 
@@ -293,15 +354,15 @@ class A2APlatform(Platform):
         self.router.register(name, runner)
     
     # Task execution methods
-    async def create_and_execute_task(self, method: str, params: dict):
-        '''
+    async def create_and_execute_task(self, method: str, params: dict) -> dict:
+        """
         This is an internal method. It creates a task and runs it in the background (asynchronous).
-        '''
+        """
         task_info = self.create_task(method, params)
         asyncio.create_task(execute_task(task_info["task_id"], self.router, self.tasks))
         return task_info
 
-    async def rpc_create_task(self, method: str, params: dict):
+    async def rpc_create_task(self, method: str, params: dict) -> dict:
         '''
         This is an internal method. It creates an asynchronous task and set the status to PENDING execution or RUNNING depending on the tasks queued in the server. Once the execution is done, results will be available here.
         '''

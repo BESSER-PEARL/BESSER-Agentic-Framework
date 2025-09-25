@@ -8,12 +8,17 @@ from besser.agent.platforms.a2a.error_handler import AgentNotFound
 class AgentRegistry:
     '''
     Keeps track of registered A2A agents by ID.
+    Attributes:
+    _agents: dictionary of registered agents
     '''
 
     def __init__(self):
         self._agents: dict[str, 'A2APlatform'] = {}
 
     def register(self, agent_id: str, platform: 'A2APlatform') -> None:
+        """
+        Register the provided agent (through agent_id) in the given platform
+        """
         if agent_id in self._agents:
             logger.error(f'Agent ID "{agent_id}" already registered')
             raise ValueError(f'Agent ID "{agent_id}" already registered')
@@ -25,11 +30,14 @@ class AgentRegistry:
             platform.router.register_task_methods(platform)
 
     def get(self, agent_id: str) -> 'A2APlatform':
+        """
+        Get the registered agent
+        """
         if agent_id not in self._agents:
             raise ValueError(f'Agent ID "{agent_id}" not found')
         return self._agents[agent_id]
 
-    def list(self) -> dict:
+    def list(self) -> list:
         '''
         Return summary info for all registered agents.
         '''
@@ -45,10 +53,13 @@ class AgentRegistry:
         ]
 
     def count(self) -> int:
+        """
+        provide total number of agents that are registered
+        """
         return len(self._agents)
     
     # Used for synchronous agent orchestration calls
-    async def call_agent_method(self, target_agent_id: str, method: str, params: dict):
+    async def call_agent_method(self, target_agent_id: str, method: str, params: dict) -> web.json_response:
         target_platform = self.get(target_agent_id)
         if not target_platform:
             raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')

@@ -5,9 +5,15 @@ from enum import Enum
 from besser.agent.platforms.a2a.error_handler import TaskError
 
 class TaskStatus(str, Enum):
+    """
+    Contants for task status
+    """
     PENDING="PENDING"; RUNNING="RUNNING"; DONE="DONE"; ERROR="ERROR"
 
 class Task:
+    """
+    Task initialises each task submitted to the agent that is added to the queue to be executed
+    """
     def __init__(self, method: str, params: dict):
         self.id = str(uuid.uuid4())
         self.method = method
@@ -19,21 +25,20 @@ class Task:
 
 tasks = {}  # Stores task_id and status -> Task
 
-def create_task(method: str, params: dict, task_storage: dict = None):
-    '''
+def create_task(method: str, params: dict, task_storage: dict = None) -> dict:
+    """
     This is an internal method. It creates a new task and adds it to the tasks dictionary.
-    '''
+    """
     t = Task(method, params)
     target_storage = task_storage if task_storage is not None else tasks
     target_storage[t.id] = t
     return {"task_id": t.id, 
             "status": t.status}
-    
 
-def get_status(task_id: str, task_storage: dict = None):
-    '''
+def get_status(task_id: str, task_storage: dict = None) -> dict:
+    """
     This is an internal method. It gets the status of a task given its task_id.
-    '''
+    """
     store = task_storage if task_storage is not None else tasks
     if task_id not in store:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
@@ -52,9 +57,9 @@ def get_status(task_id: str, task_storage: dict = None):
             }
 
 def list_all_tasks(task_storage: dict = None) -> list:
-    '''
+    """
     Return status info for all tasks.
-    '''
+    """
     store = task_storage if task_storage is not None else tasks
     return [
         {
@@ -66,13 +71,13 @@ def list_all_tasks(task_storage: dict = None) -> list:
         for t in store.values()
     ]
 
-async def execute_task(task_id: str, router, task_storage: dict = None, coroutine_func=None, params=None):
+async def execute_task(task_id: str, router, task_storage: dict = None, coroutine_func=None, params=None) -> dict:
 
-    '''
+    """
     This is an internal method. It executes a task given its task_id.
     In the case of Orchestration tasks, a coroutine function can be provided that
     will be awaited with task parameters instead of the default method handler.
-    '''
+    """
     store = task_storage if task_storage is not None else tasks
     if task_id not in store:
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")

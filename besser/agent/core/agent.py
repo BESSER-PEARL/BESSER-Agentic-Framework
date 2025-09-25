@@ -532,8 +532,7 @@ class Agent:
         return gitlab_platform
     
     def use_a2a_platform(self) -> A2APlatform:
-        """
-        Use the :class: `besser.agent.platforms.a2a.a2a_platform.A2APlatform' on this agent.
+        """Use the :class: `~besser.agent.platforms.a2a.a2a_platform.A2APlatform` on this agent.
 
         Returns:
             A2APlatform: the A2A platform

@@ -1,5 +1,10 @@
+# This script has multiple examples. 
+# You can execute this script as such and in a different terminal you can enter the curl commands given under each example to see what A2A platform can do.
+# To monitor the status of the tasks, it is the same curl command (with correct task_id and agent_id) or can be watched on a browser endpoint.
+# Parts of code other than examples are gernerally used for every agent/platform.
+
 import sys
-sys.path.append("C:/Users/chidambaram/Downloads/GitHub/BESSER-Agentic-Framework_Natarajan")
+sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
 
 import asyncio
 import requests
@@ -7,30 +12,35 @@ from aiohttp import web
 
 from besser.agent.core.agent import Agent
 from besser.agent.platforms.a2a.agent_registry import AgentRegistry
-# from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 from besser.agent.platforms.a2a.server import create_app
 
+# Create a registry of Agents
 registry = AgentRegistry()
 
+# Define each agent
 agent1 = Agent('TestAgent1')
 agent2 = Agent('TestAgent2')
 agent3 = Agent('TestAgent3')
 agent4 = Agent('TestAgent4')
 
+# Assign platform for each agent
 a2a_platform1 = agent1.use_a2a_platform()
 a2a_platform2 = agent2.use_a2a_platform()
 a2a_platform3 = agent3.use_a2a_platform()
 a2a_platform4 = agent4.use_a2a_platform()
 
+# Provide an ID for each platform (aslo called as agent id)
 registry.register('EchoAgent', a2a_platform1)
 registry.register('SummationAgent', a2a_platform2)
 registry.register('OrchAgent', a2a_platform3)
 registry.register('FinalSumAgent', a2a_platform4)
 
+# Following prints show how to get basic agent related details.
 # print(f"Total registered agents: {registry.count()}")
 # print(registry.get("EchoAgent")._agent.name)
-# print(registry.get("SummationAgent")._agent.name)
 
+# User defined methods. Delays are added to mimic LLMs response time and to watch different status - PENDING, RUNNING, DONE and ERROR
+# ---------------------------------------------------------------
 async def echo(msg: str):
     '''
     A simple echo method that waits for 30 seconds before returning the message.
@@ -51,15 +61,16 @@ async def do_summation(num1: int, num2: int):
     await asyncio.sleep(30)
     return f"{num1+num2}"
 
-async def final_summation(sum: int, num1: int):
+async def final_summation(mysum: int, num1: int):
     '''
-    A simple echo method that waits for 20 seconds before returning the message.
+    A simple summation method that waits for 20 seconds before returning the message.
     '''
-    if not isinstance(sum, int) or not isinstance(num1, int):
+    if not isinstance(mysum, int) or not isinstance(num1, int):
         raise ValueError("numbers must be a integer")
     
     await asyncio.sleep(20)
-    return f"{sum+num1}"
+    return f"{mysum+num1}"
+#------------------------------------------------------------------
 
 async def await_subtask_result(orchestration_task, subtask, poll_interval=0.1):
     '''
@@ -73,42 +84,54 @@ async def await_subtask_result(orchestration_task, subtask, poll_interval=0.1):
                 break
         await asyncio.sleep(poll_interval)
 
-# async def failing_method():
-#     '''
-#     Checking exception handling in A2A.
-#     '''
-#     raise Exception('exception_raised')
-
+# Give an ID for each user-defined method and register the methods on whichever platform that needs to access those methods. 
 a2a_platform1.router.register("echo_message", echo)
 a2a_platform2.router.register("do_summation", do_summation)
 a2a_platform4.router.register("do_summation", do_summation)
 a2a_platform4.router.register("final_summation", final_summation)
 
+# add capabilities, descriptions and examples for each platform
 a2a_platform1.add_capabilities('Prints the entered message')
-a2a_platform1.add_descriptions(['Waits for 45 seconds and then provides the entered message'])
+a2a_platform1.add_descriptions(['Waits for 30 seconds and then provides the entered message'])
 
-# methods_info = [{"name": 'create_task_and_run', "description": 'Creates a task and waits for its execution to be completed before providing the result.'}, {"name": "My method", "description": "My method description"}]
-
-# a2a_platform1.add_methods(methods_info)
 a2a_platform1.populate_methods_from_router()
-a2a_platform1.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"hellloooo1\"}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
+a2a_platform1.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"Hello\"}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/EchoAgent/tasks'}])
 
 a2a_platform2.add_capabilities('Prints summation of two numbers')
-a2a_platform2.add_descriptions(['Waits for 45 seconds and then provides the summation of two entered numbers'])
+a2a_platform2.add_descriptions(['Waits for 30 seconds and then provides the summation of two entered numbers'])
 a2a_platform2.populate_methods_from_router()
-a2a_platform2.add_examples([{'To execute "echo_message" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"do_summation\",\"params\":{\"int1\":2, \"int2\":4}},\"id\":1}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"'}])
+a2a_platform2.add_examples([{'To execute "do_summation" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"do_summation\",\"params\":{\"int1\":2, \"int2\":4}},\"id\":1}"', 'To get status of the task with task_id using curl': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/SummationAgent/tasks'}])
 
 a2a_platform4.add_capabilities('Displays the summation result')
-a2a_platform4.add_descriptions(['Gets the summation of two numbers from the SummationAgent, waits for 30 seconds, adds it to another number, and prints the summation'])
-a2a_platform4.add_methods([{"name": "do_summation", "description": "Gets the summation of two numbers from the SummationAgent, waits for 30 seconds, adds it to another number, and prints the summation."}])
-a2a_platform4.add_examples([{'Not a standalone execution':'This will be executed in orchestration way, not a standalone'}])
+a2a_platform4.add_descriptions(['Gets two numbers, waits for 20 seconds, adds two numbers, and prints the summation'])
+a2a_platform4.add_methods([{"name": "FinalSumAgent", "description": "Provides the summation of two numbers."}])
+a2a_platform4.add_examples([{'To get results from SummationAgent and add it to another number within "final_summation" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":12}}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/OrchAgent/tasks'}])
 
-# For orchestration, register the orchestration methods in each agent's router. This enables an agent (e.g., EchoAgent) to call another agent (e.g., SummationAgent).
+
+# Example 1: Independent
+#***********
+'''Just pass the curl command for a single agent in the terminal and follow its task stauts using curl command or in a browser as given in example of a2a_platform1 or a2a_platform2. Multiple agents can be executed in parallel (at the same time) as everything is asynchronous.'''
+
+#------------------------------------------------------------------------------------------------------------------
+
+# Example 2: De-centralised
+#***********
+# Agent A invoking Agent B (A => B)
+# For agent-agent orchestration (agent calling another agent), register the orchestration methods in each agent's platform router. 
+# This enables an agent (e.g., EchoAgent) to call another agent (e.g., SummationAgent).
 for agent_id, platform in registry._agents.items():
     if hasattr(platform, "router"):
         platform.router.register_orchestration_methods(platform, registry)
 
-# Separate agent for orchestration (only orchestration, no tasks)
+'''
+curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"EchoAgent\",\"method\":\"call_agent_method\",\"params\":{\"target_agent_id\":\"SummationAgent\",\"method\":\"do_summation\",\"params\":{\"num1\":3,\"num2\":4}}}"
+'''
+#------------------------------------------------------------------------------------------------------------------
+
+# Example 3: Parallel
+#***********
+# Agent A and B are executed in parallel (A || B) by a third agent
+# Separate agent for orchestration (only orchestration, no task registration). Task status can be monitored in respective agent's endpoint
 async def orchestrate_echo_and_sum(platform, params, registry):
     '''
     Orchestrates EchoAgent and SummationAgent tasks.
@@ -128,6 +151,17 @@ async def orchestrate_echo_and_sum(platform, params, registry):
     )
     return {"echo_task": echo_task, "sum_task": sum_task}
 
+a2a_platform3.register_orchestration_task_on_resp_agent("orchestrate_tasks", orchestrate_echo_and_sum, registry)
+
+'''
+curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+'''
+
+#------------------------------------------------------------------------------------------------------------------
+
+# Example 4: Parallel
+#***********
+# Agent A and B are executed in parallel (A || B)
 # Separate agent for orchestration (also has its own registered tasks)
 async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_call, orchestration_task):
     '''
@@ -160,6 +194,16 @@ async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_c
     # return orchestration_result
     return {}
 
+a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked", orchestrate_echo_and_sum_tracked, registry)
+
+'''
+curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+'''
+
+#------------------------------------------------------------------------------------------------------------------
+
+# Example 5: Hybrid
+# Agent A || B -> C
 # Separate agent for orchestration (also has its own registered tasks)
 async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, tracked_call, orchestration_task):
     '''
@@ -197,10 +241,13 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
     # return orchestration_result
     return {}
 
-# a2a_platform3.register_orchestration_task_on_resp_agent("orchestrate_tasks", orchestrate_echo_and_sum, registry)
-# a2a_platform3.register_orchestration_task("orchestrate_tasks_tracked", a2a_platform3.wrap_as_task("orchestrate_tasks", orchestrate_echo_and_sum), registry)
-# a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked", orchestrate_echo_and_sum_tracked, registry)
 a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked_seq", orchestrate_echo_sum_display_seq_tracked, registry)
+
+'''
+curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":10}}
+'''
+
+#------------------------------------------------------------------------------------------------------------------
 
 # Run the platform with registry containing registered agents.
 app = create_app(registry=registry)
