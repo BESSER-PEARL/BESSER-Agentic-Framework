@@ -1,6 +1,7 @@
 # from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
 #     from besser.agent.platforms.a2a.a2a_platform import A2APlatform
+from aiohttp import web
 
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.a2a.error_handler import AgentNotFound

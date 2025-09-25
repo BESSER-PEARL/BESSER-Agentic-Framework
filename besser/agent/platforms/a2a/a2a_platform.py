@@ -4,6 +4,7 @@ import uuid
 import asyncio
 
 from typing import TYPE_CHECKING, Callable
+from enum import Enum
 from aiohttp import web
 
 from besser.agent.library.coroutine.async_helpers import sync_coro_call
@@ -55,7 +56,7 @@ class A2APlatform(Platform):
                  version: str = '1.0',
                  capabilities: list[str] = [],
                  id: str = str(uuid.uuid4()),
-                 endpoints: list[str] = ["http://localhost:8000/a2a", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/agents"],
+                 endpoints: list[str] = ["http://localhost:8000/agents", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/a2a"],
                  descriptions: list[str] = [], 
                  skills: list[str] = [], 
                  examples: list[dict] | list[str] = [],
@@ -229,11 +230,9 @@ class A2APlatform(Platform):
             raise AgentNotFound(f'Agent ID "{target_agent_id}" not found')
 
         # Create task on the target agent
-        # subtask_coroutine = target_platform.create_and_execute_task(method, params)
-        # subtask_task = asyncio.create_task(subtask_coroutine)
         subtask_info = await target_platform.create_and_execute_task(method, params)
 
-        # Track under parent task (ThirdAgent’s orchestration task)
+        # Track under parent task (orchestrator agent's task)
         if parent_task:
             orchestration_task = self.tasks[parent_task["task_id"]]
             orchestration_task.status = TaskStatus.RUNNING
@@ -247,9 +246,17 @@ class A2APlatform(Platform):
             "task_id": subtask_info["task_id"],
             "agent_id": target_agent_id,
             "method": method,
-            "status": TaskStatus.PENDING,
-            "result": None,
-            "error": None
+            # "status": TaskStatus.PENDING,
+            "status": subtask_info.get("status").value if isinstance(subtask_info.get("status"), Enum) else subtask_info.get("status", TaskStatus.PENDING),
+            "result": subtask_info.get("result"),
+            "error": subtask_info.get("error")
+            })
+
+            # print(f"[DEBUG] Created subtask {subtask_info['task_id']} for parent {parent_task['task_id']}")
+            await orchestration_task.notify_subscribers({
+                "type": "subtask_created",
+                "subtask_id": subtask_info["task_id"],
+                "parent_task_id": parent_task["task_id"]
             })
         
         # Launch a watcher coroutine to update parent status in real time
@@ -258,11 +265,38 @@ class A2APlatform(Platform):
                 t = target_platform.tasks[subtask_info["task_id"]]
                 for st in orchestration_task.result.get("subtasks", []):
                     if st["task_id"] == subtask_info["task_id"]:
-                        st["status"] = t.status
+                        # print(f"[DEBUG] Watching subtask {t.id}, status={t.status}")
+                        st["status"] = t.status.value if isinstance(t.status, Enum) else t.status
                         st["result"] = t.result
                         st["error"] = t.error
                         break
+                
+                # Notify subscribers of any change for SSE
+                await orchestration_task.notify_subscribers({
+                    "type": "subtask_update",
+                    "parent_task_id": orchestration_task.id,
+                    "subtask": {
+                        **st,
+                        "status": st["status"]  # already a string
+                    }
+                })
+                await t.notify_subscribers({
+                    "type": "task_update",
+                    "task_id": t.id,
+                    "status": t.status,
+                    "result": t.result,
+                    "error": t.error
+                })
+
                 if t.status in [TaskStatus.DONE, TaskStatus.ERROR]:
+                    # print(f"[DEBUG] Orchestration {t.id} completed")
+                    await orchestration_task.notify_subscribers({
+                        "type": "task_final",
+                        "task_id": orchestration_task.id,
+                        "status": orchestration_task.status,
+                        "result": orchestration_task.result,
+                        "error": orchestration_task.error
+                    })
                     break
                 await asyncio.sleep(0.05)
 

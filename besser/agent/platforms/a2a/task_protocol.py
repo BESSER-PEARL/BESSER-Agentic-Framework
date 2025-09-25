@@ -1,5 +1,6 @@
 import uuid, time
 import inspect
+import asyncio
 from enum import Enum
 
 from besser.agent.platforms.a2a.error_handler import TaskError
@@ -22,6 +23,42 @@ class Task:
         self.created = time.time()
         self.result = None
         self.error = None
+        self.subscribers = set()
+    
+    def subscribe(self, q: asyncio.Queue = None) -> asyncio.Queue:
+        """
+        Return an asyncio.Queue that will receive updates for this task.
+        Caller should read until cancelled/closed.
+        """
+        if q is None:
+            q = asyncio.Queue()
+        self.subscribers.add(q)
+
+        if hasattr(self, "result") and self.result:
+            q.put_nowait({"type": "task_snapshot", "task": self.result})
+        
+        return q
+    
+    def unsubscribe(self, q: asyncio.Queue) -> None:
+        """
+        Remove tasks that does need any monitoring.
+        """
+        try:
+            self.subscribers.remove(q)
+        except KeyError:
+            pass
+
+    async def notify_subscribers(self, message: dict) -> None:
+        """
+        Push non-blocking message to all subscribers in queues (awaits put).
+        """
+        for q in list(self.subscribers):
+            try:
+                await q.put(message)
+            # except asyncio.QueueFull:
+            except Exception:
+                # if a subscriber is slow, drop updates or consider backpressure
+                pass
 
 tasks = {}  # Stores task_id and status -> Task
 
@@ -103,6 +140,15 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         raise TaskError("TASK_FAILED", t.error)
     # print(f"After Execution: method={t.method}, got={result}, type={type(result)}")
     # print(f"[EXECUTOR] Finished execution of task {t}, status={t.status}. Got {t.result}")
+
+    # notify subscribers of final state
+    await t.notify_subscribers({
+        "type": "task_final",
+        "task_id": t.id,
+        "status": t.status,
+        "result": t.result,
+        "error": t.error
+    })
     
     return {
         "task_id": t.id,

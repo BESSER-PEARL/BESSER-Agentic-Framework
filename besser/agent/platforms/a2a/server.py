@@ -58,6 +58,69 @@ async def a2a_handler(request: Request) -> web.json_response:
     
     return await platform.router.aiohttp_handler(request)
 
+async def sse_event_handler(request: Request) -> web.StreamResponse: #we use web.StreamResponse as it should be streaming. web.json_response only for REST endpoints.
+    """
+    Handle the incoming SSE request, and stream the status continuously
+    """
+    agent_id = request.match_info["agent_id"]
+    task_id = request.match_info["task_id"]
+
+    platform = get_agent_id_platform(request)
+    task = platform.tasks.get(task_id)  # each platform keeps its own tasks
+
+    if not task:
+        return web.Response(status=404, text=f"Task '{task_id}' not found in agent '{agent_id}'")
+    
+    # print("Handler task id:", task.id, "subscribers:", task.subscribers)
+
+    response = web.StreamResponse(
+        status=200,
+        reason="OK",
+        headers={"Content-Type": "text/event-stream",
+                 "Cache-Control": "no-cache",
+                 "Connection": "keep-alive",
+                 "Transfer-Encoding": "chunked"},
+    )
+    await response.prepare(request)
+
+    # def serialize_task(task_dict):
+    #     def convert(obj):
+    #         if isinstance(obj, Enum):
+    #             return str(obj)
+    #         return obj
+    #     return json.loads(json.dumps(task_dict, default=convert))
+
+    # print('Coming after response.prepare')
+    # q = asyncio.Queue()
+    # task.subscribe(q)
+
+    q = task.subscribe()
+    # snapshot = serialize_task(task.to_dict())
+    # print("SSE task.result:", task.result)
+    await response.write(b": ping\n\n")
+    # await response.write(f"data: {json.dumps(task.result)}\n\n".encode())
+    await response.drain()
+
+    # print('before entering try')
+
+    try:
+        # send initial snapshot
+        # print("Inside Try SSE snapshot:", task.result)
+        # await response.write(f"data: {json.dumps(task.to_dict())}\n\n".encode())
+        # await response.drain()
+        while True:
+            msg = await q.get()
+            # print("SSE event:", msg)
+            # print(f"data: {json.dumps(msg)}\n\n".encode())
+            await response.write(f"data: {json.dumps(msg)}\n\n".encode())
+            await response.drain()
+    except asyncio.CancelledError:
+        pass
+    finally:
+        task.unsubscribe(q)
+
+    return response
+
 # Multi-agent registry (peers). This block is for future use, when agents exist on multiple servers and need to communicate among themselves..
 #---------------------------------------------------------------------------
 async def list_peers(request: Request) -> web.json_response:
@@ -96,6 +159,7 @@ def create_app(platform: A2APlatform = None, registry: AgentRegistry = None) -> 
     app.router.add_post("/a2a", a2a_handler)
     app.router.add_get("/agents/{agent_id}/agent-card", get_agent_card_by_id)
     app.router.add_get("/agents/{agent_id}/tasks", get_task_status_in_agent)
+    app.router.add_get("/agents/{agent_id}/events/{task_id}", sse_event_handler)
     return app
 
 # if __name__ == "__main__":
