@@ -1,10 +1,13 @@
 # This script has multiple examples. 
-# You can execute this script as such and in a different terminal you can enter the curl commands given under each example to see what A2A platform can do.
-# To monitor the status of the tasks, it is the same curl command (with correct task_id and agent_id) or can be watched on a browser endpoint.
+# You can execute this script as such and in a terminal (no need to restart for each example, just once is enough)
+# You can enter the curl commands given under each example to see what A2A platform can do.
+# To monitor the status of the tasks, it is the same curl command (with correct task_id and agent_id) or corresponding curl commands are given or can be watched on a browser endpoint.
+# task_id can be found in the response message given when submitting the jobs. 
 # Parts of code other than examples are gernerally used for every agent/platform.
 
 import sys
-sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
+# sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
+sys.path.append("C:/Users/chidambaram/Downloads/GitHub/BESSER-Agentic-Framework_Natarajan")
 
 import asyncio
 import requests
@@ -39,7 +42,7 @@ registry.register('FinalSumAgent', a2a_platform4)
 # print(f"Total registered agents: {registry.count()}")
 # print(registry.get("EchoAgent")._agent.name)
 
-# User defined methods. Delays are added to mimic LLMs response time and to watch different status - PENDING, RUNNING, DONE and ERROR
+# User defined methods. Delays are added to mimic LLMs response time and to watch different status - PENDING, RUNNING, DONE and ERROR. Delay time can be increased if you want to do this slowly ans observe what is happening.
 # ---------------------------------------------------------------
 async def echo(msg: str):
     '''
@@ -110,7 +113,13 @@ a2a_platform4.add_examples([{'To get results from SummationAgent and add it to a
 
 # Example 1: Independent
 #***********
-'''Just pass the curl command for a single agent in the terminal and follow its task stauts using curl command or in a browser as given in example of a2a_platform1 or a2a_platform2. Multiple agents can be executed in parallel (at the same time) as everything is asynchronous.'''
+'''Just pass the curl command for a single agent in the terminal and follow its task stauts using curl command or in a browser as given in example of a2a_platform1 or a2a_platform2. Multiple agents can be executed in parallel (at the same time) as everything is asynchronous.
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"Hello\"}},\"id\":1}"
+
+Get status (replace task_id): curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"
+
+Browser: http://localhost:8000/agents/EchoAgent/tasks
+'''
 
 #------------------------------------------------------------------------------------------------------------------
 
@@ -124,11 +133,15 @@ for agent_id, platform in registry._agents.items():
         platform.router.register_orchestration_methods(platform, registry)
 
 '''
-curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"EchoAgent\",\"method\":\"call_agent_method\",\"params\":{\"target_agent_id\":\"SummationAgent\",\"method\":\"do_summation\",\"params\":{\"num1\":3,\"num2\":4}}}"
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"EchoAgent\",\"method\":\"call_agent\",\"params\":{\"target_agent_id\":\"SummationAgent\",\"method\":\"do_summation\",\"params\":{\"num1\":3,\"num2\":4}}}"
+
+Get status: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"
+
+Browser: http://localhost:8000/agents/SummationAgent/tasks
 '''
 #------------------------------------------------------------------------------------------------------------------
 
-# Example 3: Parallel
+# Example 3: Parallel without task_id for OrchAgent
 #***********
 # Agent A and B are executed in parallel (A || B) by a third agent
 # Separate agent for orchestration (only orchestration, no task registration). Task status can be monitored in respective agent's endpoint
@@ -154,12 +167,18 @@ async def orchestrate_echo_and_sum(platform, params, registry):
 a2a_platform3.register_orchestration_task_on_resp_agent("orchestrate_tasks", orchestrate_echo_and_sum, registry)
 
 '''
-curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+
+Get status: For echo task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}" 
+            For sum task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":3}"
+
+Browser: http://localhost:8000/agents/EchoAgent/tasks
+         http://localhost:8000/agents/SummationAgent/tasks
 '''
 
 #------------------------------------------------------------------------------------------------------------------
 
-# Example 4: Parallel
+# Example 4: Parallel with task_id for OrchAgent
 #***********
 # Agent A and B are executed in parallel (A || B)
 # Separate agent for orchestration (also has its own registered tasks)
@@ -197,7 +216,11 @@ async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_c
 a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked", orchestrate_echo_and_sum_tracked, registry)
 
 '''
-curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked\",\"params\":{\"msg\":\"Hello\",\"num1\":3,\"num2\":5}}"
+
+Get status: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"
+
+Browser: http://localhost:8000/agents/OrchAgent/tasks
 '''
 
 #------------------------------------------------------------------------------------------------------------------
@@ -227,7 +250,7 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
     display_task = await tracked_call(
         "FinalSumAgent", 
         "final_summation", 
-        {"sum": int(sum_result), "num1": params["num3"]},
+        {"mysum": int(sum_result), "num1": params["num3"]},
         registry
     )
     # orchestration_result = {}
@@ -244,7 +267,11 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
 a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked_seq", orchestrate_echo_sum_display_seq_tracked, registry)
 
 '''
-curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":10}}
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":10}}
+
+Get status: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}
+
+Browser: http://localhost:8000/agents/OrchAgent/tasks
 '''
 
 #------------------------------------------------------------------------------------------------------------------
