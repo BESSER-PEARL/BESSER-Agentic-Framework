@@ -104,11 +104,13 @@ To send a message to the server from your system (in a different terminal than t
         -H "Content-Type: application/json" \
         -d '{"jsonrpc":"2.0", "agent_id": "test_platform", "method": "create_task_and_run", "params":{"method":"method_id", "params":{method_params:<param_key>}}, "id":1}'
 
-There are two ways to get the status of the task that is being executed in the agent: 
+There are three ways to get the status of the task that is being executed in the agent: 
 
 1. by CURL command in the terminal
 
 2. In browser via HTTP polling.
+
+3. In browser via SSE. You can watch the result/status live, no need to refresh the page.
 
 .. code-block:: bash
 
@@ -120,10 +122,14 @@ or
 
 Open in browser: `https:localhost:8000/agents/test_platform/tasks <https:localhost:8000/agents/test_platform/tasks>`_
 
+or
+
+Open in browser: `https:localhost:8000/agents/test_platform/events/<task_id> <https:localhost:8000/agents/test_platform/events/\<task_id\>>`_
+
 
 .. note:: 
     
-    The above mentioned example is executing a single agent. There are multiple ways this platform can be used. For three agents named A, B and C, the following are also possible.
+    The above mentioned example is for executing a single agent. There are multiple ways this platform can be used. For three agents named A, B and C, the following are also possible.
 
     Executing agent A or B or C (same as above)
 
