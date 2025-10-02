@@ -2,6 +2,8 @@
 # from fastapi.responses import JSONResponse
 from aiohttp.web_request import Request
 from aiohttp import web
+import json
+import asyncio
 
 from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.a2a.error_handler import error_middleware
@@ -70,8 +72,6 @@ async def sse_event_handler(request: Request) -> web.StreamResponse: #we use web
 
     if not task:
         return web.Response(status=404, text=f"Task '{task_id}' not found in agent '{agent_id}'")
-    
-    # print("Handler task id:", task.id, "subscribers:", task.subscribers)
 
     response = web.StreamResponse(
         status=200,
@@ -83,41 +83,20 @@ async def sse_event_handler(request: Request) -> web.StreamResponse: #we use web
     )
     await response.prepare(request)
 
-    # def serialize_task(task_dict):
-    #     def convert(obj):
-    #         if isinstance(obj, Enum):
-    #             return str(obj)
-    #         return obj
-    #     return json.loads(json.dumps(task_dict, default=convert))
-
-    # print('Coming after response.prepare')
-    # q = asyncio.Queue()
-    # task.subscribe(q)
-
     q = task.subscribe()
-    # snapshot = serialize_task(task.to_dict())
-    # print("SSE task.result:", task.result)
-    await response.write(b": ping\n\n")
-    # await response.write(f"data: {json.dumps(task.result)}\n\n".encode())
-    await response.drain()
-
-    # print('before entering try')
-
     try:
-        # send initial snapshot
-        # print("Inside Try SSE snapshot:", task.result)
-        # await response.write(f"data: {json.dumps(task.to_dict())}\n\n".encode())
-        # await response.drain()
         while True:
             msg = await q.get()
-            # print("SSE event:", msg)
-            # print(f"data: {json.dumps(msg)}\n\n".encode())
-            await response.write(f"data: {json.dumps(msg)}\n\n".encode())
+            await response.write(f"data: {json.dumps(msg, indent=2)}\n\n".encode())
             await response.drain()
-    except asyncio.CancelledError:
+    except asyncio.CancelledError as e:
+        logger.info(f"SSE connection closed by client for the task {task_id} in {agent_id}")
         pass
+    except Exception as e:
+        logger.error(f"SSE dumps failed with: {repr(e)}")
     finally:
         task.unsubscribe(q)
+        logger.info(f"Unsubscribed SSE queue for the task {task_id} in {agent_id}")
 
     return response
 
