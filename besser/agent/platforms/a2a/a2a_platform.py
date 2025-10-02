@@ -252,7 +252,6 @@ class A2APlatform(Platform):
             "error": subtask_info.get("error")
             })
 
-            # print(f"[DEBUG] Created subtask {subtask_info['task_id']} for parent {parent_task['task_id']}")
             await orchestration_task.notify_subscribers({
                 "type": "subtask_created",
                 "subtask_id": subtask_info["task_id"],
@@ -289,7 +288,6 @@ class A2APlatform(Platform):
                 })
 
                 if t.status in [TaskStatus.DONE, TaskStatus.ERROR]:
-                    # print(f"[DEBUG] Orchestration {t.id} completed")
                     await orchestration_task.notify_subscribers({
                         "type": "task_final",
                         "task_id": orchestration_task.id,
