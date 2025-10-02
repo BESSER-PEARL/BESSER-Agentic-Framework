@@ -260,43 +260,66 @@ class A2APlatform(Platform):
         
         # Launch a watcher coroutine to update parent status in real time
         async def watch_subtask() -> dict:
+            last_status = None # for SSE
+            last_result = None # for SSE
+            last_error = None # for SSE
+
             while True:
                 t = target_platform.tasks[subtask_info["task_id"]]
-                for st in orchestration_task.result.get("subtasks", []):
-                    if st["task_id"] == subtask_info["task_id"]:
-                        # print(f"[DEBUG] Watching subtask {t.id}, status={t.status}")
-                        st["status"] = t.status.value if isinstance(t.status, Enum) else t.status
-                        st["result"] = t.result
-                        st["error"] = t.error
-                        break
-                
-                # Notify subscribers of any change for SSE
-                await orchestration_task.notify_subscribers({
-                    "type": "subtask_update",
-                    "parent_task_id": orchestration_task.id,
-                    "subtask": {
-                        **st,
-                        "status": st["status"]  # already a string
-                    }
-                })
-                await t.notify_subscribers({
-                    "type": "task_update",
-                    "task_id": t.id,
-                    "status": t.status,
-                    "result": t.result,
-                    "error": t.error
-                })
 
-                if t.status in [TaskStatus.DONE, TaskStatus.ERROR]:
+                # for SSE - notify if something changes in the task status/result/upon error
+                if (t.status != last_status) or (t.result != last_result) or (t.error != last_error):
+                    last_status, last_result, last_error = t.status, t.result, t.error
+
+                    for st in orchestration_task.result.get("subtasks", []):
+                        if st["task_id"] == subtask_info["task_id"]:
+                            st["status"] = t.status.value if isinstance(t.status, Enum) else t.status
+                            st["result"] = t.result
+                            st["error"] = t.error
+                            break
+                    
+                    # Notify subscribers of any change for SSE
+                    await orchestration_task.notify_subscribers({
+                        "type": "subtask_update",
+                        "parent_task_id": orchestration_task.id,
+                        "subtask": {
+                            **st,
+                            "status": st["status"]  # already a string
+                        }
+                    })
+                    await t.notify_subscribers({
+                        "type": "task_update",
+                        "task_id": t.id,
+                        "status": t.status,
+                        "result": t.result,
+                        "error": t.error
+                    })
+                
+                creation_done = orchestration_task.result.get("creation_done", False)
+                subtasks = orchestration_task.result.get("subtasks", [])
+
+                all_done = len(subtasks) > 0 and all(st["status"] in [TaskStatus.DONE, TaskStatus.ERROR] for st in subtasks)
+                
+                if not creation_done:
+                    # During multiple sequential execution, creation_done is set to True for millseconds before next task is being added to the list of tasks
+                    # To avoid this false flag and make the following if condition True, we need to wait untill no more tasks are pending to be added.
+                    await asyncio.sleep(0.5)
+                    continue
+
+                if creation_done and all_done and orchestration_task.status != TaskStatus.DONE:
+                    # await asyncio.sleep(0.1) # give time for the watcher of the last task to post the subtask_update
+                    if orchestration_task.status == TaskStatus.DONE:
+                        break # If multiple subtask watchers enter this IF condition simultaneously, then only the first watcher can set the status to DONE and proceed forward to post task_final, others will exit here. This done to avoid multiple task_final report in the SSE endpoint.
+                    orchestration_task.status = TaskStatus.DONE
                     await orchestration_task.notify_subscribers({
                         "type": "task_final",
                         "task_id": orchestration_task.id,
-                        "status": orchestration_task.status,
+                        "status": orchestration_task.status if not isinstance(orchestration_task.status, Enum) else orchestration_task.status.value,
                         "result": orchestration_task.result,
-                        "error": orchestration_task.error
+                        "error": orchestration_task.error,
                     })
                     break
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.01)
 
         asyncio.create_task(watch_subtask()) # invoke watcher for each subtask. Each watcher will be executed in async manner.
 
