@@ -236,6 +236,7 @@ class A2APlatform(Platform):
         if parent_task:
             orchestration_task = self.tasks[parent_task["task_id"]]
             orchestration_task.status = TaskStatus.RUNNING
+            orchestration_task.is_orchestration = True
             
             if orchestration_task.result is None:
                 orchestration_task.result = {}
