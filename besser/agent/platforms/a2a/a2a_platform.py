@@ -298,7 +298,7 @@ class A2APlatform(Platform):
                     break
                 await asyncio.sleep(0.05)
 
-        asyncio.create_task(watch_subtask())
+        asyncio.create_task(watch_subtask()) # invoke watcher for each subtask. Each watcher will be executed in async manner.
 
         return subtask_info
     
@@ -333,6 +333,7 @@ class A2APlatform(Platform):
                     )
                     return subtask_info
                 
+                # run the orchestration coroutine function
                 result = await coroutine_func(self_inner, p, registry, tracked_call, orchestration_task)
                 
                 #------------------------------------------------------------------------------------------------------ 
@@ -383,6 +384,7 @@ class A2APlatform(Platform):
 
                 return orchestration_task.result
             
+            # Execute orchestration as a background tracked task
             asyncio.create_task(
                 execute_task(
                     task_id=task_info["task_id"], 
