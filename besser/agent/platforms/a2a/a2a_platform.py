@@ -335,6 +335,18 @@ class A2APlatform(Platform):
                 
                 result = await coroutine_func(self_inner, p, registry, tracked_call, orchestration_task)
                 
+                #------------------------------------------------------------------------------------------------------ 
+                # 1. Inform the SSE module that all tasks are created when the final task is created (after return from coroutine function)
+                # 2. Inform the user too (currently not done as it is not useful for the user)
+                # 3. This will prevent SSE from assuming all tasks are done and print the "task_final" report
+                orchestration_task.result["creation_done"] = True
+                # await orchestration_task.notify_subscribers({
+                #     "type": "creation_done",
+                #     "task_id": orchestration_task.id,
+                #     "result": orchestration_task.result
+                # })
+                #------------------------------------------------------------------------------------------------------
+                
                 # Wait for all subtasks (internal Agent's tasks) to finish and update Orchestration Agent's task status
                 subtasks = orchestration_task.result.get("subtasks", [])
                 if subtasks:
