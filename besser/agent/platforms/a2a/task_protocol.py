@@ -120,7 +120,6 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         raise TaskError("TASK_NOT_FOUND", f"Task {task_id} not found")
     
     t = store.get(task_id)
-    # print(f"[EXECUTOR] Starting execution of task {t}")
     
     try:
         t.status = TaskStatus.RUNNING
@@ -129,7 +128,6 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         else:
             result = await router.handle(t.method, t.params)
         
-        # print(f"Before execution: method={t.method}, got={result}, type={type(result)}")
         if inspect.iscoroutine(result):
             result = await result
         t.result = result
@@ -138,8 +136,6 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         t.status = TaskStatus.ERROR
         t.error = str(e)
         raise TaskError("TASK_FAILED", t.error)
-    # print(f"After Execution: method={t.method}, got={result}, type={type(result)}")
-    # print(f"[EXECUTOR] Finished execution of task {t}, status={t.status}. Got {t.result}")
 
     # notify subscribers of final state
     await t.notify_subscribers({
