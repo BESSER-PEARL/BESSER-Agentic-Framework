@@ -247,7 +247,6 @@ class A2APlatform(Platform):
             "task_id": subtask_info["task_id"],
             "agent_id": target_agent_id,
             "method": method,
-            # "status": TaskStatus.PENDING,
             "status": subtask_info.get("status").value if isinstance(subtask_info.get("status"), Enum) else subtask_info.get("status", TaskStatus.PENDING),
             "result": subtask_info.get("result"),
             "error": subtask_info.get("error")
