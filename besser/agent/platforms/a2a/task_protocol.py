@@ -138,13 +138,14 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         raise TaskError("TASK_FAILED", t.error)
 
     # notify subscribers of final state
-    await t.notify_subscribers({
-        "type": "task_final",
-        "task_id": t.id,
-        "status": t.status,
-        "result": t.result,
-        "error": t.error
-    })
+    if getattr(t, "is_orchestration", False) is False:
+        await t.notify_subscribers({
+            "type": "task_final",
+            "task_id": t.id,
+            "status": t.status,
+            "result": t.result,
+            "error": t.error
+        })
     
     return {
         "task_id": t.id,
