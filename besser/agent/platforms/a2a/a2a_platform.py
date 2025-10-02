@@ -322,7 +322,7 @@ class A2APlatform(Platform):
             task_info = self.create_task(name, params) # A separate task for orchestration agent
             orchestration_task = self.tasks[task_info["task_id"]]
             orchestration_task.status = TaskStatus.RUNNING
-            orchestration_task.result = {"subtasks": []}
+            orchestration_task.result = {"subtasks": [], "creation": False}
             
             async def orchestration_coroutine(self_inner, p: dict):
                 # call the user-provided coroutine_func and await results for all subtasks.
