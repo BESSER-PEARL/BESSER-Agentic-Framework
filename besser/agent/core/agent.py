@@ -333,8 +333,9 @@ class Agent:
         self._stop_platforms()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
-        for session_id in list(self._sessions.keys()):
-            self.delete_session(session_id)
+        # is this really necessary?
+        #for session_id in list(self._sessions.keys()):
+            #self.delete_session(session_id)
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.

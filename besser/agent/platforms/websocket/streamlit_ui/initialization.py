@@ -37,18 +37,21 @@ def initialize():
             # If they are not provided, we use default values
             host = 'localhost'
             port = '8765'
-        ws = websocket.WebSocketApp(f"ws://{host}:{port}/",
-                                    on_open=on_open,
-                                    on_message=on_message,
-                                    on_error=on_error,
-                                    on_close=on_close,
-                                    on_ping=on_ping,
-                                    on_pong=on_pong)
-        websocket_thread = threading.Thread(target=ws.run_forever)
-        add_script_run_ctx(websocket_thread)
-        websocket_thread.start()
-        st.session_state[WEBSOCKET] = ws
-
+        try:
+            ws = websocket.WebSocketApp(f"ws://{host}:{port}/",
+                                        on_open=on_open,
+                                        on_message=on_message,
+                                        on_error=on_error,
+                                        on_close=on_close,
+                                        on_ping=on_ping,
+                                        on_pong=on_pong)
+            websocket_thread = threading.Thread(target=ws.run_forever)
+            add_script_run_ctx(websocket_thread)
+            websocket_thread.start()
+            st.session_state[WEBSOCKET] = ws
+        except Exception as e:
+            st.error(f"Could not connect to the WebSocket server at ws://{host}:{port}/. Please ensure the server is running and the host and port are correct.")
+            print(f"WebSocket connection error: {e}")
     if SESSION_MONITORING not in st.session_state:
         session_monitoring_thread = threading.Thread(target=session_monitoring,
                                                      kwargs={'interval': SESSION_MONITORING_INTERVAL})
