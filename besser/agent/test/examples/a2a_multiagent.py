@@ -1,9 +1,9 @@
 # This script has multiple examples. 
 # You can execute this script as such and in a terminal (no need to restart for each example, just once is enough)
 # You can enter the curl commands given under each example to see what A2A platform can do.
-# To monitor the status of the tasks, it is the same curl command (with correct task_id and agent_id) or corresponding curl commands are given or can be watched on a browser endpoint.
-# task_id can be found in the response message given when submitting the jobs. 
-# Parts of code other than examples are gernerally used for every agent/platform.
+# There are two ways to monitor the status of the tasks. First, use the corresponding curl commands given under each example or use the same curl command template with correct task_id and agent_id. Second, can be watched on a browser endpoint of the form agents/<agent_id>/tasks or can use the corresponding browser endpoints given under each example.
+# task_id can be found in the response message given by the server after submitting the jobs. 
+# Parts of code other than examples are gernerally used for every agent or platform.
 
 import sys
 # sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
@@ -42,7 +42,7 @@ registry.register('FinalSumAgent', a2a_platform4)
 # print(f"Total registered agents: {registry.count()}")
 # print(registry.get("EchoAgent")._agent.name)
 
-# User defined methods. Delays are added to mimic LLMs response time and to watch different status - PENDING, RUNNING, DONE and ERROR. Delay time can be increased if you want to do this slowly ans observe what is happening.
+# User defined methods. Delays are added to mimic LLMs response time and to watch different status - PENDING, RUNNING, DONE and ERROR. Delay time can be increased if you want to do this slowly and observe what is happening.
 # ---------------------------------------------------------------
 async def echo(msg: str):
     '''
