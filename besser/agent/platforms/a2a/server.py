@@ -134,7 +134,6 @@ def create_app(platform: A2APlatform = None, registry: AgentRegistry = None) -> 
 
     # Endpoints that are visible to all the users communicating with the platform
     app.router.add_get("/agents", get_list_of_agents)
-    # app.router.add_get("/agent-card", get_agent_card)
     app.router.add_post("/a2a", a2a_handler)
     app.router.add_get("/agents/{agent_id}/agent-card", get_agent_card_by_id)
     app.router.add_get("/agents/{agent_id}/tasks", get_task_status_in_agent)
