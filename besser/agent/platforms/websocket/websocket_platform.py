@@ -125,6 +125,11 @@ class WebSocketPlatform(Platform):
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
+                    elif payload.action == PayloadAction.USER_SET_VARIABLE.value:
+                        key = next(iter(payload.message))
+                        value = payload.message[key]
+                        session.set(key, value)
+                        logger.info(f"Session variable {key} set to {value}.")
             except ConnectionClosedError:
                 pass
                 # logger.error(f'The client closed unexpectedly')
