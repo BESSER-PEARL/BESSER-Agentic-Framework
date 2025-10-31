@@ -3,7 +3,7 @@
 # You can enter the curl commands given under each example to see what A2A platform can do.
 # There are two ways to monitor the status of the tasks. First, use the corresponding curl commands given under each example or use the same curl command template with correct task_id and agent_id. Second, can be watched on a browser endpoint of the form agents/<agent_id>/tasks or can use the corresponding browser endpoints given under each example.
 # task_id can be found in the response message given by the server after submitting the jobs. 
-# Parts of code other than examples are gernerally used for every agent or platform.
+# Parts of code other than examples are generally used for every agent or platform.
 
 import sys
 # sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
