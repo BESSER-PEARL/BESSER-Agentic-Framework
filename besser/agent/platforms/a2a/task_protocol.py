@@ -7,7 +7,7 @@ from besser.agent.platforms.a2a.error_handler import TaskError
 
 class TaskStatus(str, Enum):
     """
-    Contants for task status
+    Constants for task status
     """
     PENDING="PENDING"; RUNNING="RUNNING"; DONE="DONE"; ERROR="ERROR"
 
