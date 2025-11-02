@@ -155,10 +155,3 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         "error": t.error
     }
 
-# async def _execute_task_bg(task_id: str, router):
-#     try:
-#         await execute_task(task_id, router)
-#     except TaskError as e:
-#         # Already handled in execute_task: status updated inside the task object
-#         # Exceptions are caught internally, preventing "Task exception was never retrieved".
-#         print(f"[EXECUTOR] Task {task_id} failed: {e}")
