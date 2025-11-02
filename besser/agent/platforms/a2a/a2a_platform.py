@@ -155,7 +155,7 @@ class A2APlatform(Platform):
             skills = [skills]
         for skill in skills:
             if not skill:
-                logger.warning(f"No example is provided for {self._agent.name}")
+                logger.warning(f"No skill is provided for {self._agent.name}")
             self.agent_card.skills.extend([skill])
     
     def add_methods(self, methods: list[dict]) -> None:
