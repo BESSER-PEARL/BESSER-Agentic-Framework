@@ -139,6 +139,3 @@ def create_app(platform: A2APlatform = None, registry: AgentRegistry = None) -> 
     app.router.add_get("/agents/{agent_id}/events/{task_id}", sse_event_handler)
     return app
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
