@@ -1,4 +1,4 @@
-"""Definition of the agent properties within the ``A2A_platfrom`` section:"""
+"""Definition of the agent properties within the ``A2A_platform`` section:"""
 
 from besser.agent.core.property import Property
 
