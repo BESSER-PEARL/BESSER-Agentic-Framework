@@ -10,7 +10,6 @@ import sys
 
 
 import asyncio
-import requests
 from aiohttp import web
 
 from besser.agent.core.agent import Agent
