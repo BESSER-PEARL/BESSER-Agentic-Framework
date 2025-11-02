@@ -41,7 +41,7 @@ class Task:
     
     def unsubscribe(self, q: asyncio.Queue) -> None:
         """
-        Remove tasks that does need any monitoring.
+        Remove tasks that do not need any monitoring.
         """
         try:
             self.subscribers.remove(q)
