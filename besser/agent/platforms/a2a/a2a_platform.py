@@ -206,7 +206,7 @@ class A2APlatform(Platform):
     async def execute_task(self, task_id: str) -> dict:
         return await execute_task(task_id, self.router, task_storage=self.tasks)
     
-    # Warppers for agent orchestration function in router
+    # Wrappers for agent orchestration function in router
     async def rpc_call_agent(self, target_agent_id: str, method: str, params: dict, registry: AgentRegistry) -> dict:
         '''
         Calls another agent as a subtask, waits for it to complete, and returns its task info, results and so on.
