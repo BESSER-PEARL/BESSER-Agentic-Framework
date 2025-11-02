@@ -301,7 +301,7 @@ class A2APlatform(Platform):
                 all_done = len(subtasks) > 0 and all(st["status"] in [TaskStatus.DONE, TaskStatus.ERROR] for st in subtasks)
                 
                 if not creation_done:
-                    # During multiple sequential execution, creation_done is set to True for millseconds before next task is being added to the list of tasks
+                    # During multiple sequential execution, creation_done is set to True for milliseconds before next task is being added to the list of tasks
                     # To avoid this false flag and make the following if condition True, we need to wait untill no more tasks are pending to be added.
                     await asyncio.sleep(0.5)
                     continue
