@@ -398,7 +398,7 @@ class A2APlatform(Platform):
                 orchestration_task.status = TaskStatus.DONE
 
                 # Remove subtasks from result as soon as execution is done to avoid clutter and repetition.
-                # Currenlty, the following is commented out as the agent's link to task monitoring endpoint is cut off 
+                # Currently, the following is commented out as the agent's link to task monitoring endpoint is cut off 
                 # immediately after its execution is finished and before the task status gets updated in the ednpoint. 
                 # This leads the agent's status to be stuck in RUNNING mode even when it is completed. Following line can be
                 # uncommented (each agent should have a return in that case) after this bug is resolved. 
