@@ -46,6 +46,7 @@ class Task:
         try:
             self.subscribers.remove(q)
         except KeyError:
+            # It's safe to ignore if the subscriber is not present; no action needed.
             pass
 
     async def notify_subscribers(self, message: dict) -> None:
