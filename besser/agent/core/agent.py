@@ -1,7 +1,6 @@
 import asyncio
 import operator
 import threading
-import json
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Callable, get_type_hints
