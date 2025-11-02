@@ -6,8 +6,6 @@ import uvicorn
 from fastapi import FastAPI
 from multiprocessing import freeze_support
 
-from besser.agent.core.agent import Agent
-
 app = FastAPI()
 logging.basicConfig(level=logging.DEBUG)
 logger1 = logging.getLogger(__name__)
