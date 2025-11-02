@@ -1,7 +1,6 @@
 # from typing import TYPE_CHECKING
 
 import inspect
-import asyncio
 
 from aiohttp import web
 from aiohttp.web_request import Request
