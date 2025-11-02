@@ -47,7 +47,7 @@ You can add the agent's metadata using the built-in helper functions.
     a2a_platform.add_examples([{'first example': 'example1', 'second example': 'example2'}])
 
 
-To add agent specific methods to agent's metadata, either an automated built-in function (automatically identify and add methods that are regitered with the platform's router) or the helper function to add it manually can be used.
+To add agent specific methods to agent's metadata, either an automated built-in function (automatically identify and add methods that are registered with the platform's router) or the helper function to add it manually can be used.
 
 .. code:: python
 
