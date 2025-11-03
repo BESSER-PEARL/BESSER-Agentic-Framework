@@ -54,15 +54,27 @@ class A2APlatform(Platform):
 
     def __init__(self, agent: Agent, 
                  version: str = '1.0',
-                 capabilities: list[str] = [],
+                 capabilities: list[str] = None,
                  id: str = str(uuid.uuid4()),
-                 endpoints: list[str] = ["http://localhost:8000/agents", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/a2a"],
-                 descriptions: list[str] = [], 
-                 skills: list[str] = [], 
-                 examples: list[dict] | list[str] = [],
-                 methods: list[dict] = [],
+                 endpoints: list[str] = None,
+                 descriptions: list[str] = None, 
+                 skills: list[str] = None, 
+                 examples: list[dict] | list[str] = None,
+                 methods: list[dict] = None,
                  provider = "BESSER-Agentic-Framework"):
         super().__init__()
+        if capabilities is None:
+            capabilities = []
+        if endpoints is None:
+            endpoints = ["http://localhost:8000/agents", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/a2a"]
+        if descriptions is None:
+            descriptions = []
+        if skills is None:
+            skills = []
+        if examples is None:
+            examples = []
+        if methods is None:
+            methods = []
         self._agent: Agent = agent
         self._port: int = self._agent.get_property(a2a.A2A_WEBSOKET_PORT)
         self._app: web.Application = web.Application()
