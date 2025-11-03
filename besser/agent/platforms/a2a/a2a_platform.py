@@ -55,7 +55,7 @@ class A2APlatform(Platform):
     def __init__(self, agent: Agent, 
                  version: str = '1.0',
                  capabilities: list[str] = None,
-                 id: str = str(uuid.uuid4()),
+                 id: str = None,
                  endpoints: list[str] = None,
                  descriptions: list[str] = None, 
                  skills: list[str] = None, 
@@ -65,8 +65,10 @@ class A2APlatform(Platform):
         super().__init__()
         if capabilities is None:
             capabilities = []
+        if id is None:
+            id = str(uuid.uuid4())
         if endpoints is None:
-            endpoints = ["http://localhost:8000/agents", "https://localhost:8000/{agent_id}/agent-card", "https://localhost:8000/a2a"]
+            endpoints = ["http://localhost:8000/agents", "http://localhost:8000/{agent_id}/agent-card", "http://localhost:8000/a2a"]
         if descriptions is None:
             descriptions = []
         if skills is None:
