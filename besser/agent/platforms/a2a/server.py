@@ -89,7 +89,7 @@ async def sse_event_handler(request: Request) -> web.StreamResponse: #we use web
             msg = await q.get()
             await response.write(f"data: {json.dumps(msg, indent=2)}\n\n".encode())
             await response.drain()
-    except asyncio.CancelledError as e:
+    except asyncio.CancelledError:
         logger.info(f"SSE connection closed by client for the task {task_id} in {agent_id}")
     except Exception as e:
         logger.error(f"SSE dumps failed with: {repr(e)}")

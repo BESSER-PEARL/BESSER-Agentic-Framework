@@ -5,7 +5,7 @@
 # task_id can be found in the response message given by the server after submitting the jobs. 
 # Parts of code other than examples are generally used for every agent or platform.
 
-import sys
+# import sys
 # sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
 
 
@@ -13,6 +13,7 @@ import asyncio
 from aiohttp import web
 
 from besser.agent.core.agent import Agent
+from besser.agent.exceptions.logger import logger
 from besser.agent.platforms.a2a.agent_registry import AgentRegistry
 from besser.agent.platforms.a2a.server import create_app
 
@@ -45,7 +46,7 @@ registry.register('FinalSumAgent', a2a_platform4)
 # ---------------------------------------------------------------
 async def echo(msg: str):
     '''
-    A simple echo method that waits for 30 seconds before returning the message.
+    A simple echo method that waits for 30 seconds before returning the input message.
     '''
     if not isinstance(msg, str):
         raise ValueError("msg must be a string")
@@ -55,7 +56,7 @@ async def echo(msg: str):
 
 async def do_summation(num1: int, num2: int):
     '''
-    A simple summation method that waits for 30 seconds before returning the summation.
+    A simple summation method that waits for 30 seconds before returning the sum of two numbers.
     '''
     if not isinstance(num1, int) or not isinstance(num2, int):
         raise ValueError("Please enter integers only")
@@ -65,7 +66,7 @@ async def do_summation(num1: int, num2: int):
 
 async def final_summation(mysum: int, num1: int):
     '''
-    A simple summation method that waits for 20 seconds before returning the message.
+    A simple summation method that waits for 20 seconds before returning the sum of two numbers.
     '''
     if not isinstance(mysum, int) or not isinstance(num1, int):
         raise ValueError("numbers must be a integer")
@@ -106,8 +107,9 @@ a2a_platform2.add_examples([{'To execute "do_summation" method': 'curl -X POST h
 
 a2a_platform4.add_capabilities('Displays the summation result')
 a2a_platform4.add_descriptions(['Gets two numbers, waits for 20 seconds, adds two numbers, and prints the summation'])
-a2a_platform4.add_methods([{"name": "FinalSumAgent", "description": "Provides the summation of two numbers."}])
-a2a_platform4.add_examples([{'To get results from SummationAgent and add it to another number within "final_summation" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":12}}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/OrchAgent/tasks'}])
+a2a_platform4.add_methods([{"name": "do_summation", "description": "Waits for 30 seconds and provides the summation of two numbers provided as input."}, 
+                           {"name": "final_summation", "description": "Waits for 30 seconds and provides the summation of two numbers provided as input."}])
+a2a_platform4.add_examples([{'To get results from SummationAgent (with do_summation) and add it to another number within "final_summation" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":12}}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/OrchAgent/tasks'}])
 
 
 # Example 1: Independent
@@ -186,13 +188,13 @@ async def orchestrate_echo_and_sum_tracked(platform, params, registry, tracked_c
     Orchestrates EchoAgent and SummationAgent tasks.
     params: dict containing {'msg': str, 'num1': int, 'num2': int}
     '''
-    echo_task = await tracked_call(
+    await tracked_call(
         "EchoAgent", 
         "echo_message", 
         {"msg": params["msg"]}, 
         registry
     )
-    sum_task = await tracked_call(
+    await tracked_call(
         "SummationAgent", 
         "do_summation", 
         {"num1": params["num1"], "num2": params["num2"]}, 
@@ -232,7 +234,7 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
     Orchestrates EchoAgent and SummationAgent tasks.
     params: dict containing {'msg': str, 'num1': int, 'num2': int}
     '''
-    echo_task = await tracked_call(
+    await tracked_call(
         "EchoAgent", 
         "echo_message", 
         {"msg": params["msg"]}, 
@@ -246,7 +248,7 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
     )
     sum_result = await await_subtask_result(orchestration_task, sum_task, poll_interval=0.2)
     
-    display_task = await tracked_call(
+    await tracked_call(
         "FinalSumAgent", 
         "final_summation", 
         {"mysum": int(sum_result), "num1": params["num3"]},
@@ -276,6 +278,32 @@ Browser: http://localhost:8000/agents/OrchAgent/tasks
 #------------------------------------------------------------------------------------------------------------------
 
 # Run the platform with registry containing registered agents.
-app = create_app(registry=registry)
-web.run_app(app, port=8000)
+# app = create_app(registry=registry)
+# web.run_app(app, port=8000)
+
+async def _shutdown(app: web.Application):
+    for task in asyncio.all_tasks():
+        if task is not asyncio.current_task():
+            task.cancel()
+    await app.shutdown()
+    await app.cleanup()
+
+async def _main():
+    app = create_app(registry=registry)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8000)
+    await site.start()
+
+    try:
+        await asyncio.Event().wait()
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        logger.info("Server shutdown requested (Ctrl+C pressed).")
+        await _shutdown(app)
+    finally:
+        await runner.cleanup()
+
+if __name__ == "__main__":
+    logger.info("Press (Ctrl+C) to stop the server.")
+    asyncio.run(_main())
 

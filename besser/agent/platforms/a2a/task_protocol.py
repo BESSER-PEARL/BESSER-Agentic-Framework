@@ -4,6 +4,7 @@ import asyncio
 from enum import Enum
 
 from besser.agent.platforms.a2a.error_handler import TaskError
+from besser.agent.exceptions.logger import logger
 
 class TaskStatus(str, Enum):
     """
