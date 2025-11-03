@@ -120,11 +120,11 @@ There are three ways to get the status of the task that is being executed in the
 
 or
 
-Open in browser: `https:localhost:8000/agents/test_platform/tasks <https:localhost:8000/agents/test_platform/tasks>`_
+Open in browser: `http://localhost:8000/agents/test_platform/tasks <http://localhost:8000/agents/test_platform/tasks>`_
 
 or
 
-Open in browser: `https:localhost:8000/agents/test_platform/events/<task_id> <https:localhost:8000/agents/test_platform/events/\<task_id\>>`_
+Open in browser: `http://localhost:8000/agents/test_platform/events/<task_id> <http://localhost:8000/agents/test_platform/events/\<task_id\>>`_
 
 
 .. note:: 
