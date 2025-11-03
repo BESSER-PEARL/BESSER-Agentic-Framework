@@ -32,7 +32,7 @@ a2a_platform2 = agent2.use_a2a_platform()
 a2a_platform3 = agent3.use_a2a_platform()
 a2a_platform4 = agent4.use_a2a_platform()
 
-# Provide an ID for each platform (aslo called as agent id)
+# Provide an ID for each platform (also called as agent id)
 registry.register('EchoAgent', a2a_platform1)
 registry.register('SummationAgent', a2a_platform2)
 registry.register('OrchAgent', a2a_platform3)
