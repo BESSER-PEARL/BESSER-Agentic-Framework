@@ -268,9 +268,9 @@ async def orchestrate_echo_sum_display_seq_tracked(platform, params, registry, t
 a2a_platform3.register_orchestration_as_task("orchestrate_tasks_tracked_seq", orchestrate_echo_sum_display_seq_tracked, registry)
 
 '''
-Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":10}}
+Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":10}}"
 
-Get status: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}
+Get status: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"
 
 Browser: http://localhost:8000/agents/OrchAgent/tasks
 '''
