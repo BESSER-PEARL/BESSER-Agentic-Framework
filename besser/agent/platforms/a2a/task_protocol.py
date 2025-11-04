@@ -11,7 +11,10 @@ class TaskStatus(str, Enum):
     """
     Constants for task status
     """
-    PENDING="PENDING"; RUNNING="RUNNING"; DONE="DONE"; ERROR="ERROR"
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    DONE = "DONE"
+    ERROR = "ERROR"
 
 class Task:
     """
