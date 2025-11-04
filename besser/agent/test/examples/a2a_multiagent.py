@@ -114,7 +114,7 @@ a2a_platform4.add_examples([{'To get results from SummationAgent (with do_summat
 
 # Example 1: Independent
 #***********
-'''Just pass the curl command for a single agent in the terminal and follow its task stauts using curl command or in a browser as given in example of a2a_platform1 or a2a_platform2. Multiple agents can be executed in parallel (at the same time) as everything is asynchronous.
+'''Just pass the curl command for a single agent in the terminal and follow its task status using curl command or in a browser as given in example of a2a_platform1 or a2a_platform2. Multiple agents can be executed in parallel (at the same time) as everything is asynchronous.
 Give task: curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"EchoAgent\", \"method\":\"create_task_and_run\",\"params\":{\"method\":\"echo_message\",\"params\":{\"msg\":\"Hello\"}},\"id\":1}"
 
 Get status (replace task_id): curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"SummationAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"
