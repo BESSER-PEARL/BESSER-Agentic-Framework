@@ -475,10 +475,12 @@ class Agent:
                         print("found existing state")
                         session._current_state = state
                         self._monitoring_db_load_session_variables(session)
+                        self._load_user_profile_into_session(session)
                         break
 
         else:
             self._monitoring_db_insert_session(session)
+            self._load_user_profile_into_session(session)
             session.current_state.run(session)
 
         # ADD LOOP TO CHECK TRANSITIONS HERE
@@ -489,7 +491,64 @@ class Agent:
         session = self._get_session(session_id)
         if session is None:
             session = self._new_session(session_id, platform)
+            # Attempt to load a user profile for this session (if a user DB is available)
+        else: 
+            try:
+                self._load_user_profile_into_session(session)
+            except Exception:
+                # Non-fatal: if no DB or profile is available, continue silently
+                pass
         return session
+
+    def _load_user_profile_into_session(self, session: Session) -> None:
+        """Try to load a stored user profile (JSON) and populate the session variables.
+
+        This function attempts to import and use the streamlit UserDB (if present) to
+        fetch a profile using the session id as the username key. If that fails it
+        will silently return. When a profile JSON is found, it will be set onto the
+        session via nested keys using dot notation (e.g. "profile.personal.firstName").
+        """
+        # Prefer using the monitoring DB if available to retrieve stored session variables
+        profile = None
+        print("fetibfbf")
+        try:
+            if self._monitoring_db and self._monitoring_db.connected:
+                # Use new MonitoringDB helper to get the stored profile (if present)
+                try:
+                    profile = self._monitoring_db.get_user_profile(session)
+                except Exception as e:
+                    # Fall back to loading full session variables and extracting 'profile'
+                    print("failed to get user profile from monitoring db")
+                    print(e)
+                    pass
+        except Exception:
+            # If monitoring DB isn't configured, nothing to load here
+            profile = None
+            logger.debug("No monitoring DB available to load user profile from")
+        if not profile:
+            return
+
+        # set the whole profile under a top-level key
+        session.set("profile", profile)
+        print("loaded profile:", profile)
+        # set session variables using the original JSON keys (no dot concatenation)
+        # keep the entire profile under 'profile' and also expose each key present in the profile
+        
+        def _set_keys_from_profile(obj):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    # set the value under its own key
+                    session.set(k, v)
+                    # if nested, recurse so nested dicts/lists are also exposed by their own keys
+                    if isinstance(v, dict) or isinstance(v, list):
+                        _set_keys_from_profile(v)
+            elif isinstance(obj, list):
+                # for lists, if items are dicts, recurse into them to surface their keys
+                for item in obj:
+                    if isinstance(item, dict):
+                        _set_keys_from_profile(item)
+
+        _set_keys_from_profile(profile)
 
     def delete_session(self, session_id: str) -> None:
         """Delete an existing agent session.

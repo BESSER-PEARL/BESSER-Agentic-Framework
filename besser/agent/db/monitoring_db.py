@@ -202,6 +202,45 @@ class MonitoringDB:
         except Exception as e:
             logger.error(f"Error loading session variables: {e}")
 
+    def get_user_profile(self, session: Session) -> dict | None:
+        """
+        Retrieve a stored user profile for the given session from the monitoring database.
+
+        This method will look up the session entry in the TABLE_SESSION table, parse the stored
+        JSON-encoded `variables` column (which may contain the saved `profile` key), and return
+        the profile dictionary if present.
+
+        Args:
+            session (Session): the session whose profile to retrieve.
+
+        Returns:
+            dict | None: the profile dictionary if present, otherwise None.
+        """
+        # The user profile is stored in a `user_profiles` table (username, information)
+        # where `information` is a JSON-encoded text column. Use the session id as the
+        # username lookup key.
+        try:
+            table = Table('user_profiles', MetaData(), autoload_with=self.conn)
+            stmt = select(table.c.information).where(table.c.username == session.id)
+            result = self.conn.execute(stmt).first()
+            if not result:
+                return None
+            info_text = result[0]
+            if not info_text:
+                return None
+            try:
+                parsed = json.loads(info_text)
+                # If the stored object wraps the profile under a 'User' key, unwrap it
+                if isinstance(parsed, dict) and 'User' in parsed and isinstance(parsed['User'], dict):
+                    return parsed['User']
+                return parsed
+            except Exception:
+                logger.error('Failed to parse JSON from user_profiles.information')
+                return None
+        except Exception as e:
+            logger.error(f"Error getting user profile from monitoring DB: {e}")
+            return None
+
     def insert_intent_prediction(
             self,
             session: Session,
