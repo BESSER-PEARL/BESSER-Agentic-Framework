@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class A2APlatform(Platform):
     """
     A2APlatform implements the Agent-to-Agent (A2A) communication platform for agent interactions.
-    This platform enables agents to communicate with each other using a RESTful API and WebSocket connections.
+    This platform enables agents to communicate with each other using a RESTful API and Server-Sent Events (SSE) over HTTP.
     It stores agent metadata (e.g., capabilities and examples), registers methods, maintains task creation, execution 
     and status tracking, supports tracked and untracked agent-to-agent calls, provides synchronous and asynchronous 
     operations, and supports agent orchestration for coordinating multiple agents.
