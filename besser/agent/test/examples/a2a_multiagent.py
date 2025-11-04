@@ -108,7 +108,7 @@ a2a_platform2.add_examples([{'To execute "do_summation" method': 'curl -X POST h
 a2a_platform4.add_capabilities('Displays the summation result')
 a2a_platform4.add_descriptions(['Gets two numbers, waits for 20 seconds, adds two numbers, and prints the summation'])
 a2a_platform4.add_methods([{"name": "do_summation", "description": "Waits for 30 seconds and provides the summation of two numbers provided as input."}, 
-                           {"name": "final_summation", "description": "Waits for 30 seconds and provides the summation of two numbers provided as input."}])
+                           {"name": "final_summation", "description": "Waits for 20 seconds and provides the summation of two numbers provided as input."}])
 a2a_platform4.add_examples([{'To get results from SummationAgent (with do_summation) and add it to another number within "final_summation" method': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"agent_id\":\"OrchAgent\",\"method\":\"orchestrate_tasks_tracked_seq\",\"params\":{\"msg\":\"Hello from orchestration\",\"num1\":3,\"num2\":12,\"num3\":12}}"', 'To get status of the task with task_id': 'curl -X POST http://localhost:8000/a2a -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"agent_id\":\"OrchAgent\",\"method\":\"task_status\",\"params\":{\"task_id\":\"<task_id>\"},\"id\":2}"', 'To view the status of tasks in a browser': 'http://localhost:8000/agents/OrchAgent/tasks'}])
 
 
