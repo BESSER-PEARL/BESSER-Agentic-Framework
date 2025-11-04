@@ -16,8 +16,7 @@ class PayloadAction(Enum):
     """PayloadAction: Indicates that the payload's purpose is to send a user file."""
 
     USER_SET_VARIABLE = 'user_set_variable'
-    """PayloadAction: Indicates that the user intends to set a session variable. The payload must include a dictionary containing the variable name and its value, 
-sent as a Payload message.
+    """PayloadAction: Indicates that the user intends to set a session variable. The payload must include a dictionary containing the variable name and its value, sent as a Payload message.
     """
 
     RESET = 'reset'
