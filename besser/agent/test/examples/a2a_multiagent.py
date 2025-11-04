@@ -69,7 +69,7 @@ async def final_summation(mysum: int, num1: int):
     A simple summation method that waits for 20 seconds before returning the sum of two numbers.
     '''
     if not isinstance(mysum, int) or not isinstance(num1, int):
-        raise ValueError("numbers must be a integer")
+        raise ValueError("numbers must be an integer")
     
     await asyncio.sleep(20)
     return f"{mysum+num1}"
