@@ -133,7 +133,7 @@ Open in browser: `http://localhost:8000/agents/test_platform/events/<task_id> <h
 
     Executing agent A or B or C (same as above)
 
-    De-centralised orchestration: Using agent A to invoke agent B
+    Decentralized orchestration: Using agent A to invoke agent B
 
     Parallel execution: A || B || ...
 
