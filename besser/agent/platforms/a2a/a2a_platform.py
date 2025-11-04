@@ -78,7 +78,7 @@ class A2APlatform(Platform):
         if methods is None:
             methods = []
         self._agent: Agent = agent
-        self._port: int = self._agent.get_property(a2a.A2A_WEBSOKET_PORT)
+        self._port: int = self._agent.get_property(a2a.A2A_WEBSOCKET_PORT)
         self._app: web.Application = web.Application()
         self.router: A2ARouter = A2ARouter()
         self.tasks = {}

@@ -4,7 +4,7 @@ from besser.agent.core.property import Property
 
 SECTION_A2A = 'a2a_platform'
 
-A2A_WEBSOKET_PORT = Property(SECTION_A2A, 'a2a.port', int, 8000)
+A2A_WEBSOCKET_PORT = Property(SECTION_A2A, 'a2a.port', int, 8000)
 """
 The server local port. This port should be exposed or proxied to make it visible by other Agents
 
