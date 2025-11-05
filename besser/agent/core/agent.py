@@ -30,6 +30,7 @@ from besser.agent.platforms.telegram.telegram_platform import TelegramPlatform
 from besser.agent.platforms.websocket.websocket_platform import WebSocketPlatform
 from besser.agent.platforms.github.github_platform import GitHubPlatform
 from besser.agent.platforms.gitlab.gitlab_platform import GitLabPlatform
+from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 
 
 class Agent:
@@ -528,6 +529,16 @@ class Agent:
         gitlab_platform = GitLabPlatform(self)
         self._platforms.append(gitlab_platform)
         return gitlab_platform
+    
+    def use_a2a_platform(self) -> A2APlatform:
+        """Use the :class: `~besser.agent.platforms.a2a.a2a_platform.A2APlatform` on this agent.
+
+        Returns:
+            A2APlatform: the A2A platform
+        """
+        a2a_platform = A2APlatform(self)
+        self._platforms.append(a2a_platform)
+        return a2a_platform
 
     def _monitoring_db_insert_session(self, session: Session) -> None:
         """Insert a session record into the monitoring database.

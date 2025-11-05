@@ -3,17 +3,23 @@ import streamlit.components.v1 as components
 from pyvis.network import Network
 
 from besser.agent.db.monitoring_db import MonitoringDB, TABLE_TRANSITION, TABLE_SESSION
-from besser.agent.db.monitoring_ui.home import agent_filter
+from besser.agent.db.monitoring_ui.home import agent_filter, session_filter
 
 
 def flow_graph(monitoring_db: MonitoringDB):
     st.header('Flow Graph')
     agent_names = agent_filter(monitoring_db)
     table_transition = monitoring_db.get_table(TABLE_TRANSITION)
+    table_session = monitoring_db.get_table(TABLE_SESSION)
     if agent_names:
-        table_session = monitoring_db.get_table(TABLE_SESSION)
         # Filter the tables by the specified agents
         table_session = table_session[table_session['agent_name'].isin(agent_names)]
+        table_transition = table_transition[table_transition['session_id'].isin(table_session['id'])]
+    
+    session_ids = session_filter(monitoring_db)
+    if session_ids:
+        # Filter the tables by the specified sessions
+        table_session = table_session[table_session['session_id'].isin(session_ids)]
         table_transition = table_transition[table_transition['session_id'].isin(table_session['id'])]
 
     nt = Network("700px", "100%", notebook=True, directed=True)
@@ -37,6 +43,9 @@ def flow_graph(monitoring_db: MonitoringDB):
         if source_state not in state_set:
             state_set.add(source_state)
             nt.add_node(source_state, group=1)
+        if dest_state not in state_set:
+            state_set.add(dest_state)
+            nt.add_node(dest_state, group=1)
         if (source_state, dest_state, event, info) not in transition_dict:
             transition_dict[(source_state, dest_state, event, info)] = 1
         else:
