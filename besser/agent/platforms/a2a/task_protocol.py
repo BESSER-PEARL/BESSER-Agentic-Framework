@@ -159,4 +159,3 @@ async def execute_task(task_id: str, router, task_storage: dict = None, coroutin
         "result": t.result,
         "error": t.error
     }
-

@@ -27,3 +27,4 @@ class A2AClient:
                 async for line in r.aiter_lines():
                     if line.strip():
                         yield line
+                        

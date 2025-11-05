@@ -138,4 +138,3 @@ def create_app(platform: A2APlatform = None, registry: AgentRegistry = None) -> 
     app.router.add_get("/agents/{agent_id}/tasks", get_task_status_in_agent)
     app.router.add_get("/agents/{agent_id}/events/{task_id}", sse_event_handler)
     return app
-
