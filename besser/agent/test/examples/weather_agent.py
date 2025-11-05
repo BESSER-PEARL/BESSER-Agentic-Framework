@@ -36,6 +36,7 @@ city_entity = agent.new_entity('city_entity', entries={
 
 weather_intent = agent.new_intent('weather_intent', [
     'what is the weather in CITY?',
+    'what is the weather like in CITY?',
     'weather in CITY',
 ])
 weather_intent.parameter('city1', 'CITY', city_entity)
@@ -44,7 +45,12 @@ weather_intent.parameter('city1', 'CITY', city_entity)
 
 
 def s0_body(session: Session):
-    session.reply('Waiting...')
+    session.reply(
+        "Welcome! 👋\n"
+        "I can tell you the weather in a city.\n"
+        "Just type something like:\n"
+        "- 'What is the weather in Barcelona?'\n"
+    )
 
 
 s0.set_body(s0_body)
