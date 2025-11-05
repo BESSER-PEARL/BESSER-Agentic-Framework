@@ -35,3 +35,4 @@ Table of contents
    platforms/telegram_platform
    platforms/github_platform
    platforms/gitlab_platform
+   platforms/a2a_platform

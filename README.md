@@ -69,5 +69,6 @@ Note that if you want to set your agent's language to **Luxembourgish**, you wil
 - [telegram_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/telegram_agent.py): Introducing the [TelegramPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/telegram_platform.html)
 - [github_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/github_agent.py): Introducing [GitHubPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/github_platform.html)
 - [gitlab_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/gitlab_agent.py): Introducing the [GitLabPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/gitlab_platform.html)
+- [a2a_multiagent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/a2a_multiagent.py): Introducing the [A2APlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/a2a_platform.html)
 
 For more example agents, check out the [BAF-agent-examples](https://github.com/BESSER-PEARL/BAF-agent-examples) repository!
