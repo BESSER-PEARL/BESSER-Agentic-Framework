@@ -1,5 +1,3 @@
-# from fastapi import FastAPI, Request
-# from fastapi.responses import JSONResponse
 from aiohttp.web_request import Request
 from aiohttp import web
 import json
@@ -17,7 +15,6 @@ async def get_list_of_agents(request: Request) -> web.json_response:
     """
     registry: AgentRegistry = request.app["registry"]
     return web.json_response(registry.list())
-    # return web.json_response([platform.agent_card for platform in registry.list()])
 
 def get_agent_id_platform(request: Request) -> A2APlatform:
     """
