@@ -125,6 +125,13 @@ class WebSocketPlatform(Platform):
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
+                    elif payload.action == PayloadAction.USER_SET_VARIABLE.value:
+                        if not isinstance(payload.message, dict) or not payload.message:
+                            logger.error('Invalid message format for USER_SET_VARIABLE')
+                            continue  # skip this iteration
+                        for key, value in payload.message.items():
+                            session.set(key, value)
+                            logger.info(f"Session variable {key} set to {value}.")
             except ConnectionClosedError:
                 pass
                 # logger.error(f'The client closed unexpectedly')
