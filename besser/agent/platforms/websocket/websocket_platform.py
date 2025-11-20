@@ -19,7 +19,7 @@ from websockets.sync.server import ServerConnection, WebSocketServer, serve
 from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
-from besser.agent.exceptions.exceptions import PlatformMismatchError
+from besser.agent.exceptions.exceptions import PlatformMismatchError, StreamlitDatabaseException
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.rag.rag import RAGMessage
 from besser.agent.platforms import websocket
@@ -33,6 +33,7 @@ from besser.agent.platforms.websocket import (
     DB_STREAMLIT_DATABASE,
     DB_STREAMLIT_USERNAME,
     DB_STREAMLIT_PASSWORD,
+    DB_STREAMLIT
 )
 
 if TYPE_CHECKING:
@@ -185,22 +186,37 @@ class WebSocketPlatform(Platform):
                 """Run the Streamlit UI in a dedicated thread."""
                 if self.persist_users:
                     db_host = self._agent.get_property(DB_STREAMLIT_HOST)
+                    if not db_host:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_HOST")
                     db_port = self._agent.get_property(DB_STREAMLIT_PORT)
+                    if not db_port:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_PORT")
                     db_name = self._agent.get_property(DB_STREAMLIT_DATABASE)
+                    if not db_name:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_DATABASE")
                     db_user = self._agent.get_property(DB_STREAMLIT_USERNAME)
+                    if not db_user:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_USERNAME")
                     db_password = self._agent.get_property(DB_STREAMLIT_PASSWORD)
+                    if not db_password:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_PASSWORD")
+                    db_streamlit = self._agent.get_property(DB_STREAMLIT)
+                    if not db_streamlit:
+                        raise StreamlitDatabaseException("DB_STREAMLIT")
                     env_vars = dict(os.environ)  # Start with a copy of the current environment
                     os.environ["STREAMLIT_DB_HOST"] = str(db_host) if db_host else ""
                     os.environ["STREAMLIT_DB_PORT"] = str(db_port) if db_port else ""
                     os.environ["STREAMLIT_DB_NAME"] = str(db_name) if db_name else ""
                     os.environ["STREAMLIT_DB_USER"] = str(db_user) if db_user else ""
                     os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
+                    os.environ["STREAMLIT_DB"] = "True"
                     env_vars.update({
                         "STREAMLIT_DB_HOST": str(db_host) if db_host else "",
                         "STREAMLIT_DB_PORT": str(db_port) if db_port else "",
                         "STREAMLIT_DB_NAME": str(db_name) if db_name else "",
                         "STREAMLIT_DB_USER": str(db_user) if db_user else "",
                         "STREAMLIT_DB_PASSWORD": str(db_password) if db_password else "",
+                        "STREAMLIT_DB": str(db_streamlit) if db_streamlit else "False"
                     })
                 else:
                     env_vars = os.environ

@@ -62,7 +62,7 @@ default value: ``5000``
 
 SECTION_STREAMLIT_DB = 'streamlit_db'
 
-DB_STREAMLIT = Property(SECTION_STREAMLIT_DB, 'db.streamlit', bool, True)
+DB_STREAMLIT = Property(SECTION_STREAMLIT_DB, 'db.streamlit', bool, None)
 """
 Enable Streamlit user database persistence.
 
@@ -80,7 +80,7 @@ type: ``str``
 default value: ``postgresql``
 """
 
-DB_STREAMLIT_HOST = Property(SECTION_STREAMLIT_DB, 'db.streamlit.host', str, '127.0.0.1')
+DB_STREAMLIT_HOST = Property(SECTION_STREAMLIT_DB, 'db.streamlit.host', str, None)
 """
 Database host for Streamlit user database.
 
@@ -98,7 +98,7 @@ type: ``int``
 default value: ``5432``
 """
 
-DB_STREAMLIT_DATABASE = Property(SECTION_STREAMLIT_DB, 'db.streamlit.database', str, 'mydatabase')
+DB_STREAMLIT_DATABASE = Property(SECTION_STREAMLIT_DB, 'db.streamlit.database', str, None)
 """
 Database name for Streamlit user database.
 
@@ -107,7 +107,7 @@ type: ``str``
 default value: ``mydatabase``
 """
 
-DB_STREAMLIT_USERNAME = Property(SECTION_STREAMLIT_DB, 'db.streamlit.username', str, 'myuser')
+DB_STREAMLIT_USERNAME = Property(SECTION_STREAMLIT_DB, 'db.streamlit.username', str, None)
 """
 Database username for Streamlit user database.
 
@@ -116,7 +116,7 @@ type: ``str``
 default value: ``myuser``
 """
 
-DB_STREAMLIT_PASSWORD = Property(SECTION_STREAMLIT_DB, 'db.streamlit.password', str, 'mysecretpassword')
+DB_STREAMLIT_PASSWORD = Property(SECTION_STREAMLIT_DB, 'db.streamlit.password', str, None)
 """
 Database password for Streamlit user database.
 

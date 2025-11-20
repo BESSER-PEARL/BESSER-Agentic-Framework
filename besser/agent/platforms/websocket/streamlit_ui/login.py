@@ -28,5 +28,4 @@ def login_page():
             st.success("Account created and logged in!")
     if guest_clicked:
         st.session_state["authenticated"] = True
-        st.session_state["username"] = "Guest"
         st.success("Continuing as Guest")
