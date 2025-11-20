@@ -7,9 +7,94 @@ import websocket
 from streamlit.runtime.scriptrunner_utils.script_run_context import add_script_run_ctx
 
 from besser.agent.platforms.websocket.streamlit_ui.session_management import session_monitoring
-from besser.agent.platforms.websocket.streamlit_ui.vars import SESSION_MONITORING_INTERVAL, SUBMIT_TEXT, HISTORY, QUEUE, \
-    WEBSOCKET, SESSION_MONITORING, SUBMIT_AUDIO, SUBMIT_FILE
-from besser.agent.platforms.websocket.streamlit_ui.websocket_callbacks import on_open, on_error, on_message, on_close, on_ping, on_pong
+from besser.agent.platforms.websocket.streamlit_ui.vars import (
+    SESSION_MONITORING_INTERVAL,
+    SUBMIT_TEXT,
+    HISTORY,
+    QUEUE,
+    WEBSOCKET,
+    SESSION_MONITORING,
+    SUBMIT_AUDIO,
+    SUBMIT_FILE,
+    WS_HOST,
+    WS_PORT,
+    WEBSOCKET_READY,
+)
+from besser.agent.platforms.websocket.streamlit_ui.websocket_callbacks import (
+    on_open,
+    on_error,
+    on_message,
+    on_close,
+    on_ping,
+    on_pong,
+)
+
+
+def _resolve_host_port():
+    try:
+        host = sys.argv[2]
+        port = sys.argv[3]
+    except Exception:
+        host = 'localhost'
+        port = '8765'
+    return host, port
+
+
+def _start_websocket(host: str, port: str):
+    try:
+        ws = websocket.WebSocketApp(
+            f"ws://{host}:{port}/",
+            on_open=on_open,
+            on_message=on_message,
+            on_error=on_error,
+            on_close=on_close,
+            on_ping=on_ping,
+            on_pong=on_pong,
+        )
+        websocket_thread = threading.Thread(target=ws.run_forever)
+        add_script_run_ctx(websocket_thread)
+        websocket_thread.start()
+        st.session_state[WEBSOCKET] = ws
+        st.session_state[WEBSOCKET_READY] = False
+        return ws
+    except Exception as exc:
+        st.error(
+            f"Could not connect to the WebSocket server at ws://{host}:{port}/. "
+            "Please ensure the server is running and the host and port are correct."
+        )
+        print(f"WebSocket connection error: {exc}")
+        return None
+
+
+def ensure_websocket_connection(force_reconnect: bool = False):
+    if force_reconnect and WEBSOCKET in st.session_state:
+        ws = st.session_state.get(WEBSOCKET)
+        if ws:
+            try:
+                ws.close()
+            except Exception:
+                pass
+        st.session_state.pop(WEBSOCKET, None)
+        st.session_state[WEBSOCKET_READY] = False
+
+    ws = st.session_state.get(WEBSOCKET)
+    if ws:
+        sock = getattr(ws, 'sock', None)
+        if sock and sock.connected:
+            return ws
+
+    host = st.session_state.get(WS_HOST)
+    port = st.session_state.get(WS_PORT)
+    if not host or not port:
+        host, port = _resolve_host_port()
+        st.session_state[WS_HOST] = host
+        st.session_state[WS_PORT] = port
+
+    return _start_websocket(host, port)
+
+
+def reconnect_websocket():
+    return ensure_websocket_connection(force_reconnect=True)
 
 
 def initialize():
@@ -28,30 +113,19 @@ def initialize():
     if QUEUE not in st.session_state:
         st.session_state[QUEUE] = queue.Queue()
 
+    if "fetched_user_messages" not in st.session_state:
+        st.session_state["fetched_user_messages"] = False
+
+    if WEBSOCKET_READY not in st.session_state:
+        st.session_state[WEBSOCKET_READY] = False
+
+    if WS_HOST not in st.session_state or WS_PORT not in st.session_state:
+        host, port = _resolve_host_port()
+        st.session_state[WS_HOST] = host
+        st.session_state[WS_PORT] = port
+
     if WEBSOCKET not in st.session_state:
-        try:
-            # We get the websocket host and port from the script arguments
-            host = sys.argv[2]
-            port = sys.argv[3]
-        except Exception as e:
-            # If they are not provided, we use default values
-            host = 'localhost'
-            port = '8765'
-        try:
-            ws = websocket.WebSocketApp(f"ws://{host}:{port}/",
-                                        on_open=on_open,
-                                        on_message=on_message,
-                                        on_error=on_error,
-                                        on_close=on_close,
-                                        on_ping=on_ping,
-                                        on_pong=on_pong)
-            websocket_thread = threading.Thread(target=ws.run_forever)
-            add_script_run_ctx(websocket_thread)
-            websocket_thread.start()
-            st.session_state[WEBSOCKET] = ws
-        except Exception as e:
-            st.error(f"Could not connect to the WebSocket server at ws://{host}:{port}/. Please ensure the server is running and the host and port are correct.")
-            print(f"WebSocket connection error: {e}")
+        ensure_websocket_connection()
     if SESSION_MONITORING not in st.session_state:
         session_monitoring_thread = threading.Thread(target=session_monitoring,
                                                      kwargs={'interval': SESSION_MONITORING_INTERVAL})
