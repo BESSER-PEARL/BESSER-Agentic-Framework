@@ -472,7 +472,6 @@ class Agent:
             if dest_state:
                 for state in self.states:
                     if state.name == dest_state:
-                        print("found existing state")
                         session._current_state = state
                         self._monitoring_db_load_session_variables(session)
                         break
