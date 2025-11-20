@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import errors
 import os
 
 def get_db_config():
@@ -31,7 +32,7 @@ class UserDB:
                 with self.conn.cursor() as cur:
                     cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
             return True
-        except psycopg2.errors.UniqueViolation:
+        except errors.UniqueViolation:
             return False  # Username already exists
         except Exception:
             return False
