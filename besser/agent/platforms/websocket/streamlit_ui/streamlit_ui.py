@@ -27,7 +27,6 @@ def main():
             if st.session_state.get("authenticated", False):
                 st.rerun()
             st.stop()
-   
     try:
         # We get the websocket host and port from the script arguments
         agent_name = sys.argv[1]
