@@ -6,7 +6,9 @@ def login_page():
     st.title("Login")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-    db = UserDB()
+    if 'db' not in st.session_state:
+        st.session_state['db'] = UserDB()
+    db = st.session_state['db']
     col1, col2 = st.columns(2)
     login_clicked = col1.button("Login")
     guest_clicked = col2.button("Continue as Guest")
