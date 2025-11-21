@@ -357,7 +357,6 @@ class MonitoringDB:
             bool: True if the session exists, False otherwise.
         """
         table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
-        print(agent_name, platform_name, session_id)
         stmt = select(table).where(
             table.c.agent_name == agent_name,
             table.c.platform_name == platform_name,
