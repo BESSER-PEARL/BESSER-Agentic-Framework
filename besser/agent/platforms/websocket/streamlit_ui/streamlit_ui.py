@@ -1,5 +1,6 @@
 import sys
 # sys.path.append("/Path/to/directory/agentic-framework") # Replace with your directory path
+import os
 
 import streamlit as st
 from streamlit.runtime import Runtime
