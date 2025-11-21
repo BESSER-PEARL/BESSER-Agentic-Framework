@@ -350,14 +350,13 @@ class Agent:
             return None
         else:
             session = self._sessions[session_id]
-        # should the session information be deleted from the monitoring db?
+            # should the session information be deleted from the monitoring db?
             # so deleting transitions and chats?
             self.delete_session(session_id)
-        new_session = Session(session_id, self, session.platform)
         self.get_or_create_session(session_id, session.platform)
         logger.info(f'{self._name} restarted by user {session_id}')
 
-        return new_session
+        return self._sessions[session_id]
 
     def receive_event(self, event: Event) -> None:
         """Receive an external event from a platform.
