@@ -69,7 +69,7 @@ class ReceiveMessageEvent(Event):
         else:
             session_id = session.id
         message = session._agent.process(session=session, message=message, is_user_message=human)
-                
+        
         try:
             payload = json.loads(message)
             if isinstance(payload, dict):
