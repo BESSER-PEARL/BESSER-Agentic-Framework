@@ -507,7 +507,8 @@ class Agent:
 
         Args:
             use_ui (bool): if true, the default UI will be run to use this platform
-
+            persist_users (bool): whether to enable user persistence and authentication. 
+                         Requires database configuration. Default is False
         Returns:
             WebSocketPlatform: the websocket platform
         """
