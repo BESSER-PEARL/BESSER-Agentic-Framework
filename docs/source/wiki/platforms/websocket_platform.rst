@@ -128,6 +128,44 @@ The WebSocket platform allows the following kinds of user messages:
 
 .. _communication-between-agents:
 
+Enabling persistent user sessions
+---------------------------------
+When building your own UI on top of the WebSocket API, you need to implement a user authentication mechanism to enable session persistence. 
+BAF relies on user identifiers to map incoming connections to the correct sessions.
+Thus, if your UI does not authenticate users, each new connection will be treated as a new user session.
+Once your platform authenticates users, you simply need to set a unique identifier for each user in the payload sent to the agent via WebSocket:
+
+.. code:: python
+
+    payload_dict = {
+        'action': obj.action,
+        'message': obj.message,
+        'user_id': getattr(obj, 'user_id', None),
+        'history': getattr(obj, 'history', None),
+    }
+
+On the agent's side, you'll need to start the monitoring database and set the ``persist_users=True`` parameter when initializing the WebSocket platform:
+
+.. code:: python
+
+    websocket_platform = agent.use_websocket_platform(use_ui=True, persist_users=True)
+
+
+Requestion the chat history for a session
+-----------------------------------------
+
+If your UI client wants to request the chat history for a given session (for example, when a user reconnects after a disconnection), it can do so by sending a message with the action ``FETCH_USER_MESSAGES`` and the corresponding ``user_id`` in the payload:
+
+.. code:: python
+
+    payload = Payload(
+        action=PayloadAction.FETCH_USER_MESSAGES,
+        message=None,
+        user_id=username,
+    )
+
+The websocket platform will start by sending the previous messages to the client with a flag "history" set to True, so the client can differentiate between historical messages and new incoming messages.
+
 Communication between agents: Multi-agent systems
 -------------------------------------------------
 

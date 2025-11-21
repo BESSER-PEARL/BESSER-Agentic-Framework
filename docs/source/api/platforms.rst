@@ -14,3 +14,5 @@ platforms
    platforms/gitlab_platform
    platforms/telegram_platform
    platforms/websocket_platform
+   platforms/login
+   platforms/user_db

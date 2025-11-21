@@ -88,3 +88,12 @@ API References
 - Session.send_message_to_websocket(): :meth:`besser.agent.core.session.Session.send_message_to_websocket`
 - Session.reply(): :meth:`besser.agent.core.session.Session.reply`
 - Session.set(): :meth:`besser.agent.core.session.Session.set`
+
+
+Table of contents
+-----------------
+
+.. toctree::
+   :maxdepth: 1
+
+   sessions/sessions_persistence
