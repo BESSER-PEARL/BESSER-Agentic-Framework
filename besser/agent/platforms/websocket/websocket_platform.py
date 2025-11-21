@@ -163,7 +163,7 @@ class WebSocketPlatform(Platform):
             except ConnectionClosedError:
                 logger.error(f'The client closed unexpectedly')
             except Exception as e:
-                logger.error("Server Error:", e)
+                logger.error(f"Server Error: {e}")
             finally:
                 logger.info(f'Session finished')
                 #del self._connections[session.id]
