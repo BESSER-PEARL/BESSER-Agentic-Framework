@@ -42,6 +42,7 @@ This table stores a record for each new session.
         session_id CHARACTER VARYING NOT NULL,
         platform_name CHARACTER VARYING NOT NULL,
         "timestamp" TIMESTAMP without time zone NOT NULL,
+        variables CHARACTER VARYING,
         CONSTRAINT session_pkey PRIMARY KEY (id),
         CONSTRAINT session_agent_name_session_id_key UNIQUE (agent_name, session_id)
     )
@@ -63,6 +64,7 @@ This table stores a record for each new session.
       - aaddaab5-o065-40f4-a996-b584d63b0k0d
       - WebSocketPlatform
       - 2024-05-02 14:52:47
+      - {"name": "John", "age": "30"}
 
     * - 2
       - greetings_agent

@@ -27,7 +27,7 @@ from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncode
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.websocket.streamlit_ui import streamlit_ui
 from besser.agent.core.file import File
-from besser.agent.platforms.websocket import (
+from besser.agent.platforms.websocket.streamlit_ui import (
     DB_STREAMLIT_HOST,
     DB_STREAMLIT_PORT,
     DB_STREAMLIT_DATABASE,
