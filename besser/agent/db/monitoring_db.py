@@ -343,7 +343,6 @@ class MonitoringDB:
             table.c.session_id == session.id
         )
         return pd.read_sql_query(stmt, self.conn)
-    
     def session_exists(self, agent_name: str, platform_name: str, session_id: str) -> bool:
         """
         Checks whether there is an entry with the given agent_name, platform_name, and session_id in the sessions table.
