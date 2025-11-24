@@ -104,7 +104,7 @@ class WebSocketPlatform(Platform):
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if session == None:
+                    if session is None:
                         if payload.user_id:
                             session = self._agent.get_or_create_session(payload.user_id, self)
                             self._connections[str(payload.user_id)] = conn
