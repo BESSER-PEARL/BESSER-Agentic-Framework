@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import errors
 import os
+import bcrypt
 
 def get_db_config():
     return {
@@ -28,20 +29,31 @@ class UserDB:
 
     def add_user(self, username, password):
         try:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            # store as text (decoded) to avoid byte/encoding mismatches with VARCHAR columns
+            hashed_text = hashed_password.decode('utf-8')
             with self.conn:
                 with self.conn.cursor() as cur:
-                    cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+                    cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)",
+                                (username, hashed_text))
             return True
         except errors.UniqueViolation:
-            return False  # Username already exists
-        except Exception:
             return False
 
     def authenticate(self, username, password):
         with self.conn:
             with self.conn.cursor() as cur:
-                cur.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
-                return cur.fetchone() is not None
+                cur.execute("SELECT password FROM users WHERE username=%s", (username,))
+                result = cur.fetchone()
+                if result:
+                    stored = result[0]
+                    # ensure stored is bytes for bcrypt.checkpw
+                    if isinstance(stored, str):
+                        stored_bytes = stored.encode('utf-8')
+                    else:
+                        stored_bytes = stored
+                    return bcrypt.checkpw(password.encode('utf-8'), stored_bytes)
+                return False
 
     def user_exists(self, username):
         with self.conn:
