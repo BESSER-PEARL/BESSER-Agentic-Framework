@@ -592,10 +592,10 @@ class Agent:
             self,
             session: Session
     ) -> None:
-        """Store the chat history of a session in the monitoring database.
+        """Store the session variables (private data dictionary) in the monitoring database.
 
         Args:
-            session (Session): The session to store the history for.
+            session (Session): The session to store the variables for.
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.store_session_variables(session)
