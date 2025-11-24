@@ -72,8 +72,9 @@ def ensure_websocket_connection(force_reconnect: bool = False):
         if ws:
             try:
                 ws.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                # Ignore errors when closing the websocket, as it may already be closed or invalid.
+                print(f"Error closing websocket: {exc}")
         st.session_state.pop(WEBSOCKET, None)
         st.session_state[WEBSOCKET_READY] = False
 

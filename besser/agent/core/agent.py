@@ -350,8 +350,6 @@ class Agent:
             return None
         else:
             session = self._sessions[session_id]
-            # should the session information be deleted from the monitoring db?
-            # so deleting transitions and chats?
             self.delete_session(session_id)
         self.get_or_create_session(session_id, session.platform)
         logger.info(f'{self._name} restarted by user {session_id}')

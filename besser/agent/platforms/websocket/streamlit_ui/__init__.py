@@ -29,7 +29,7 @@ Database host for Streamlit user database.
 
 name: ``db.streamlit.host``
 type: ``str``
-default value: ``127.0.0.1``
+default value: ``None``
 """
 
 DB_STREAMLIT_PORT = Property(SECTION_STREAMLIT_DB, 'db.streamlit.port', int, 5432)

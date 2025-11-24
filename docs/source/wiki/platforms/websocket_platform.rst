@@ -151,7 +151,7 @@ On the agent's side, you'll need to start the monitoring database and set the ``
     websocket_platform = agent.use_websocket_platform(use_ui=True, persist_users=True)
 
 
-Requestion the chat history for a session
+Requesting the chat history for a session
 -----------------------------------------
 
 If your UI client wants to request the chat history for a given session (for example, when a user reconnects after a disconnection), it can do so by sending a message with the action ``FETCH_USER_MESSAGES`` and the corresponding ``user_id`` in the payload:
