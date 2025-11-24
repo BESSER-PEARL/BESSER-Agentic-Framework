@@ -16,7 +16,8 @@ agent = Agent('greetings_agent')
 # Load agent properties stored in a dedicated file
 agent.load_properties('config.ini')
 # Define the platform your agent will use
-websocket_platform = agent.use_websocket_platform(use_ui=True)
+# set persist_users=True to keep user sessions across restarts remember to set up a user database!
+websocket_platform = agent.use_websocket_platform(use_ui=True, persist_users=False)
 
 # STATES
 
