@@ -166,8 +166,7 @@ class WebSocketPlatform(Platform):
                 logger.error(f"Server Error: {e}")
             finally:
                 logger.info(f'Session finished')
-                #del self._connections[session.id]
-                print("really needed?")
+
         self._message_handler = message_handler
 
     def initialize(self) -> None:
