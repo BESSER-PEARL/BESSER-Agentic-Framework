@@ -160,7 +160,6 @@ class MonitoringDB:
             variables="{}"
         )
         self.run_statement(stmt)
-        
     def store_session_variables(self, session: Session) -> None:
         """
         Stores the current session variables (dictionary) as a JSON string in the monitoring database,
