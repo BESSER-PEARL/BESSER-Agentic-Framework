@@ -70,6 +70,8 @@ class WebSocketPlatform(Platform):
     Args:
         agent (Agent): the agent the platform belongs to
         use_ui (bool): whether to use the built-in UI or not
+        persist_users (bool): whether to enable user persistence and authentication.
+            Requires database configuration. Default is False
 
     Attributes:
         _agent (Agent): The agent the platform belongs to
