@@ -84,13 +84,13 @@ class WebSocketPlatform(Platform):
             (sessions) and incoming messages
     """
 
-    def __init__(self, agent: 'Agent', use_ui: bool = True, persist_users: bool = False):
+    def __init__(self, agent: 'Agent', use_ui: bool = True, authenticate_users: bool = False):
         super().__init__()
         self._agent: 'Agent' = agent
         self._host: str = None
         self._port: int = None
         self._use_ui: bool = use_ui
-        self.persist_users = persist_users
+        self._authenticate_users = authenticate_users
         self._connections: dict[str, ServerConnection] = {}
         self._websocket_server: WebSocketServer = None
 
@@ -185,7 +185,7 @@ class WebSocketPlatform(Platform):
         if self._use_ui:
             def run_streamlit() -> None:
                 """Run the Streamlit UI in a dedicated thread."""
-                if self.persist_users:
+                if self._authenticate_users:
                     db_host = self._agent.get_property(DB_STREAMLIT_HOST)
                     if not db_host:
                         raise StreamlitDatabaseException("DB_STREAMLIT_HOST")

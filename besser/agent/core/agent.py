@@ -37,9 +37,11 @@ class Agent:
 
     Args:
         name (str): The agent's name
+        persist_session (bool): whether to persist sessions or not after restarting the agent
 
     Attributes:
         _name (str): The agent name
+        _persist_session (bool): whether to persist sessions or not after restarting the agent
         _platforms (list[Platform]): The agent platforms
         _platforms_threads (list[threading.Thread]): The threads where the platforms are run
         _event_loop (asyncio.AbstractEventLoop): The event loop managing external events
@@ -61,8 +63,9 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, persist_session: bool = False):
         self._name: str = name
+        self._persist_session: bool = persist_session
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
         self._nlp_engine = NLPEngine(self)
@@ -315,6 +318,9 @@ class Agent:
             self._monitoring_db.connect_to_db(self)
             if self._monitoring_db.connected:
                 self._monitoring_db.initialize_db()
+            if not self._monitoring_db.connected and self._persist_session:
+                logger.warning(f'Agent {self._name} persistence of sessions is enabled, but the monitoring database is not connected. Sessions will not be persisted.')
+                self._persist_session = False
         self._run_platforms()
         # self._run_event_thread()
         if sleep:
@@ -464,7 +470,7 @@ class Agent:
             raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
-        if self._monitoring_db_session_exists(session_id, platform):
+        if self._persist_session and self._monitoring_db_session_exists(session_id, platform):
             dest_state = self._monitoring_db_get_last_state_of_session(session_id, platform)
             if dest_state:
                 for state in self.states:
@@ -512,17 +518,17 @@ class Agent:
         self._monitoring_db_delete_session(self._sessions[session_id])
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True, persist_users: bool = False) -> WebSocketPlatform:
+    def use_websocket_platform(self, use_ui: bool = True, authenticate_users: bool = False) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
             use_ui (bool): if true, the default UI will be run to use this platform
-            persist_users (bool): whether to enable user persistence and authentication. 
-                         Requires database configuration. Default is False
+            authenticate_users (bool): whether to enable user persistence and authentication. 
+                         Requires streamlit database configuration. Default is False
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui, persist_users)
+        websocket_platform = WebSocketPlatform(self, use_ui, authenticate_users)
         self._platforms.append(websocket_platform)
         return websocket_platform
 
