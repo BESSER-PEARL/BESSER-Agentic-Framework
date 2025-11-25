@@ -13,7 +13,7 @@ Enable Streamlit user database persistence.
 
 name: ``db.streamlit``
 type: ``bool``
-default value: ``True``
+default value: ``None``
 """
 
 DB_STREAMLIT_DIALECT = Property(SECTION_STREAMLIT_DB, 'db.streamlit.dialect', str, 'postgresql')
@@ -58,7 +58,7 @@ Database username for Streamlit user database.
 
 name: ``db.streamlit.username``
 type: ``str``
-default value: ``myuser``
+default value: ``None``
 """
 
 DB_STREAMLIT_PASSWORD = Property(SECTION_STREAMLIT_DB, 'db.streamlit.password', str, None)
@@ -67,5 +67,5 @@ Database password for Streamlit user database.
 
 name: ``db.streamlit.password``
 type: ``str``
-default value: ``mysecretpassword``
+default value: ``None``
 """
