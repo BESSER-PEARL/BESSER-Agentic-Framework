@@ -1,3 +1,5 @@
+"""Definition of the agent properties within the ``websocket_platform`` section:"""
+
 from besser.agent.core.property import Property
 
 
