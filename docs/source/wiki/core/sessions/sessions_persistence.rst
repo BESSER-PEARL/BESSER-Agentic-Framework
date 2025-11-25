@@ -1,4 +1,4 @@
-Persisting sessions accross restarts
+Persisting sessions across restarts
 ====================================
 
 It is possible to persist user sessions across agent restarts so that sessions are not lost. 
