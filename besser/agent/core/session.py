@@ -206,7 +206,6 @@ class Session:
             del self._dictionary[key]
         except Exception as e:
             return None
-        
     def get_dictionary(self) -> dict[str, Any]:
         """
         Returns the private data dictionary for this session.
