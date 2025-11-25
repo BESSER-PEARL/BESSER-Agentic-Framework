@@ -49,7 +49,7 @@ Database name for Streamlit user database.
 
 name: ``db.streamlit.database``
 type: ``str``
-default value: ``mydatabase``
+default value: ``None``
 """
 
 DB_STREAMLIT_USERNAME = Property(SECTION_STREAMLIT_DB, 'db.streamlit.username', str, None)
