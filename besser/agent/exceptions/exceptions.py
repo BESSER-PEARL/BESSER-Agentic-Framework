@@ -133,7 +133,6 @@ class ProcessorTargetUndefined(Exception):
                    f"which message needs to be processed. Reminder: Either \"user_messages\" or \"agent_messages\" (or " \
                    f"both) need to be set to true.\n")
         super().__init__(message)
-        
 class StreamlitDatabaseException(Exception):
     def __init__(self, missing_property):
         message = (
