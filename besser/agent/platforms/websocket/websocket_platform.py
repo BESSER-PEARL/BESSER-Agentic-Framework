@@ -134,11 +134,11 @@ class WebSocketPlatform(Platform):
                         except Exception as e:
                             logger.error(f"Error fetching chat history: {e}")
                     elif payload.action == PayloadAction.USER_MESSAGE.value:
-                            event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
-                                message=payload.message,
-                                session=session,
-                                human=True)
-                            self._agent.receive_event(event)
+                        event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
+                            message=payload.message,
+                            session=session,
+                            human=True)
+                        self._agent.receive_event(event)
                     elif payload.action == PayloadAction.USER_VOICE.value:
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
