@@ -130,7 +130,7 @@ class WebSocketPlatform(Platform):
                                                     )
                                 self._send(session.id, payload)
                         except Exception as e:
-                            print("Error fetching chat history:", e)
+                            logger.error(f"Error fetching chat history: {e}")
                     elif payload.action == PayloadAction.USER_MESSAGE.value:
                             event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                                 message=payload.message,
