@@ -40,5 +40,4 @@ Finally, you need to set the ``persist_users=True`` parameter when initializing 
     websocket_platform = agent.use_websocket_platform(use_ui=True, persist_users=True)
 
 
-
  This allows the platform to authenticate users and maintain their sessions across agent restarts.
