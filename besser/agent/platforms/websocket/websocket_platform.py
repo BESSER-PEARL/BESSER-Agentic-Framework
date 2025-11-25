@@ -115,20 +115,20 @@ class WebSocketPlatform(Platform):
                         try:
                             rr = session.get_chat_history()
                             for message in rr:
-                                payload = None
+                                history_payload = None
                                 if message.is_user:
-                                    payload = Payload(action=PayloadAction.USER_MESSAGE,
+                                    history_payload = Payload(action=PayloadAction.USER_MESSAGE,
                                                     message=message.content,
                                                     user_id=session.id,
                                                     history=True
                                                     )
                                 else:
-                                    payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
+                                    history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                                                     message=message.content,
                                                     user_id=session.id,
                                                     history=True
                                                     )
-                                self._send(session.id, payload)
+                                self._send(session.id, history_payload)
                         except Exception as e:
                             logger.error(f"Error fetching chat history: {e}")
                     elif payload.action == PayloadAction.USER_MESSAGE.value:
