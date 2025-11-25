@@ -604,10 +604,10 @@ class Agent:
             self,
             session: Session
     ) -> None:
-        """Load the chat history of a session from the monitoring database.
+        """Load the session variables (private data dictionary) from the monitoring database.
 
         Args:
-            session (Session): The session to load the history for.
+            session (Session): The session to load the variables for.
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.load_session_variables(session)
