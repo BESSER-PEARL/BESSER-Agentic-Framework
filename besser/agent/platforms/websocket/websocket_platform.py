@@ -211,8 +211,7 @@ class WebSocketPlatform(Platform):
                     os.environ["STREAMLIT_DB_USER"] = str(db_user) if db_user else ""
                     os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
                     os.environ["STREAMLIT_DB"] = str(db_streamlit) if db_streamlit else "False"
-                else:
-                    env_vars = os.environ
+
                 subprocess.run([
                     "streamlit", "run",
                     "--server.address", self._agent.get_property(websocket.STREAMLIT_HOST),
