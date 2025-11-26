@@ -18,7 +18,7 @@ def main():
     # ('1', 'true', 'yes'), keep the normal login flow. If it's not set or
     # set to a non-true value, skip the login page and proceed directly to
     # the main app UI.
-    streamlit_db_enabled = str(os.environ.get("STREAMLIT_DB", "")).lower() == "true"
+    streamlit_db_enabled = str(os.environ.get("STREAMLIT_DB", "")).lower() in ("true", "1", "yes", "on")
 
     if streamlit_db_enabled:
         # Normal behavior: require authentication via login_page
