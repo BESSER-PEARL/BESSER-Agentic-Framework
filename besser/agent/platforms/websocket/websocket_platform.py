@@ -236,8 +236,11 @@ class WebSocketPlatform(Platform):
         for conn_id in list(self._connections.keys()):
             conn = self._connections[conn_id]
             conn.close_socket()
-        while self._connections:
-            time.sleep(0.05)
+        try:
+            while self._connections:
+                time.sleep(0.05)
+        except KeyboardInterrupt:
+            logger.warning('Interrupted while waiting for WebSocket connections to close; continuing shutdown.')
         self._websocket_server.shutdown()
         logger.info(f'{self._agent.name}\'s WebSocketPlatform stopped')
 

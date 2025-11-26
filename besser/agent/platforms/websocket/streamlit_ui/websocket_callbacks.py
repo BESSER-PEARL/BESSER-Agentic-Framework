@@ -120,8 +120,12 @@ def on_message(ws, payload_str):
 def _set_ready_state(value: bool):
     try:
         streamlit_session = get_streamlit_session()
-        streamlit_session._session_state[WEBSOCKET_READY] = value
-        streamlit_session._handle_rerun_script_request()
+        if streamlit_session is None:
+            logger.error("Streamlit session is closed.")
+            return
+        else:
+            streamlit_session._session_state[WEBSOCKET_READY] = value
+            streamlit_session._handle_rerun_script_request()
     except Exception as exc:
         logger.error(f"Failed to update websocket ready state: {exc}")
 
