@@ -167,7 +167,7 @@ class WebSocketPlatform(Platform):
             except Exception as e:
                 logger.error(f"Server Error: {e}")
             finally:
-                logger.info(f'Session finished')
+                logger.info('Session finished')
 
         self._message_handler = message_handler
 
