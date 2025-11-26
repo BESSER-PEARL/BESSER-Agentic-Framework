@@ -115,8 +115,8 @@ class WebSocketPlatform(Platform):
                             self._connections[str(conn.id)] = conn
                     if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
-                            rr = session.get_chat_history()
-                            for message in rr:
+                            chat_history = session.get_chat_history()
+                            for message in chat_history:
                                 history_payload = None
                                 if message.is_user:
                                     history_payload = Payload(action=PayloadAction.USER_MESSAGE,
