@@ -178,7 +178,10 @@ class Session:
             value (Any): the entry value
         """
         self._dictionary[key] = value
-        self._agent._monitoring_db_store_session_variables(self)
+        try:
+            self._agent._monitoring_db_store_session_variables(self)
+        except Exception as e:
+            logger.error(f"Failed to store session variables to the database for session {self.id}: {e}", exc_info=True)
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get an entry of the session private data storage.
