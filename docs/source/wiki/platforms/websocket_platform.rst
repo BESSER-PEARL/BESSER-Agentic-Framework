@@ -126,7 +126,7 @@ The WebSocket platform allows the following kinds of user messages:
 - Voice messages
 - Files
 
-.. _communication-between-agents:
+.. _websocket-persist-sessions:
 
 Enabling persistent user sessions
 ---------------------------------
@@ -144,12 +144,11 @@ Once your platform authenticates users, you simply need to set a unique identifi
         'history': getattr(obj, 'history', None),
     }
 
-On the agent's side, you'll need to start the monitoring database and set the ``persist_users=True`` parameter when initializing the WebSocket platform:
+On the agent's side, you'll need to start the monitoring database and set the ``persist_sessions=True`` parameter when initializing the agent:
 
 .. code:: python
 
-    websocket_platform = agent.use_websocket_platform(use_ui=True, persist_users=True)
-
+    agent = Agent('example_agent', persist_sessions=True)
 
 Requesting the chat history for a session
 -----------------------------------------

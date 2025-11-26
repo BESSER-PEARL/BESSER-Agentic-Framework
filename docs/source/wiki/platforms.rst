@@ -33,7 +33,7 @@ brings every user back to the last state with their stored parameters intact.
 However, the client UI must authenticate the user so the platform can map the
 incoming connection to the correct session.
 
-* **Telegram** ships with its own user identity, so persistence works out of the
+* **Telegram** ships with its own user authentication, so persistence works out of the
   box as soon as you configure the Telegram platform. See :doc:`platforms/telegram_platform`
   for setup details.
 * **WebSocket + Streamlit UI** includes a built-in login page that tags each

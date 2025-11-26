@@ -65,13 +65,14 @@ class WebSocketPlatform(Platform):
 
     Note:
         We provide different interfaces implementing a WebSocket client to communicate with the agent, though you
-        can use or create your own UI as long as it has a WebSocket client that connects to the agent's WebSocket server.
+        can use or create your own UI as long as it has a WebSocket client that connects to the agent's WebSocket 
+            server.
 
     Args:
         agent (Agent): the agent the platform belongs to
         use_ui (bool): whether to use the built-in UI or not
-        persist_users (bool): whether to enable user persistence and authentication.
-            Requires database configuration. Default is False
+        authenticate_users (bool): whether to authenticate users when they connect to the agent and load their chat 
+            history
 
     Attributes:
         _agent (Agent): The agent the platform belongs to
@@ -120,16 +121,16 @@ class WebSocketPlatform(Platform):
                                 history_payload = None
                                 if message.is_user:
                                     history_payload = Payload(action=PayloadAction.USER_MESSAGE,
-                                                    message=message.content,
-                                                    user_id=session.id,
-                                                    history=True
-                                                    )
+                                                              message=message.content,
+                                                              user_id=session.id,
+                                                              history=True
+                                                              )
                                 else:
                                     history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
-                                                    message=message.content,
-                                                    user_id=session.id,
-                                                    history=True
-                                                    )
+                                                              message=message.content,
+                                                              user_id=session.id,
+                                                              history=True
+                                                              )
                                 self._send(session.id, history_payload)
                         except Exception as e:
                             logger.error(f"Error fetching chat history: {e}")
