@@ -65,8 +65,7 @@ class WebSocketPlatform(Platform):
 
     Note:
         We provide different interfaces implementing a WebSocket client to communicate with the agent, though you
-        can use or create your own UI as long as it has a WebSocket client that connects to the agent's WebSocket 
-            server.
+        can use or create your own UI as long as it has a WebSocket client that connects to the agent's WebSocket server.
 
     Args:
         agent (Agent): the agent the platform belongs to
