@@ -7,7 +7,7 @@ Secondly, you need to set the ``persist_users=True`` parameter when initializing
 
 .. code:: python
 
-	agent = Agent('greetings_agent', persist_users=True)  # set persist_sessions=True to enable session persistence across restarts
+	agent = Agent('greetings_agent', persist_sessions=True)  # set persist_sessions=True to enable session persistence across restarts
 
 
 Finally, the used platform needs to support user persistence by providing a way for users to authenticate themselves and follow the correct protocol for persistence (as defined in :doc:`../../platforms`).
