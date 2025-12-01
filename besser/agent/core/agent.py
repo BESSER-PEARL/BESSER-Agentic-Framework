@@ -297,8 +297,15 @@ class Agent:
     def _stop_platforms(self) -> None:
         """Stop the execution of the agent platforms"""
         for platform, thread in zip(self._platforms, self._platforms_threads):
-            platform.stop()
-            thread.join()
+            try:
+                platform.stop()
+            except KeyboardInterrupt:
+                logger.warning('Keyboard interrupt while stopping %s; forcing shutdown.', platform.__class__.__name__)
+            except Exception as exc:
+                logger.error('Error while stopping %s: %s', platform.__class__.__name__, exc)
+            finally:
+                if thread.is_alive():
+                    thread.join(timeout=5)
         self._platforms_threads = []
 
     def run(self, train: bool = True, sleep: bool = True) -> None:
