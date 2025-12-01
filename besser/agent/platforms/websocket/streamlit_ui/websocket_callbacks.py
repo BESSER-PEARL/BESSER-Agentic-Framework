@@ -121,11 +121,20 @@ def _set_ready_state(value: bool):
     try:
         streamlit_session = get_streamlit_session()
         if streamlit_session is None:
-            logger.error("Streamlit session is closed.")
+            logger.info("Streamlit session is closed already. Gracefully skipping state update.")
             return
-        else:
-            streamlit_session._session_state[WEBSOCKET_READY] = value
-            streamlit_session._handle_rerun_script_request()
+        
+        # Check if session state still exists and is accessible
+        if not hasattr(streamlit_session, '_session_state') or streamlit_session._session_state is None:
+            logger.info("Session state has shut down.")
+            return
+        
+        # Safely update the ready state
+        streamlit_session._session_state[WEBSOCKET_READY] = value
+        streamlit_session._handle_rerun_script_request()
+    except RuntimeError as exc:
+        # RuntimeError occurs when trying to access session during shutdown
+        logger.error(f"RuntimeError during websocket ready state update (likely shutdown): {exc}")
     except Exception as exc:
         logger.error(f"Failed to update websocket ready state: {exc}")
 
@@ -139,7 +148,10 @@ def on_open(ws):
 
 
 def on_close(ws, close_status_code, close_msg):
-    _set_ready_state(False)
+    try:
+        _set_ready_state(False)
+    except:
+        logger.info(f"Websocket connection is closed with code {close_status_code}")
 
 
 def on_ping(ws, data):
