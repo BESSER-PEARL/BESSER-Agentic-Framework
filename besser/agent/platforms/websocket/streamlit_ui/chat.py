@@ -4,11 +4,23 @@ import time
 from datetime import datetime
 
 import streamlit as st
+from websocket import WebSocketConnectionClosedException
 
 from besser.agent.core.file import File
 from besser.agent.core.message import Message, MessageType
 from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncoder
-from besser.agent.platforms.websocket.streamlit_ui.vars import TYPING_TIME, HISTORY, QUEUE, WEBSOCKET, ASSISTANT, USER
+from besser.agent.platforms.websocket.streamlit_ui.initialization import (
+    ensure_websocket_connection,
+    reconnect_websocket,
+)
+from besser.agent.platforms.websocket.streamlit_ui.vars import (
+    TYPING_TIME,
+    HISTORY,
+    QUEUE,
+    ASSISTANT,
+    USER,
+    WEBSOCKET_READY,
+)
 
 user_type = {
     0: ASSISTANT,
@@ -58,11 +70,30 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                 option = st.session_state[key]
                 message = Message(t=MessageType.STR, content=option, is_user=True, timestamp=datetime.now())
                 st.session_state.history.append(message)
-                payload = Payload(action=PayloadAction.USER_MESSAGE, message=option)
-                ws = st.session_state[WEBSOCKET]
-                ws.send(json.dumps(payload, cls=PayloadEncoder))
+                payload = Payload(
+                    action=PayloadAction.USER_MESSAGE,
+                    message=option,
+                    user_id=st.session_state.get("username", "Guest"),
+                )
+                ws = ensure_websocket_connection()
+                if not ws:
+                    st.warning("WebSocket connection unavailable. Please retry.")
+                    return
+                try:
+                    ws.send(json.dumps(payload, cls=PayloadEncoder))
+                except WebSocketConnectionClosedException:
+                    reconnect_websocket()
+                    st.warning("Connection dropped. Your option was not sent; please try again.")
+                except Exception as exc:
+                    st.warning(f"Unable to send option: {exc}")
 
-            st.pills(label='Choose an option', options=message.content, selection_mode='single', on_change=send_option, key=key)
+            st.pills(
+                label='Choose an option',
+                options=message.content,
+                selection_mode='single',
+                on_change=send_option,
+                key=key,
+            )
 
         elif message.type == MessageType.LOCATION:
             st.map(message.content)
@@ -94,6 +125,34 @@ def write_message(message: Message, key_count: int, stream: bool = False):
 
 
 def load_chat():
+    username = st.session_state.get("username")
+    fetched_history = st.session_state.get("fetched_user_messages", False)
+    websocket_ready = st.session_state.get(WEBSOCKET_READY, False)
+
+    if username and not fetched_history:
+        if not websocket_ready:
+            st.info("Connecting to the chat server… your previous messages will appear shortly.")
+        else:
+            ws = ensure_websocket_connection()
+            if not ws:
+                st.warning("WebSocket connection unavailable. Retrying…")
+            else:
+                payload = Payload(
+                    action=PayloadAction.FETCH_USER_MESSAGES,
+                    message=None,
+                    user_id=username,
+                )
+                try:
+                    ws.send(json.dumps(payload, cls=PayloadEncoder))
+                    st.session_state["fetched_user_messages"] = True
+                except WebSocketConnectionClosedException:
+                    reconnect_websocket()
+                    st.session_state["fetched_user_messages"] = False
+                    st.warning("Connection dropped while loading history. Reconnecting…")
+                except Exception as exc:
+                    st.warning(f"Unable to fetch previous messages: {exc}")
+                    st.session_state["fetched_user_messages"] = False
+
     key_count = 0
     for message in st.session_state[HISTORY]:
         write_message(message, key_count, stream=False)
