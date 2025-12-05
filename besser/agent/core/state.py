@@ -314,7 +314,7 @@ class State:
                         # There is a ReceiveTextEvent or ReceiveJSONEvent (with message) and we couldn't match any transition so far
                         run_fallback = True
                         if i < len(self.transitions)-1:
-                            # We only append ReceiveTextEvent (human) if we didn't finish checking all transitions
+                            # We only append ReceiveTextEvent or ReceiveJSONEvent (human with message) if we didn't finish checking all transitions
                             fallback_deque.appendleft(session.event)
                     else:
                         fallback_deque.appendleft(session.event)
