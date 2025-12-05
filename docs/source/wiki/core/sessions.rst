@@ -70,7 +70,7 @@ Let's see the different things we can do with a user session.
 
 .. note::
 
-    See :doc:`sessions/session_persistence` to learn about persisting sessions across restarts
+    See :doc:`sessions/sessions_persistence` to learn about persisting sessions across restarts
 
 .. note::
 
