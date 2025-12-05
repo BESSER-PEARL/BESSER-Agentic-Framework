@@ -27,7 +27,7 @@ Or you can also run it separately. Just open a terminal on the streamlit UI dire
 
 Enabling session persistence
 ----------------------------
-To enable session persistence when using the Streamlit UI, you first need to have the :doc:`monitoring database <../db/monitoring_db>` running and configured in your agent.
+To enable session persistence when using the Streamlit UI, you first need to have the :doc:`monitoring database <../../db/monitoring_db>` running and configured in your agent.
 Secondly, you'll need to configure a streamlit database connection in the agent configuration file with the properties described in :any:`Streamlit_Database <properties-streamlit_database>`.
 Note that, the streamlit database and monitoring database can be the same. 
 

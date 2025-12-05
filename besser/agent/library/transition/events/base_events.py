@@ -136,12 +136,14 @@ class ReceiveJSONEvent(ReceiveMessageEvent):
 
     Attributes:
         _name (str): the name of the event
+        json (dict): the received JSON payload
+        predicted_intent (IntentClassifierPrediction): the predicted intent for the event message
+        contains_message (bool): indicates if the JSON payload contains a 'message' field
     """
 
     def __init__(self, payload: dict = None, session_id: str = None, human: bool = False):
         if payload is None:
             payload = {}
-            super().__init__(message='{}', session_id=session_id, human=human)
             self.contains_message = False
         elif 'message' in payload and isinstance(payload['message'], str):
             super().__init__(message=payload['message'], session_id=session_id, human=human)
