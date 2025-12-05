@@ -1,5 +1,3 @@
-"""Definition of the agent properties within the ``websocket_platform`` section:"""
-
 from besser.agent.core.property import Property
 
 SECTION_WEBSOCKET = 'websocket_platform'
@@ -59,4 +57,3 @@ type: ``int``
 
 default value: ``5000``
 """
-

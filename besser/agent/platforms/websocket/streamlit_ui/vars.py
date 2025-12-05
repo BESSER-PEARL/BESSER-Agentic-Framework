@@ -9,6 +9,9 @@ SUBMIT_TEXT = 'submit_text'
 SUBMIT_AUDIO = 'submit_audio'
 USER = 'user'
 WEBSOCKET = 'websocket'
+WS_HOST = 'ws_host'
+WS_PORT = 'ws_port'
+WEBSOCKET_READY = 'websocket_ready'
 
 # Time interval to check if a streamlit session is still active, in seconds
 SESSION_MONITORING_INTERVAL = 1

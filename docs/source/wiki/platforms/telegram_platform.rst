@@ -148,6 +148,10 @@ You could update the chat history to record the audio messages, either adding th
         custom_send_audio(session, audio)
 
 
+Enabling session persistence
+----------------------------
+The Telegram platform has session persistence enabled by default if the :doc:`monitoring database <../db/monitoring_db>` is running.
+
 API References
 --------------
 

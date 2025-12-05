@@ -19,7 +19,7 @@ from websockets.sync.server import ServerConnection, WebSocketServer, serve
 from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
 from besser.agent.core.session import Session
-from besser.agent.exceptions.exceptions import PlatformMismatchError
+from besser.agent.exceptions.exceptions import PlatformMismatchError, StreamlitDatabaseException
 from besser.agent.exceptions.logger import logger
 from besser.agent.nlp.rag.rag import RAGMessage
 from besser.agent.platforms import websocket
@@ -27,6 +27,14 @@ from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncode
 from besser.agent.platforms.platform import Platform
 from besser.agent.platforms.websocket.streamlit_ui import streamlit_ui
 from besser.agent.core.file import File
+from besser.agent.platforms.websocket.streamlit_ui import (
+    DB_STREAMLIT_HOST,
+    DB_STREAMLIT_PORT,
+    DB_STREAMLIT_DATABASE,
+    DB_STREAMLIT_USERNAME,
+    DB_STREAMLIT_PASSWORD,
+    DB_STREAMLIT
+)
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -62,6 +70,8 @@ class WebSocketPlatform(Platform):
     Args:
         agent (Agent): the agent the platform belongs to
         use_ui (bool): whether to use the built-in UI or not
+        authenticate_users (bool): whether to authenticate users when they connect to the agent and load their chat 
+            history
 
     Attributes:
         _agent (Agent): The agent the platform belongs to
@@ -74,12 +84,13 @@ class WebSocketPlatform(Platform):
             (sessions) and incoming messages
     """
 
-    def __init__(self, agent: 'Agent', use_ui: bool = True):
+    def __init__(self, agent: 'Agent', use_ui: bool = True, authenticate_users: bool = False):
         super().__init__()
         self._agent: 'Agent' = agent
         self._host: str = None
         self._port: int = None
         self._use_ui: bool = use_ui
+        self._authenticate_users = authenticate_users
         self._connections: dict[str, ServerConnection] = {}
         self._websocket_server: WebSocketServer = None
 
@@ -89,14 +100,40 @@ class WebSocketPlatform(Platform):
             Args:
                 conn (ServerConnection): the user connection
             """
-            self._connections[str(conn.id)] = conn
-            session = self._agent.get_or_create_session(str(conn.id), self)
+            session: Session = None
             try:
                 for payload_str in conn:
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if payload.action == PayloadAction.USER_MESSAGE.value:
+                    if session is None:
+                        if payload.user_id:
+                            session = self._agent.get_or_create_session(payload.user_id, self)
+                            self._connections[str(payload.user_id)] = conn
+                        else:
+                            session = self._agent.get_or_create_session(str(conn.id), self)
+                            self._connections[str(conn.id)] = conn
+                    if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
+                        try:
+                            chat_history = session.get_chat_history()
+                            for message in chat_history:
+                                history_payload = None
+                                if message.is_user:
+                                    history_payload = Payload(action=PayloadAction.USER_MESSAGE,
+                                                              message=message.content,
+                                                              user_id=session.id,
+                                                              history=True
+                                                              )
+                                else:
+                                    history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
+                                                              message=message.content,
+                                                              user_id=session.id,
+                                                              history=True
+                                                              )
+                                self._send(session.id, history_payload)
+                        except Exception as e:
+                            logger.error(f"Error fetching chat history: {e}")
+                    elif payload.action == PayloadAction.USER_MESSAGE.value:
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=payload.message,
                             session=session,
@@ -125,16 +162,29 @@ class WebSocketPlatform(Platform):
                         self._agent.receive_event(event)
                     elif payload.action == PayloadAction.RESET.value:
                         self._agent.reset(session.id)
+                    elif payload.action == PayloadAction.USER_SET_VARIABLE.value:
+                        if not isinstance(payload.message, dict) or not payload.message:
+                            logger.error('Invalid message format for USER_SET_VARIABLE')
+                            continue  # skip this iteration
+                        for key, value in payload.message.items():
+                            session.set(key, value)
+                            logger.info(f"Session variable {key} set to {value}.")
             except ConnectionClosedError:
                 pass
                 # logger.error(f'The client closed unexpectedly')
             except Exception as e:
                 pass
-                # logger.error("Server Error:", e)
+                # logger.error(f"Server Error: {e}")
             finally:
-                # logger.info(f'Session finished')
-                self._agent.delete_session(session.id)
-                del self._connections[session.id]
+                # Remove connection from tracking
+                if session:
+                    session_id = str(session.id)
+                    if session_id in self._connections:
+                        del self._connections[session_id]
+                logger.info('Session finished')
+                # self._agent.delete_session(session.id)
+                # del self._connections[session.id]
+
         self._message_handler = message_handler
 
     def initialize(self) -> None:
@@ -151,6 +201,33 @@ class WebSocketPlatform(Platform):
         if self._use_ui:
             def run_streamlit() -> None:
                 """Run the Streamlit UI in a dedicated thread."""
+                if self._authenticate_users:
+                    db_host = self._agent.get_property(DB_STREAMLIT_HOST)
+                    if not db_host:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_HOST")
+                    db_port = self._agent.get_property(DB_STREAMLIT_PORT)
+                    if not db_port:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_PORT")
+                    db_name = self._agent.get_property(DB_STREAMLIT_DATABASE)
+                    if not db_name:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_DATABASE")
+                    db_user = self._agent.get_property(DB_STREAMLIT_USERNAME)
+                    if not db_user:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_USERNAME")
+                    db_password = self._agent.get_property(DB_STREAMLIT_PASSWORD)
+                    if not db_password:
+                        raise StreamlitDatabaseException("DB_STREAMLIT_PASSWORD")
+                    db_streamlit = self._agent.get_property(DB_STREAMLIT)
+                    if not db_streamlit:
+                        raise StreamlitDatabaseException("DB_STREAMLIT")
+
+                    os.environ["STREAMLIT_DB_HOST"] = str(db_host) if db_host else ""
+                    os.environ["STREAMLIT_DB_PORT"] = str(db_port) if db_port else ""
+                    os.environ["STREAMLIT_DB_NAME"] = str(db_name) if db_name else ""
+                    os.environ["STREAMLIT_DB_USER"] = str(db_user) if db_user else ""
+                    os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
+                    os.environ["STREAMLIT_DB"] = str(db_streamlit) if db_streamlit else "False"
+
                 subprocess.run([
                     "streamlit", "run",
                     "--server.address", self._agent.get_property(websocket.STREAMLIT_HOST),
@@ -175,8 +252,11 @@ class WebSocketPlatform(Platform):
         for conn_id in list(self._connections.keys()):
             conn = self._connections[conn_id]
             conn.close_socket()
-        while self._connections:
-            time.sleep(0.05)
+        try:
+            while self._connections:
+                time.sleep(0.05)
+        except KeyboardInterrupt:
+            logger.warning('Interrupted while waiting for WebSocket connections to close; continuing shutdown.')
         self._websocket_server.shutdown()
         logger.info(f'{self._agent.name}\'s WebSocketPlatform stopped')
 
@@ -190,7 +270,9 @@ class WebSocketPlatform(Platform):
             raise PlatformMismatchError(self, session)
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
-                          message=message)
+                          message=message,
+                          user_id=session.id
+                          )
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 

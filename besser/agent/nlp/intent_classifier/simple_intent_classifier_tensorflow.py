@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 
 try:
     from keras import Sequential
-    from keras.src.layers import TextVectorization, Dense, Embedding, GlobalAveragePooling1D
-    from keras.src.losses import SparseCategoricalCrossentropy
-    from keras.src.optimizers import Adam
-    from keras.src.utils import pad_sequences
+    from keras.layers import TextVectorization, Dense, Embedding, GlobalAveragePooling1D
+    from keras.losses import SparseCategoricalCrossentropy
+    from keras.optimizers import Adam
+    from keras.utils import pad_sequences
 except ImportError:
     logger.warning("keras dependencies in SimpleIntentClassifierTF could not be imported. You can install them from the "
                    "requirements/requirements-tensorflow.txt file")
