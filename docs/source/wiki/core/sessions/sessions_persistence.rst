@@ -3,7 +3,7 @@ Persisting sessions across restarts
 
 It is possible to persist user sessions across agent restarts so that sessions are not lost. 
 To enable this feature, you first need to have the :doc:`monitoring database <../../db/monitoring_db>` running and configured in your agent.
-Secondly, you need to set the ``persist_users=True`` parameter when initializing the agent:
+Secondly, you need to set the ``persist_sessions=True`` parameter when initializing the agent:
 
 .. code:: python
 
