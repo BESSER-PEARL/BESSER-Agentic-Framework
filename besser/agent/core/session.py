@@ -208,6 +208,7 @@ class Session:
         try:
             del self._dictionary[key]
         except Exception as e:
+            logger.error(f"Failed to delete key '{key}' from session {self.id}: {e}", exc_info=True)
             return None
     def get_dictionary(self) -> dict[str, Any]:
         """
