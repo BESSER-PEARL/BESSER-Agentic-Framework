@@ -31,8 +31,9 @@ The session always contains the last received event (the one that triggered the 
             intent_prediction: IntentClassifierPrediction = event.predicted_intent
             human: bool = event.human  # Whether the message was sent by a human or not
         if isinstance(event, ReceiveJSONEvent):
-            message: str = event.message (if the JSON contained a 'message' field)
-            intent_prediction: IntentClassifierPrediction = event.predicted_intent (if the JSON contained a 'message' field)
+            # If the JSON contained a 'message' field:
+            message: str = event.message
+            intent_prediction: IntentClassifierPrediction = event.predicted_intent
             json: dict = event.json # The full JSON payload
             human: bool = event.human  # Whether the message was sent by a human or not
         if isinstance(event, ReceiveFileEvent):
