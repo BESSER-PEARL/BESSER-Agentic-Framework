@@ -7,7 +7,7 @@ from besser.agent.core.transition.event import Event
 from besser.agent.core.transition.transition import Transition
 from besser.agent.core.transition.transition_builder import TransitionBuilder
 from besser.agent.library.intent.intent_library import fallback_intent
-from besser.agent.library.transition.events.base_events import ReceiveTextEvent, ReceiveFileEvent, WildcardEvent
+from besser.agent.library.transition.events.base_events import ReceiveTextEvent, ReceiveFileEvent, WildcardEvent, ReceiveJSONEvent
 from besser.agent.library.transition.conditions import IntentMatcher, VariableOperationMatcher
 from besser.agent.core.transition.condition import Condition
 from besser.agent.core.intent.intent import Intent
@@ -303,12 +303,14 @@ class State:
                     session.event = session.events.pop()
                     if isinstance(session.event, ReceiveTextEvent):
                         session.event.predict_intent(session)
+                    elif isinstance(session.event, ReceiveJSONEvent) and session.event.contains_message:
+                        session.event.predict_intent(session)
                     if next_transition.evaluate(session, session.event):
                         session.move(next_transition)
                         # TODO: Make this configurable (we can consider remove all the previously checked events)
                         session.events.extend(fallback_deque)  # We restore the queue but with the matched event removed
                         return
-                    if isinstance(session.event, ReceiveTextEvent) and session.event.human:
+                    if (isinstance(session.event, ReceiveTextEvent) and session.event.human) or (isinstance(session.event, ReceiveJSONEvent) and session.event.contains_message and session.event.human):
                         # There is a ReceiveTextEvent and we couldn't match any transition so far
                         run_fallback = True
                         if i < len(self.transitions)-1:
