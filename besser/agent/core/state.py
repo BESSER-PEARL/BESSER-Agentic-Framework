@@ -311,7 +311,7 @@ class State:
                         session.events.extend(fallback_deque)  # We restore the queue but with the matched event removed
                         return
                     if (isinstance(session.event, ReceiveTextEvent) and session.event.human) or (isinstance(session.event, ReceiveJSONEvent) and session.event.contains_message and session.event.human):
-                        # There is a ReceiveTextEvent and we couldn't match any transition so far
+                        # There is a ReceiveTextEvent or ReceiveJSONEvent (with message) and we couldn't match any transition so far
                         run_fallback = True
                         if i < len(self.transitions)-1:
                             # We only append ReceiveTextEvent (human) if we didn't finish checking all transitions
