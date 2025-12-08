@@ -69,9 +69,13 @@ class ReceiveMessageEvent(Event):
         else:
             session_id = session.id
         message = session._agent.process(session=session, message=message, is_user_message=human)
+        
         try:
             payload = json.loads(message)
-            event = ReceiveJSONEvent(payload, session_id, human)
+            if isinstance(payload, dict):
+                event = ReceiveJSONEvent(payload, session_id, human)
+            else:
+                event = ReceiveTextEvent(message, session_id, human)
         except json.JSONDecodeError:
             event = ReceiveTextEvent(message, session_id, human)
         finally:
@@ -132,14 +136,40 @@ class ReceiveJSONEvent(ReceiveMessageEvent):
 
     Attributes:
         _name (str): the name of the event
+        json (dict): the received JSON payload
+        predicted_intent (IntentClassifierPrediction): the predicted intent for the event message
+        contains_message (bool): indicates if the JSON payload contains a 'message' field
     """
 
     def __init__(self, payload: dict = None, session_id: str = None, human: bool = False):
+        message = None
         if payload is None:
             payload = {}
-        super().__init__(message=json.dumps(payload), session_id=session_id, human=human)
+            message = payload
+            self.contains_message = False
+        elif 'message' in payload and isinstance(payload['message'], str):
+            self.contains_message = True
+            message = payload['message']
+        else:
+            self.contains_message = False
+            message = json.dumps(payload)
+        self.json = payload
         self._name = 'receive_message_json'
+        self.predicted_intent: IntentClassifierPrediction = None
+        super().__init__(message=message, session_id=session_id, human=human)
 
+    def predict_intent(self, session: 'Session') -> None:
+        """Predict the intent of the event message, only if it has not been done yet or if the session moved to another
+        agent state.
+
+        Args:
+            session (Session): the user session
+        """
+        if self.predicted_intent is None or self.predicted_intent.state != session.current_state.name:
+            self.predicted_intent = session._agent._nlp_engine.predict_intent(session)
+            logger.info(f'Detected intent: {self.predicted_intent.intent.name}')
+            for parameter in self.predicted_intent.matched_parameters:
+                logger.info(f"Parameter '{parameter.name}': {parameter.value}, info = {parameter.info}")
 
 class ReceiveFileEvent(Event):
     """Event for receiving files.

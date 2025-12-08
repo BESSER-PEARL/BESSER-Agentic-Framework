@@ -4,8 +4,8 @@ gidgetlab==2.1.0
 dateparser==1.1.8
 langdetect==1.0.9
 nltk==3.9.1
-numpy==1.26.1
-pandas==2.1.1
+numpy==1.26.4
+pandas==2.3.3
 python-telegram-bot==21.0
 psycopg2-binary==2.9.9
 pydantic==2.11.7
@@ -18,3 +18,4 @@ streamlit-antd-components==0.3.2
 text2num==2.5.0
 websocket-client==1.6.4
 websockets==11.0.3
+bcrypt==4.0.1

@@ -92,6 +92,7 @@ class MonitoringDB:
             session_id = Column(String, nullable=False)
             platform_name = Column(String, nullable=False)
             timestamp = Column(DateTime, nullable=False)
+            variables = Column(String, nullable=True)
             __table_args__ = (
                 UniqueConstraint('agent_name', 'session_id'),
             )
@@ -156,8 +157,49 @@ class MonitoringDB:
             session_id=session.id,
             platform_name=session.platform.__class__.__name__,
             timestamp=datetime.now(),
+            variables="{}"
         )
         self.run_statement(stmt)
+    def store_session_variables(self, session: Session) -> None:
+        """
+        Stores the current session variables (dictionary) as a JSON string in the monitoring database,
+        replacing the old value for the given session.
+
+        Args:
+            session (Session): The session whose variables should be stored.
+        """
+        table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        session_dict = session.get_dictionary()
+        json_variables = json.dumps(session_dict)
+        stmt = (
+            table.update()
+            .where(
+                table.c.agent_name == session._agent.name,
+                table.c.platform_name == session.platform.__class__.__name__,
+                table.c.session_id == session.id
+            )
+            .values(variables=json_variables)
+        )
+        self.run_statement(stmt)
+
+    def load_session_variables(self, session: Session) -> None:
+        """
+        Loads the session variables from the monitoring database, transforms the JSON string into a dictionary,
+        and sets each key-value pair in the session using session.set(key, value).
+
+        Args:
+            session (Session): The session whose variables should be loaded.
+        """
+        session_entry = self.select_session(session)
+        if session_entry.empty:
+            return
+        variables_json = session_entry.iloc[0]['variables']
+        try:
+            variables_dict = json.loads(variables_json) if variables_json else {}
+            for key, value in variables_dict.items():
+                session.set(key, value)
+        except Exception as e:
+            logger.error(f"Error loading session variables: {e}")
 
     def insert_intent_prediction(
             self,
@@ -300,6 +342,95 @@ class MonitoringDB:
             table.c.session_id == session.id
         )
         return pd.read_sql_query(stmt, self.conn)
+    def session_exists(self, agent_name: str, platform_name: str, session_id: str) -> bool:
+        """
+        Checks whether there is an entry with the given agent_name, platform_name, and session_id in the sessions table.
+
+        Args:
+            agent_name (str): The agent name to check.
+            platform_name (str): The platform name to check.
+            session_id (str): The session ID to check.
+
+        Returns:
+            bool: True if the session exists, False otherwise.
+        """
+        table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        stmt = select(table).where(
+            table.c.agent_name == agent_name,
+            table.c.platform_name == platform_name,
+            table.c.session_id == session_id
+        )
+        result = self.conn.execute(stmt)
+        return result.first() is not None
+
+    def delete_session(self, session: Session) -> None:
+        """
+        Deletes the session information, chat messages, and transitions related to the given session from the monitoring database.
+
+        Args:
+            session (Session): The session to delete.
+        """
+        # Get session DB id
+        table_session = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        stmt_session_id = select(table_session.c.id).where(
+            table_session.c.agent_name == session._agent.name,
+            table_session.c.platform_name == session.platform.__class__.__name__,
+            table_session.c.session_id == session.id
+        )
+        result_session_id = self.conn.execute(stmt_session_id).first()
+        if not result_session_id:
+            logger.error(f"Session not found for deletion: {session.id}")
+            return
+        session_db_id = result_session_id[0]
+
+        # Delete chat messages
+        table_chat = Table(TABLE_CHAT, MetaData(), autoload_with=self.conn)
+        stmt_delete_chat = table_chat.delete().where(table_chat.c.session_id == session_db_id)
+        self.run_statement(stmt_delete_chat)
+
+        # Delete transitions
+        table_transition = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
+        stmt_delete_transition = table_transition.delete().where(table_transition.c.session_id == session_db_id)
+        self.run_statement(stmt_delete_transition)
+
+        # Delete session itself
+        stmt_delete_session = table_session.delete().where(table_session.c.id == session_db_id)
+        self.run_statement(stmt_delete_session)
+    
+    def get_last_state_of_session(self, agent_name: str, platform_name: str, session_id: str) -> str | None:
+        """
+        Retrieves the last dest_state for a given session from the transition table.
+
+        Args:
+            agent_name (str): The agent name.
+            platform_name (str): The platform name.
+            session_id (str): The session ID.
+
+        Returns:
+            str | None: The last dest_state value, or None if not found.
+        """
+        # Get session id
+        table_session = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
+        stmt_session = select(table_session.c.id).where(
+            table_session.c.agent_name == agent_name,
+            table_session.c.platform_name == platform_name,
+            table_session.c.session_id == session_id
+        )
+        result_session = self.conn.execute(stmt_session).first()
+        if not result_session:
+            return None
+        session_db_id = result_session[0]
+
+        # Get last dest_state from transition table
+        table_transition = Table(TABLE_TRANSITION, MetaData(), autoload_with=self.conn)
+        stmt_transition = (
+            select(table_transition.c.dest_state)
+            .where(table_transition.c.session_id == session_db_id)
+            .order_by(desc(table_transition.c.timestamp))
+            .limit(1)
+        )
+        result_transition = self.conn.execute(stmt_transition).first()
+        return result_transition[0] if result_transition else None
 
     def select_chat(self, session: Session, n: int) -> pd.DataFrame:
         """Retrieves a conversation history from the chat table of the database.

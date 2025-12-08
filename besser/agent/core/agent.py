@@ -38,9 +38,11 @@ class Agent:
 
     Args:
         name (str): The agent's name
+        persist_sessions (bool): whether to persist sessions or not after restarting the agent
 
     Attributes:
         _name (str): The agent name
+        _persist_sessions (bool): whether to persist sessions or not after restarting the agent
         _platforms (list[Platform]): The agent platforms
         _platforms_threads (list[threading.Thread]): The threads where the platforms are run
         _event_loop (asyncio.AbstractEventLoop): The event loop managing external events
@@ -62,8 +64,9 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, persist_sessions: bool = False):
         self._name: str = name
+        self._persist_sessions: bool = persist_sessions
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
         self._nlp_engine = NLPEngine(self)
@@ -295,8 +298,15 @@ class Agent:
     def _stop_platforms(self) -> None:
         """Stop the execution of the agent platforms"""
         for platform, thread in zip(self._platforms, self._platforms_threads):
-            platform.stop()
-            thread.join()
+            try:
+                platform.stop()
+            except KeyboardInterrupt:
+                logger.warning('Keyboard interrupt while stopping %s; forcing shutdown.', platform.__class__.__name__)
+            except Exception as exc:
+                logger.error('Error while stopping %s: %s', platform.__class__.__name__, exc)
+            finally:
+                if thread.is_alive():
+                    thread.join(timeout=5)
         self._platforms_threads = []
 
     def run(self, train: bool = True, sleep: bool = True) -> None:
@@ -316,6 +326,9 @@ class Agent:
             self._monitoring_db.connect_to_db(self)
             if self._monitoring_db.connected:
                 self._monitoring_db.initialize_db()
+            if not self._monitoring_db.connected and self._persist_sessions:
+                logger.warning(f'Agent {self._name} persistence of sessions is enabled, but the monitoring database is not connected. Sessions will not be persisted.')
+                self._persist_sessions = False
         self._run_platforms()
         # self._run_event_thread()
         if sleep:
@@ -334,8 +347,9 @@ class Agent:
         self._stop_platforms()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
+
         for session_id in list(self._sessions.keys()):
-            self.delete_session(session_id)
+            self.close_session(session_id)
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.
@@ -348,12 +362,13 @@ class Agent:
         """
         if session_id not in self._sessions:
             return None
-        session = self._sessions[session_id]
-        new_session = Session(session_id, self, session.platform)
-        self._sessions[session_id] = new_session
+        else:
+            session = self._sessions[session_id]
+            self.delete_session(session_id)
+        self.get_or_create_session(session_id, session.platform)
         logger.info(f'{self._name} restarted by user {session_id}')
-        new_session.current_state.run(new_session)
-        return new_session
+
+        return self._sessions[session_id]
 
     def receive_event(self, event: Event) -> None:
         """Receive an external event from a platform.
@@ -363,7 +378,7 @@ class Agent:
         Args:
             event (Event): the received event
         """
-        session = None
+        session: Session = None
         if event.is_broadcasted():
             for session in self._sessions.values():
                 session.events.appendleft(event)
@@ -463,9 +478,20 @@ class Agent:
             raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
-        self._monitoring_db_insert_session(session)
+        if self._persist_sessions and self._monitoring_db_session_exists(session_id, platform):
+            dest_state = self._monitoring_db_get_last_state_of_session(session_id, platform)
+            if dest_state:
+                for state in self.states:
+                    if state.name == dest_state:
+                        session._current_state = state
+                        self._monitoring_db_load_session_variables(session)
+                        break
+
+        else:
+            self._monitoring_db_insert_session(session)
+            session.current_state.run(session)
+
         # ADD LOOP TO CHECK TRANSITIONS HERE
-        session.current_state.run(session)
         session._run_event_thread()
         return session
 
@@ -475,7 +501,7 @@ class Agent:
             session = self._new_session(session_id, platform)
         return session
 
-    def delete_session(self, session_id: str) -> None:
+    def close_session(self, session_id: str) -> None:
         """Delete an existing agent session.
 
         Args:
@@ -487,16 +513,30 @@ class Agent:
         self._sessions[session_id]._stop_event_thread()
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True) -> WebSocketPlatform:
+    def delete_session(self, session_id: str) -> None:
+        """Delete an existing agent session.
+
+        Args:
+            session_id (str): the session id
+        """
+        while self._sessions[session_id]._agent_connections:
+            agent_connection = next(iter(self._sessions[session_id]._agent_connections.values()))
+            agent_connection.close()
+        self._sessions[session_id]._stop_event_thread()
+        self._monitoring_db_delete_session(self._sessions[session_id])
+        del self._sessions[session_id]
+
+    def use_websocket_platform(self, use_ui: bool = True, authenticate_users: bool = False) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
             use_ui (bool): if true, the default UI will be run to use this platform
-
+            authenticate_users (bool): whether to enable user persistence and authentication. 
+                         Requires streamlit database configuration. Default is False
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui)
+        websocket_platform = WebSocketPlatform(self, use_ui, authenticate_users)
         self._platforms.append(websocket_platform)
         return websocket_platform
 
@@ -549,6 +589,74 @@ class Agent:
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             # Not in thread since we must ensure it is added before running a state (the chat table needs the session)
             self._monitoring_db.insert_session(session)
+
+    def _monitoring_db_session_exists(self, session_id: str, platform: Platform) -> bool:
+        """
+        Check if a session with the given session_id exists in the monitoring database.
+
+        Args:
+            session_id (str): The session ID to check.
+            platform (Platform): The platform to check.
+
+        Returns:
+            bool: True if the session exists in the database, False otherwise
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db and self._monitoring_db.connected:
+            result = self._monitoring_db.session_exists(self.name, platform.__class__.__name__, session_id)
+            return result
+        return False
+
+    def _monitoring_db_get_last_state_of_session(
+            self,
+            session_id: str,
+            platform: Platform
+    ) -> str | None:
+        """Get the last state of a session from the monitoring database.
+
+        Args:
+            session_id (str): The session ID to check.
+            platform (Platform): The platform to check.
+
+        Returns:
+            str | None: The last state of the session if it exists, None otherwise.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db and self._monitoring_db.connected:
+            return self._monitoring_db.get_last_state_of_session(self.name, platform.__class__.__name__, session_id)
+        return None
+
+    def _monitoring_db_store_session_variables(
+            self,
+            session: Session
+    ) -> None:
+        """Store the session variables (private data dictionary) in the monitoring database.
+
+        Args:
+            session (Session): The session to store the variables for.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            self._monitoring_db.store_session_variables(session)
+
+    def _monitoring_db_load_session_variables(
+            self,
+            session: Session
+    ) -> None:
+        """Load the session variables (private data dictionary) from the monitoring database.
+
+        Args:
+            session (Session): The session to load the variables for.
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            self._monitoring_db.load_session_variables(session)
+
+    def _monitoring_db_delete_session(self, session: Session) -> None:
+        """Delete a session record from the monitoring database.
+
+        Args:
+            session (Session): the session of the current user
+        """
+        if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
+            # Not in thread since we must ensure it is deleted before removing the session
+            self._monitoring_db.delete_session(session)
 
     def _monitoring_db_insert_intent_prediction(
             self,

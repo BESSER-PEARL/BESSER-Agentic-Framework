@@ -25,6 +25,26 @@ development 🙂), it must implement them according to the platform needs:
 
 Additionally, a platform could have specific methods for it, as you can see in our implemented platforms.
 
+Session persistence
+-------------------
+
+BAF already persists user sessions at the backend level, so restarting an agent
+brings every user back to the last state with their stored parameters intact.
+However, the client UI must authenticate the user so the platform can map the
+incoming connection to the correct session.
+
+* **Telegram** ships with its own user authentication, so persistence works out of the
+  box as soon as you configure the Telegram platform. See :doc:`platforms/telegram_platform`
+  for setup details.
+* **WebSocket + Streamlit UI** includes a built-in login page that tags each
+  browser session with a username before opening the socket. Learn how to enable
+  persistence in :doc:`platforms/websocket_platform`.
+* **Custom WebSocket interfaces** must implement the same identification
+  protocol (authenticate the user and include the user identifier in each
+  message) so the agent can reuse the persisted session. Follow the guidelines
+  in :doc:`platforms/websocket_platform` if you plan to build your own frontend
+  on top of the WebSocket API.
+
 Table of contents
 -----------------
 
