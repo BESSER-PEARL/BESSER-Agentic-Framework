@@ -25,7 +25,7 @@ def message_input():
         st.session_state.history.append(message)
         if st.session_state.get("authenticated", False):
             payload = Payload(action=PayloadAction.USER_MESSAGE,
-                            message=user_input, user_id=st.session_state.get("username"))
+                            message=user_input)
         else:
             payload = Payload(action=PayloadAction.USER_MESSAGE,
                             message=user_input)

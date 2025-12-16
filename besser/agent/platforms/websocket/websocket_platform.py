@@ -101,7 +101,7 @@ class WebSocketPlatform(Platform):
                 conn (ServerConnection): the user connection
             """
             session: Session = None
-
+            current_time = datetime.now()
             request = getattr(conn, "request", None)
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("x-user-id") if hasattr(headers, "get") else None
@@ -119,7 +119,7 @@ class WebSocketPlatform(Platform):
 
                     if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
-                            chat_history = session.get_chat_history()
+                            chat_history = session.get_chat_history(until_timestamp=current_time)
                             for message in chat_history:
                                 history_payload = None
                                 if message.is_user:
