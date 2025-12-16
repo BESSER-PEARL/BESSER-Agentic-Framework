@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from websockets.exceptions import ConnectionClosedError
 from websockets.sync.server import ServerConnection, WebSocketServer, serve
-from urllib.parse import urlparse, parse_qs
 
 from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
@@ -102,23 +101,13 @@ class WebSocketPlatform(Platform):
                 conn (ServerConnection): the user connection
             """
             session: Session = None
-            raw_path = getattr(conn, "path", "") or ""
-            if isinstance(raw_path, bytes):
-                raw_path = raw_path.decode("utf-8", errors="ignore")
-            try:
-                query = parse_qs(urlparse(raw_path).query)
-            except Exception:
-                query = {}
 
             request = getattr(conn, "request", None)
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("x-user-id") if hasattr(headers, "get") else None
 
-            query_user = None
-            if not header_user:
-                query_user = query.get("user_id", [None])[0]
 
-            session_key = header_user or query_user or str(conn.id)
+            session_key = header_user or str(conn.id)
             self._connections[str(session_key)] = conn
             session = self._agent.get_or_create_session(session_key, self)
             try:
