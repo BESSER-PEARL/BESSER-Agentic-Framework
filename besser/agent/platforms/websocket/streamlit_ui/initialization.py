@@ -45,7 +45,7 @@ def _start_websocket(host: str, port: str):
         if st.session_state.get("username"):
             ws = websocket.WebSocketApp(
                 f"ws://{host}:{port}/",
-                header={"x-user-id": st.session_state["username"]},
+                header={"X-User-ID": st.session_state["username"]},
                 on_open=on_open,
                 on_message=on_message,
                 on_error=on_error,

@@ -130,19 +130,23 @@ The WebSocket platform allows the following kinds of user messages:
 
 Enabling persistent user sessions
 ---------------------------------
-When building your own UI on top of the WebSocket API, you need to implement a user authentication mechanism to enable session persistence. 
-BAF relies on user identifiers to map incoming connections to the correct sessions.
-Thus, if your UI does not authenticate users, each new connection will be treated as a new user session.
-Once your platform authenticates users, you simply need to set a unique identifier for each user in the payload sent to the agent via WebSocket:
+When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions via the ``X-User-ID`` header; if it’s missing, the platform falls back to treating the connection as a new anonymous user.
+
+Once your client authenticates users, include the identifier in the WebSocket handshake headers:
 
 .. code:: python
 
-    payload_dict = {
-        'action': obj.action,
-        'message': obj.message,
-        'user_id': getattr(obj, 'user_id', None),
-        'history': getattr(obj, 'history', None),
-    }
+    ws = websocket.WebSocketApp(
+        f"ws://{host}:{port}/",
+        header={"X-User-ID": user_id},
+        on_open=on_open,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close,
+        on_ping=on_ping,
+        on_pong=on_pong,
+    )
+
 
 On the agent's side, you'll need to start the monitoring database and set the ``persist_sessions=True`` parameter when initializing the agent:
 

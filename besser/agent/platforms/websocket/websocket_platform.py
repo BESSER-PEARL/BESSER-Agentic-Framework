@@ -104,7 +104,7 @@ class WebSocketPlatform(Platform):
             current_time = datetime.now()
             request = getattr(conn, "request", None)
             headers = getattr(request, "headers", {}) if request else {}
-            header_user = headers.get("x-user-id") if hasattr(headers, "get") else None
+            header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
 
 
             session_key = header_user or str(conn.id)
@@ -125,13 +125,11 @@ class WebSocketPlatform(Platform):
                                 if message.is_user:
                                     history_payload = Payload(action=PayloadAction.USER_MESSAGE,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 else:
                                     history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 self._send(session.id, history_payload)
@@ -275,7 +273,6 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message,
-                          user_id=session.id
                           )
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
