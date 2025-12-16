@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from pandas import DataFrame
 from websockets.exceptions import ConnectionClosedError
 from websockets.sync.server import ServerConnection, WebSocketServer, serve
+from urllib.parse import urlparse, parse_qs
 
 from besser.agent.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from besser.agent.core.message import Message, MessageType
