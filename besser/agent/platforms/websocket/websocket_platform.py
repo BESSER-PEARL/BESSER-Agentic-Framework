@@ -101,18 +101,32 @@ class WebSocketPlatform(Platform):
                 conn (ServerConnection): the user connection
             """
             session: Session = None
+            raw_path = getattr(conn, "path", "") or ""
+            if isinstance(raw_path, bytes):
+                raw_path = raw_path.decode("utf-8", errors="ignore")
             try:
+                query = parse_qs(urlparse(raw_path).query)
+            except Exception:
+                query = {}
+
+            request = getattr(conn, "request", None)
+            headers = getattr(request, "headers", {}) if request else {}
+            header_user = headers.get("x-user-id") if hasattr(headers, "get") else None
+
+            query_user = None
+            if not header_user:
+                query_user = query.get("user_id", [None])[0]
+
+            session_key = header_user or query_user or str(conn.id)
+            self._connections[str(session_key)] = conn
+            session = self._agent.get_or_create_session(session_key, self)
+            try:
+
                 for payload_str in conn:
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if session is None:
-                        if payload.user_id:
-                            session = self._agent.get_or_create_session(payload.user_id, self)
-                            self._connections[str(payload.user_id)] = conn
-                        else:
-                            session = self._agent.get_or_create_session(str(conn.id), self)
-                            self._connections[str(conn.id)] = conn
+
                     if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
                             chat_history = session.get_chat_history()

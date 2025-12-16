@@ -42,15 +42,27 @@ def _resolve_host_port():
 
 def _start_websocket(host: str, port: str):
     try:
-        ws = websocket.WebSocketApp(
-            f"ws://{host}:{port}/",
-            on_open=on_open,
-            on_message=on_message,
-            on_error=on_error,
-            on_close=on_close,
-            on_ping=on_ping,
-            on_pong=on_pong,
-        )
+        if st.session_state.get("username"):
+            ws = websocket.WebSocketApp(
+                f"ws://{host}:{port}/",
+                header={"x-user-id": st.session_state["username"]},
+                on_open=on_open,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_ping=on_ping,
+                on_pong=on_pong,
+            )
+        else:
+            ws = websocket.WebSocketApp(
+                f"ws://{host}:{port}/",
+                on_open=on_open,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_ping=on_ping,
+                on_pong=on_pong,
+            )            
         websocket_thread = threading.Thread(target=ws.run_forever)
         add_script_run_ctx(websocket_thread)
         websocket_thread.start()
