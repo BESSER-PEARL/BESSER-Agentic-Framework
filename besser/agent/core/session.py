@@ -5,6 +5,7 @@ import time
 from asyncio import TimerHandle
 from collections import deque
 from typing import Any, TYPE_CHECKING
+from datetime import datetime
 
 from pandas import DataFrame
 from websocket import WebSocketApp
@@ -142,7 +143,7 @@ class Session:
         self._event_loop = None
         self._event_thread = None
 
-    def get_chat_history(self, n: int = None) -> list[Message]:
+    def get_chat_history(self, n: int = None, until_timestamp: datetime = None) -> list[Message]:
         """Get the history of messages between this session and its agent.
 
         Args:
@@ -154,7 +155,7 @@ class Session:
         """
         chat_history: list[Message] = []
         if self._agent.get_property(DB_MONITORING) and self._agent._monitoring_db.connected:
-            chat_df: DataFrame = self._agent._monitoring_db.select_chat(self, n=n)
+            chat_df: DataFrame = self._agent._monitoring_db.select_chat(self, n=n, until_timestamp=until_timestamp)
             for i, row in chat_df.iterrows():
                 t = get_message_type(row['type'])
                 chat_history.append(Message(t=t, content=row['content'], is_user=row['is_user'], timestamp=row['timestamp']))

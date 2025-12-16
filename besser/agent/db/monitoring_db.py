@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import json
 import pandas as pd
@@ -432,13 +432,18 @@ class MonitoringDB:
         result_transition = self.conn.execute(stmt_transition).first()
         return result_transition[0] if result_transition else None
 
-    def select_chat(self, session: Session, n: int) -> pd.DataFrame:
-        """Retrieves a conversation history from the chat table of the database.
+    def select_chat(
+        self,
+        session: Session,
+        n: Optional[int] = None,
+        until_timestamp: Optional[datetime] = None,
+    ) -> pd.DataFrame:
+        """Retrieve chat messages for a session, optionally capped by count or timestamp.
 
         Args:
-            session (Session): the session to get from the database
-            n (int or None): the number of messages to get (from the most recents). If none is provided, gets all the
-                messages
+            session (Session): Session whose messages should be returned.
+            n (int | None): Optional cap for the most recent messages; None returns all.
+            until_timestamp (datetime | None): Optional inclusive upper bound on message timestamps.
         Returns:
             pandas.DataFrame: the session record, should be a 1 row DataFrame
 
@@ -448,6 +453,10 @@ class MonitoringDB:
         stmt = (select(table).where(
             table.c.session_id == int(session_entry['id'][0])
         ))
+        
+        if until_timestamp is not None:
+            stmt = stmt.where(table.c.timestamp <= until_timestamp)
+
         if n:
             stmt = stmt.order_by(desc(table.c.id)).limit(n)
         return pd.read_sql_query(stmt, self.conn).sort_values(by='id')
