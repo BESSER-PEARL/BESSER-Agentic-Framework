@@ -6,6 +6,7 @@ import json
 import os
 import time
 from datetime import datetime
+from urllib.parse import parse_qs, urlsplit
 
 import numpy as np
 import subprocess
@@ -35,6 +36,28 @@ from besser.agent.platforms.websocket.streamlit_ui import (
     DB_STREAMLIT_PASSWORD,
     DB_STREAMLIT
 )
+
+def _extract_user_id_from_request(request) -> str | None:
+    if not request:
+        return None
+    for attr in ("path", "raw_path", "uri"):
+        value = getattr(request, attr, None)
+        if not value:
+            continue
+        if isinstance(value, bytes):
+            # Prefer UTF-8 for URL paths; fall back to latin-1 to remain robust to non-UTF-8 bytes.
+            try:
+                value = value.decode("utf-8")
+            except UnicodeDecodeError:
+                value = value.decode("latin-1", errors="replace")
+        query = urlsplit(value).query
+        if not query:
+            continue
+        params = parse_qs(query)
+        user_values = params.get("user_id")
+        if user_values:
+            return user_values[0]
+    return None
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -101,33 +124,34 @@ class WebSocketPlatform(Platform):
                 conn (ServerConnection): the user connection
             """
             session: Session = None
+            current_time = datetime.now()
+            request = getattr(conn, "request", None)
+            headers = getattr(request, "headers", {}) if request else {}
+            header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
+            query_user = _extract_user_id_from_request(request)
+            session_key = header_user or query_user or str(conn.id)
+            self._connections[str(session_key)] = conn
+            session = self._agent.get_or_create_session(session_key, self)
             try:
+
                 for payload_str in conn:
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if session is None:
-                        if payload.user_id:
-                            session = self._agent.get_or_create_session(payload.user_id, self)
-                            self._connections[str(payload.user_id)] = conn
-                        else:
-                            session = self._agent.get_or_create_session(str(conn.id), self)
-                            self._connections[str(conn.id)] = conn
+
                     if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
-                            chat_history = session.get_chat_history()
+                            chat_history = session.get_chat_history(until_timestamp=current_time)
                             for message in chat_history:
                                 history_payload = None
                                 if message.is_user:
                                     history_payload = Payload(action=PayloadAction.USER_MESSAGE,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 else:
                                     history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 self._send(session.id, history_payload)
@@ -271,7 +295,6 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message,
-                          user_id=session.id
                           )
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)

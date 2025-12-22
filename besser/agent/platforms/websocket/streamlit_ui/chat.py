@@ -73,7 +73,6 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                 payload = Payload(
                     action=PayloadAction.USER_MESSAGE,
                     message=option,
-                    user_id=st.session_state.get("username", "Guest"),
                 )
                 ws = ensure_websocket_connection()
                 if not ws:
@@ -140,7 +139,6 @@ def load_chat():
                 payload = Payload(
                     action=PayloadAction.FETCH_USER_MESSAGES,
                     message=None,
-                    user_id=username,
                 )
                 try:
                     ws.send(json.dumps(payload, cls=PayloadEncoder))

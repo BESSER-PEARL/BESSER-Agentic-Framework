@@ -1,0 +1,7 @@
+Version 4.2.2
+=============
+
+Hotfix
+------
+
+- Restored initial agent messages when persistence is enabled by updating the user identification protocol to accept the user ID from either the WebSocket header or query parameters.
