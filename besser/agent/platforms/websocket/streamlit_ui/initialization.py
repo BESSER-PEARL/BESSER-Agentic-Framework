@@ -62,7 +62,7 @@ def _start_websocket(host: str, port: str):
                 on_close=on_close,
                 on_ping=on_ping,
                 on_pong=on_pong,
-            )            
+            )
         websocket_thread = threading.Thread(target=ws.run_forever)
         add_script_run_ctx(websocket_thread)
         websocket_thread.start()
