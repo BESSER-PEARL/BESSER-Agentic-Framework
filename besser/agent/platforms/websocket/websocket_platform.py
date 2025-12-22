@@ -125,8 +125,6 @@ class WebSocketPlatform(Platform):
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
             query_user = _extract_user_id_from_request(request)
-
-
             session_key = header_user or query_user or str(conn.id)
             self._connections[str(session_key)] = conn
             session = self._agent.get_or_create_session(session_key, self)
