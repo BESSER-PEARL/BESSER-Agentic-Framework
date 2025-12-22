@@ -130,7 +130,7 @@ The WebSocket platform allows the following kinds of user messages:
 
 Enabling persistent user sessions
 ---------------------------------
-When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions via the ``X-User-ID`` header or the ``user_id`` query parameter on the handshake URL; the header is used if both are supplied, otherwise the query parameter keeps the connection pinned to the authenticated user. If none of these identifiers is available, the platform falls back to treating the connection as a new anonymous user.
+When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions using either the ``X-User-ID`` header or the ``user_id`` query parameter from the handshake URL. If both are provided, the header takes precedence. If neither identifier is available, the platform treats the connection as a new anonymous user.
 
 Once your client authenticates users, include the identifier in the WebSocket handshake headers:
 

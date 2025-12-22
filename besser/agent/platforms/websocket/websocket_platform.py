@@ -45,7 +45,11 @@ def _extract_user_id_from_request(request) -> str | None:
         if not value:
             continue
         if isinstance(value, bytes):
-            value = value.decode("latin-1")
+            # Prefer UTF-8 for URL paths; fall back to latin-1 to remain robust to non-UTF-8 bytes.
+            try:
+                value = value.decode("utf-8")
+            except UnicodeDecodeError:
+                value = value.decode("latin-1", errors="replace")
         query = urlsplit(value).query
         if not query:
             continue
@@ -125,8 +129,6 @@ class WebSocketPlatform(Platform):
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
             query_user = _extract_user_id_from_request(request)
-
-
             session_key = header_user or query_user or str(conn.id)
             self._connections[str(session_key)] = conn
             session = self._agent.get_or_create_session(session_key, self)
