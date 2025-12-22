@@ -453,7 +453,6 @@ class MonitoringDB:
         stmt = (select(table).where(
             table.c.session_id == int(session_entry['id'][0])
         ))
-        
         if until_timestamp is not None:
             stmt = stmt.where(table.c.timestamp <= until_timestamp)
 
