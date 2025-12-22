@@ -45,7 +45,11 @@ def _extract_user_id_from_request(request) -> str | None:
         if not value:
             continue
         if isinstance(value, bytes):
-            value = value.decode("latin-1")
+            # Prefer UTF-8 for URL paths; fall back to latin-1 to remain robust to non-UTF-8 bytes.
+            try:
+                value = value.decode("utf-8")
+            except UnicodeDecodeError:
+                value = value.decode("latin-1", errors="replace")
         query = urlsplit(value).query
         if not query:
             continue
