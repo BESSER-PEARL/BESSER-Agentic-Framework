@@ -130,7 +130,7 @@ The WebSocket platform allows the following kinds of user messages:
 
 Enabling persistent user sessions
 ---------------------------------
-When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions via the ``X-User-ID`` header; if it’s missing, the platform falls back to treating the connection as a new anonymous user.
+When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions via the ``X-User-ID`` header or the ``user_id`` query parameter on the handshake URL; the header is used if both are supplied, otherwise the query parameter keeps the connection pinned to the authenticated user. If none of these identifiers is available, the platform falls back to treating the connection as a new anonymous user.
 
 Once your client authenticates users, include the identifier in the WebSocket handshake headers:
 
@@ -139,6 +139,20 @@ Once your client authenticates users, include the identifier in the WebSocket ha
     ws = websocket.WebSocketApp(
         f"ws://{host}:{port}/",
         header={"X-User-ID": user_id},
+        on_open=on_open,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close,
+        on_ping=on_ping,
+        on_pong=on_pong,
+    )
+
+If you cannot control the HTTP headers, you can also attach the identifier as a query parameter on the WebSocket URL:
+
+.. code:: python
+
+    ws = websocket.WebSocketApp(
+        f"ws://{host}:{port}/?user_id={user_id}",
         on_open=on_open,
         on_message=on_message,
         on_error=on_error,

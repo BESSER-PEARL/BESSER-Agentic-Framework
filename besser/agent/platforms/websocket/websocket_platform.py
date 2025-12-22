@@ -6,6 +6,7 @@ import json
 import os
 import time
 from datetime import datetime
+from urllib.parse import parse_qs, urlsplit
 
 import numpy as np
 import subprocess
@@ -35,6 +36,24 @@ from besser.agent.platforms.websocket.streamlit_ui import (
     DB_STREAMLIT_PASSWORD,
     DB_STREAMLIT
 )
+
+def _extract_user_id_from_request(request) -> str | None:
+    if not request:
+        return None
+    for attr in ("path", "raw_path", "uri"):
+        value = getattr(request, attr, None)
+        if not value:
+            continue
+        if isinstance(value, bytes):
+            value = value.decode("latin-1")
+        query = urlsplit(value).query
+        if not query:
+            continue
+        params = parse_qs(query)
+        user_values = params.get("user_id")
+        if user_values:
+            return user_values[0]
+    return None
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -105,9 +124,10 @@ class WebSocketPlatform(Platform):
             request = getattr(conn, "request", None)
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
+            query_user = _extract_user_id_from_request(request)
 
 
-            session_key = header_user or str(conn.id)
+            session_key = header_user or query_user or str(conn.id)
             self._connections[str(session_key)] = conn
             session = self._agent.get_or_create_session(session_key, self)
             try:
