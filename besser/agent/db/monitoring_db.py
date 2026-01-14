@@ -457,8 +457,8 @@ class MonitoringDB:
             stmt = stmt.where(table.c.timestamp <= until_timestamp)
 
         if n:
-            stmt = stmt.order_by(desc(table.c.id)).limit(n)
-        return pd.read_sql_query(stmt, self.conn).sort_values(by='id')
+            stmt = stmt.order_by(desc(table.c.timestamp)).limit(n)
+        return pd.read_sql_query(stmt, self.conn).sort_values(by='timestamp')
 
     def run_statement(self, stmt: Executable) -> CursorResult[Any] | None:
         """Executes a SQL statement.
