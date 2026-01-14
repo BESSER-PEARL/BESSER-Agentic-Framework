@@ -438,27 +438,40 @@ class MonitoringDB:
         n: Optional[int] = None,
         until_timestamp: Optional[datetime] = None,
     ) -> pd.DataFrame:
-        """Retrieve chat messages for a session, optionally capped by count or timestamp.
+        """Retrieves chat records from the chat table of the database for a given session.
 
         Args:
-            session (Session): Session whose messages should be returned.
-            n (int | None): Optional cap for the most recent messages; None returns all.
-            until_timestamp (datetime | None): Optional inclusive upper bound on message timestamps.
+            session (Session): the session to get chat records from the database
+            n (Optional[int]): the number of latest chat records to retrieve. If None, retrieves all records.
+            until_timestamp (Optional[datetime]): if provided, retrieves only chat records up to this timestamp.
         Returns:
-            pandas.DataFrame: the session record, should be a 1 row DataFrame
-
+            pandas.DataFrame: the chat records for the given session
         """
+
         table = Table(TABLE_CHAT, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        stmt = (select(table).where(
-            table.c.session_id == int(session_entry['id'][0])
-        ))
+
+        base_stmt = select(table).where(
+            table.c.session_id == int(session_entry["id"][0])
+        )
+
         if until_timestamp is not None:
-            stmt = stmt.where(table.c.timestamp <= until_timestamp)
+            base_stmt = base_stmt.where(table.c.timestamp <= until_timestamp)
 
         if n:
-            stmt = stmt.order_by(desc(table.c.id)).limit(n)
-        return pd.read_sql_query(stmt, self.conn).sort_values(by='id')
+            subq = (
+                base_stmt
+                .order_by(desc(table.c.timestamp), desc(table.c.id))
+                .limit(n)
+                .subquery()
+            )
+            stmt = select(subq).order_by(subq.c.timestamp, subq.c.id)
+
+        else:
+            # all rows, ordered chronologically
+            stmt = base_stmt.order_by(table.c.timestamp, table.c.id)
+
+        return pd.read_sql_query(stmt, self.conn)
 
     def run_statement(self, stmt: Executable) -> CursorResult[Any] | None:
         """Executes a SQL statement.
