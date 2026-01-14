@@ -447,14 +447,14 @@ class MonitoringDB:
         Returns:
             pandas.DataFrame: the chat records for the given session
         """
- 
+
         table = Table(TABLE_CHAT, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-    
+
         base_stmt = select(table).where(
             table.c.session_id == int(session_entry["id"][0])
         )
-    
+
         if until_timestamp is not None:
             base_stmt = base_stmt.where(table.c.timestamp <= until_timestamp)
 
@@ -466,11 +466,11 @@ class MonitoringDB:
                 .subquery()
             )
             stmt = select(subq).order_by(subq.c.timestamp, subq.c.id)
-    
+
         else:
             # all rows, ordered chronologically
             stmt = base_stmt.order_by(table.c.timestamp, table.c.id)
-    
+
         return pd.read_sql_query(stmt, self.conn)
 
     def run_statement(self, stmt: Executable) -> CursorResult[Any] | None:
