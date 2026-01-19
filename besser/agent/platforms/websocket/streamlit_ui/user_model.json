@@ -1,0 +1,15 @@
+{
+    "User": {
+        "Personal_Information_end": {
+            "age": 6,
+            "firstName": null,
+            "gender": "Select an option",
+            "lastName": null,
+            "nationality_iso3166": "Lux",
+            "address": null
+        },
+        "Accessibility_end": {
+            "Disability_end": []
+        }
+    }
+}

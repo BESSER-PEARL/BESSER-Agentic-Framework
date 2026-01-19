@@ -1,0 +1,41 @@
+# agent_config.yaml
+
+agent:
+  name: "MyAssistant"
+  #avatar: "default_avatar.png"
+  response_time: "fast"   # options: instant, fast, natural, delayed
+  modalities: ["text", "speech"]   # available: text, speech, video, multimodal
+
+personalization:
+  text:
+    font_size: "medium"
+    font_style: "sans-serif"
+    color_theme: "light"   # or dark, high-contrast
+  voice:
+    type: "neural_female"
+    speed: "normal"        # slow, normal, fast
+  speech:
+    enable: true
+    playback_speed: 1.0    # multiplier
+  tone: "professional"     # casual, humorous, formal, etc.
+
+content_customization:
+  simplify: false          # true = dumbed down explanations
+  integrate_user_data: true
+  language: "en"           # ISO code
+  language_level: "intermediate"  # beginner, intermediate, expert
+  use_emojis: true
+  use_gifs: false
+
+system:
+  llms:
+    default: "gpt-4"
+    summarization: "llama-2"
+    classification: "bert-classical"
+  nlp_processing: "llm"    # options: classical, llm
+  platforms:
+    - streamlit
+    - telegram
+    - websocket
+    - github
+    - gitlab
