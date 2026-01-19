@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import json
 import pandas as pd
@@ -160,7 +160,6 @@ class MonitoringDB:
             variables="{}"
         )
         self.run_statement(stmt)
-        
     def store_session_variables(self, session: Session) -> None:
         """
         Stores the current session variables (dictionary) as a JSON string in the monitoring database,
@@ -382,7 +381,6 @@ class MonitoringDB:
             table.c.session_id == session.id
         )
         return pd.read_sql_query(stmt, self.conn)
-    
     def session_exists(self, agent_name: str, platform_name: str, session_id: str) -> bool:
         """
         Checks whether there is an entry with the given agent_name, platform_name, and session_id in the sessions table.
@@ -396,7 +394,6 @@ class MonitoringDB:
             bool: True if the session exists, False otherwise.
         """
         table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
-        print(agent_name, platform_name, session_id)
         stmt = select(table).where(
             table.c.agent_name == agent_name,
             table.c.platform_name == platform_name,
@@ -474,25 +471,46 @@ class MonitoringDB:
         result_transition = self.conn.execute(stmt_transition).first()
         return result_transition[0] if result_transition else None
 
-    def select_chat(self, session: Session, n: int) -> pd.DataFrame:
-        """Retrieves a conversation history from the chat table of the database.
+    def select_chat(
+        self,
+        session: Session,
+        n: Optional[int] = None,
+        until_timestamp: Optional[datetime] = None,
+    ) -> pd.DataFrame:
+        """Retrieves chat records from the chat table of the database for a given session.
 
         Args:
-            session (Session): the session to get from the database
-            n (int or None): the number of messages to get (from the most recents). If none is provided, gets all the
-                messages
+            session (Session): the session to get chat records from the database
+            n (Optional[int]): the number of latest chat records to retrieve. If None, retrieves all records.
+            until_timestamp (Optional[datetime]): if provided, retrieves only chat records up to this timestamp.
         Returns:
-            pandas.DataFrame: the session record, should be a 1 row DataFrame
-
+            pandas.DataFrame: the chat records for the given session
         """
+
         table = Table(TABLE_CHAT, MetaData(), autoload_with=self.conn)
         session_entry = self.select_session(session)
-        stmt = (select(table).where(
-            table.c.session_id == int(session_entry['id'][0])
-        ))
+
+        base_stmt = select(table).where(
+            table.c.session_id == int(session_entry["id"][0])
+        )
+
+        if until_timestamp is not None:
+            base_stmt = base_stmt.where(table.c.timestamp <= until_timestamp)
+
         if n:
-            stmt = stmt.order_by(desc(table.c.id)).limit(n)
-        return pd.read_sql_query(stmt, self.conn).sort_values(by='id')
+            subq = (
+                base_stmt
+                .order_by(desc(table.c.timestamp), desc(table.c.id))
+                .limit(n)
+                .subquery()
+            )
+            stmt = select(subq).order_by(subq.c.timestamp, subq.c.id)
+
+        else:
+            # all rows, ordered chronologically
+            stmt = base_stmt.order_by(table.c.timestamp, table.c.id)
+
+        return pd.read_sql_query(stmt, self.conn)
 
     def run_statement(self, stmt: Executable) -> CursorResult[Any] | None:
         """Executes a SQL statement.

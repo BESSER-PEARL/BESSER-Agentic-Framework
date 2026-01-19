@@ -108,6 +108,15 @@ Database
 .. automodule:: besser.agent.db
    :members:
 
+.. _properties-streamlit_database:
+
+Streamlit_Database
+------------------
+
+.. automodule:: besser.agent.platforms.websocket.streamlit_ui
+   :members:
+
+
 API References
 --------------
 

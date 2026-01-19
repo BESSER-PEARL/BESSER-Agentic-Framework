@@ -1,0 +1,7 @@
+Version 4.2.3
+=============
+
+Hotfix
+------
+
+- Fixed an issue in the monitoring database module where the function to retrieve chat records did not correctly handle cases when the number of records to fetch was unspecified, leading to potential errors in data retrieval. Also, improved chat oredring efficiency.

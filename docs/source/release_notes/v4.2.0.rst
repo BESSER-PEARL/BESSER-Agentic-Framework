@@ -1,0 +1,39 @@
+Version 4.2.0
+=============
+
+Key Improvements
+----------------
+
+Session Persistence & Monitoring Integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Added a ``persist_sessions`` option so agents can resume conversations after restarts.
+- Automatically verifies monitoring database connectivity and disables persistence when unavailable.
+- User session variables are now stored in the monitoring database for consistent access across restarts.
+- WebSocket payload now expects a ``user_id`` field to identify users and maintain session continuity.
+
+Streamlit Persistent Users
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Added an optional login flow that keeps Streamlit users and their chat history across visits.
+
+Event Handling & State Transitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Improved state transitions by predicting intents for ``ReceiveJSONEvent`` messages and applying consistent fallback logic for text and JSON events.
+
+Python 3.12 Support
+~~~~~~~~~~~~~~~~~~~
+- Updated dependencies and requirements to run the framework on Python 3.12.
+
+
+Additional Features
+~~~~~~~~~~~~~~~~~~~
+- WebSocket call has been added to fetch history for a given user.
+- WebSocket call has been added to set a variable for a given user.
+
+Solved issues
+-------------
+
+- `86 <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/86>`_
+- `120 <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/120>`_
+- `138 <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/138>`_
+- `144 <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/144>`_
+- `151 <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/151>`_

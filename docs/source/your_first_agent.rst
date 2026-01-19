@@ -18,10 +18,13 @@ simple *How are you?* question. This workflow is repeated *ad infinitum*.
 
 You can also see the full agent code :doc:`here <examples/greetings_agent>`
 
+The following code should be saved in a Python file named `greetings_agent.py`.
+
 Import the dependencies
 -----------------------
 
-Before starting coding the agent itself, we need to import the necessary dependencies.
+Before starting coding the agent itself, we need to import the necessary dependencies (make sure you have installed the core and torch and extras requirements from 
+the requirements folder as they will be needed for the agent to run).   
 
 .. code:: python
 

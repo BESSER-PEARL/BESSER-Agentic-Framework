@@ -126,7 +126,62 @@ The WebSocket platform allows the following kinds of user messages:
 - Voice messages
 - Files
 
-.. _communication-between-agents:
+.. _websocket-persist-sessions:
+
+Enabling persistent user sessions
+---------------------------------
+When building your own UI on top of the WebSocket API, implement user authentication so every connection can be tied to a stable identifier. BAF maps connections to sessions using either the ``X-User-ID`` header or the ``user_id`` query parameter from the handshake URL. If both are provided, the header takes precedence. If neither identifier is available, the platform treats the connection as a new anonymous user.
+
+Once your client authenticates users, include the identifier in the WebSocket handshake headers:
+
+.. code:: python
+
+    ws = websocket.WebSocketApp(
+        f"ws://{host}:{port}/",
+        header={"X-User-ID": user_id},
+        on_open=on_open,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close,
+        on_ping=on_ping,
+        on_pong=on_pong,
+    )
+
+If you cannot control the HTTP headers, you can also attach the identifier as a query parameter on the WebSocket URL:
+
+.. code:: python
+
+    ws = websocket.WebSocketApp(
+        f"ws://{host}:{port}/?user_id={user_id}",
+        on_open=on_open,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close,
+        on_ping=on_ping,
+        on_pong=on_pong,
+    )
+
+
+On the agent's side, you'll need to start the monitoring database and set the ``persist_sessions=True`` parameter when initializing the agent:
+
+.. code:: python
+
+    agent = Agent('example_agent', persist_sessions=True)
+
+Requesting the chat history for a session
+-----------------------------------------
+
+If your UI client wants to request the chat history for a given session (for example, when a user reconnects after a disconnection), it can do so by sending a message with the action ``FETCH_USER_MESSAGES`` and the corresponding ``user_id`` in the payload:
+
+.. code:: python
+
+    payload = Payload(
+        action=PayloadAction.FETCH_USER_MESSAGES,
+        message=None,
+        user_id=username,
+    )
+
+The websocket platform will start by sending the previous messages to the client with a flag "history" set to True, so the client can differentiate between historical messages and new incoming messages.
 
 Communication between agents: Multi-agent systems
 -------------------------------------------------

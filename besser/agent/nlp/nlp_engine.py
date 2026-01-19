@@ -232,11 +232,12 @@ class NLPEngine:
 
         Returns:
             dict: the speech synthesis as a dictionary containing 2 keys:
+
                 - audio (np.ndarray): the generated audio waveform as a numpy array with dimensions (nb_channels,
-                audio_length), where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
-                of samples in the audio
+                  audio_length), where nb_channels is the number of audio channels (usually 1 for mono) and audio_length is the number
+                  of samples in the audio
                 - sampling_rate (int): an integer value containing the sampling rate, eg. how many samples correspond to
-                one second of audio
+                  one second of audio
         """
 
         user_language = session.get("user_language", "en")

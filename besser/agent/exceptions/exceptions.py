@@ -133,3 +133,9 @@ class ProcessorTargetUndefined(Exception):
                    f"which message needs to be processed. Reminder: Either \"user_messages\" or \"agent_messages\" (or " \
                    f"both) need to be set to true.\n")
         super().__init__(message)
+class StreamlitDatabaseException(Exception):
+    def __init__(self, missing_property):
+        message = (
+            f"The required property '{missing_property}' is missing in the Streamlit database configuration. If you want to persist users in streamlit, please make sure to set all the necessary database connection properties in the configuration file.\n"
+        )
+        super().__init__(message)

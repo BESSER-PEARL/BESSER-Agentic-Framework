@@ -30,6 +30,7 @@ from besser.agent.platforms.telegram.telegram_platform import TelegramPlatform
 from besser.agent.platforms.websocket.websocket_platform import WebSocketPlatform
 from besser.agent.platforms.github.github_platform import GitHubPlatform
 from besser.agent.platforms.gitlab.gitlab_platform import GitLabPlatform
+from besser.agent.platforms.a2a.a2a_platform import A2APlatform
 
 
 class Agent:
@@ -37,9 +38,11 @@ class Agent:
 
     Args:
         name (str): The agent's name
+        persist_sessions (bool): whether to persist sessions or not after restarting the agent
 
     Attributes:
         _name (str): The agent name
+        _persist_sessions (bool): whether to persist sessions or not after restarting the agent
         _platforms (list[Platform]): The agent platforms
         _platforms_threads (list[threading.Thread]): The threads where the platforms are run
         _event_loop (asyncio.AbstractEventLoop): The event loop managing external events
@@ -61,8 +64,9 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, persist_sessions: bool = False):
         self._name: str = name
+        self._persist_sessions: bool = persist_sessions
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
         self._nlp_engine = NLPEngine(self)
@@ -294,8 +298,15 @@ class Agent:
     def _stop_platforms(self) -> None:
         """Stop the execution of the agent platforms"""
         for platform, thread in zip(self._platforms, self._platforms_threads):
-            platform.stop()
-            thread.join()
+            try:
+                platform.stop()
+            except KeyboardInterrupt:
+                logger.warning('Keyboard interrupt while stopping %s; forcing shutdown.', platform.__class__.__name__)
+            except Exception as exc:
+                logger.error('Error while stopping %s: %s', platform.__class__.__name__, exc)
+            finally:
+                if thread.is_alive():
+                    thread.join(timeout=5)
         self._platforms_threads = []
 
     def run(self, train: bool = True, sleep: bool = True) -> None:
@@ -315,6 +326,9 @@ class Agent:
             self._monitoring_db.connect_to_db(self)
             if self._monitoring_db.connected:
                 self._monitoring_db.initialize_db()
+            if not self._monitoring_db.connected and self._persist_sessions:
+                logger.warning(f'Agent {self._name} persistence of sessions is enabled, but the monitoring database is not connected. Sessions will not be persisted.')
+                self._persist_sessions = False
         self._run_platforms()
         # self._run_event_thread()
         if sleep:
@@ -333,9 +347,9 @@ class Agent:
         self._stop_platforms()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
-        # is this really necessary?
-        #for session_id in list(self._sessions.keys()):
-            #self.delete_session(session_id)
+
+        for session_id in list(self._sessions.keys()):
+            self.close_session(session_id)
 
     def reset(self, session_id: str) -> Session or None:
         """Reset the agent current state and memory for the specified session. Then, restart the agent again for this session.
@@ -350,14 +364,11 @@ class Agent:
             return None
         else:
             session = self._sessions[session_id]
-        # should the session information be deleted from the monitoring db?
-            # so deleting transitions and chats?
             self.delete_session(session_id)
-        new_session = Session(session_id, self, session.platform)
         self.get_or_create_session(session_id, session.platform)
         logger.info(f'{self._name} restarted by user {session_id}')
 
-        return new_session
+        return self._sessions[session_id]
 
     def receive_event(self, event: Event) -> None:
         """Receive an external event from a platform.
@@ -467,12 +478,11 @@ class Agent:
             raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
         session = Session(session_id, self, platform)
         self._sessions[session_id] = session
-        if self._monitoring_db_session_exists(session_id, platform):
+        if self._persist_sessions and self._monitoring_db_session_exists(session_id, platform):
             dest_state = self._monitoring_db_get_last_state_of_session(session_id, platform)
             if dest_state:
                 for state in self.states:
                     if state.name == dest_state:
-                        print("found existing state")
                         session._current_state = state
                         self._monitoring_db_load_session_variables(session)
                         self._load_user_profile_into_session(session)
@@ -500,6 +510,17 @@ class Agent:
                 pass
         return session
 
+    def close_session(self, session_id: str) -> None:
+        """Delete an existing agent session.
+
+        Args:
+            session_id (str): the session id
+        """
+        while self._sessions[session_id]._agent_connections:
+            agent_connection = next(iter(self._sessions[session_id]._agent_connections.values()))
+            agent_connection.close()
+        self._sessions[session_id]._stop_event_thread()
+        del self._sessions[session_id]
     def _load_user_profile_into_session(self, session: Session) -> None:
         """Try to load a stored user profile (JSON) and populate the session variables.
 
@@ -563,16 +584,17 @@ class Agent:
         self._monitoring_db_delete_session(self._sessions[session_id])
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True, persist_users: bool = False) -> WebSocketPlatform:
+    def use_websocket_platform(self, use_ui: bool = True, authenticate_users: bool = False) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
             use_ui (bool): if true, the default UI will be run to use this platform
-
+            authenticate_users (bool): whether to enable user persistence and authentication. 
+                         Requires streamlit database configuration. Default is False
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui, persist_users)
+        websocket_platform = WebSocketPlatform(self, use_ui, authenticate_users)
         self._platforms.append(websocket_platform)
         return websocket_platform
 
@@ -605,6 +627,16 @@ class Agent:
         gitlab_platform = GitLabPlatform(self)
         self._platforms.append(gitlab_platform)
         return gitlab_platform
+    
+    def use_a2a_platform(self) -> A2APlatform:
+        """Use the :class: `~besser.agent.platforms.a2a.a2a_platform.A2APlatform` on this agent.
+
+        Returns:
+            A2APlatform: the A2A platform
+        """
+        a2a_platform = A2APlatform(self)
+        self._platforms.append(a2a_platform)
+        return a2a_platform
 
     def _monitoring_db_insert_session(self, session: Session) -> None:
         """Insert a session record into the monitoring database.
@@ -654,10 +686,10 @@ class Agent:
             self,
             session: Session
     ) -> None:
-        """Store the chat history of a session in the monitoring database.
+        """Store the session variables (private data dictionary) in the monitoring database.
 
         Args:
-            session (Session): The session to store the history for.
+            session (Session): The session to store the variables for.
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.store_session_variables(session)
@@ -666,10 +698,10 @@ class Agent:
             self,
             session: Session
     ) -> None:
-        """Load the chat history of a session from the monitoring database.
+        """Load the session variables (private data dictionary) from the monitoring database.
 
         Args:
-            session (Session): The session to load the history for.
+            session (Session): The session to load the variables for.
         """
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.load_session_variables(session)

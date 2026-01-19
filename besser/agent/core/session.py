@@ -5,6 +5,7 @@ import time
 from asyncio import TimerHandle
 from collections import deque
 from typing import Any, TYPE_CHECKING
+from datetime import datetime
 
 from pandas import DataFrame
 from websocket import WebSocketApp
@@ -142,7 +143,7 @@ class Session:
         self._event_loop = None
         self._event_thread = None
 
-    def get_chat_history(self, n: int = None) -> list[Message]:
+    def get_chat_history(self, n: int = None, until_timestamp: datetime = None) -> list[Message]:
         """Get the history of messages between this session and its agent.
 
         Args:
@@ -154,7 +155,7 @@ class Session:
         """
         chat_history: list[Message] = []
         if self._agent.get_property(DB_MONITORING) and self._agent._monitoring_db.connected:
-            chat_df: DataFrame = self._agent._monitoring_db.select_chat(self, n=n)
+            chat_df: DataFrame = self._agent._monitoring_db.select_chat(self, n=n, until_timestamp=until_timestamp)
             for i, row in chat_df.iterrows():
                 t = get_message_type(row['type'])
                 chat_history.append(Message(t=t, content=row['content'], is_user=row['is_user'], timestamp=row['timestamp']))
@@ -178,7 +179,10 @@ class Session:
             value (Any): the entry value
         """
         self._dictionary[key] = value
-        self._agent._monitoring_db_store_session_variables(self)
+        try:
+            self._agent._monitoring_db_store_session_variables(self)
+        except Exception as e:
+            logger.error(f"Failed to store session variables to the database for session {self.id}: {e}", exc_info=True)
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get an entry of the session private data storage.
@@ -205,8 +209,8 @@ class Session:
         try:
             del self._dictionary[key]
         except Exception as e:
+            logger.error(f"Failed to delete key '{key}' from session {self.id}: {e}", exc_info=True)
             return None
-        
     def get_dictionary(self) -> dict[str, Any]:
         """
         Returns the private data dictionary for this session.

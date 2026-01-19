@@ -15,6 +15,10 @@ class PayloadAction(Enum):
     USER_FILE = 'user_file'
     """PayloadAction: Indicates that the payload's purpose is to send a user file."""
 
+    USER_SET_VARIABLE = 'user_set_variable'
+    """PayloadAction: Indicates that the user intends to set a session variable. The payload must include a dictionary containing the variable name and its value, sent as a Payload message.
+    """
+
     RESET = 'reset'
     """PayloadAction: Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this
     agent.
@@ -92,18 +96,16 @@ class Payload:
         payload_dict = json.loads(payload_str)
         payload_action = payload_dict['action']
         payload_message = payload_dict['message']
-        user_id = payload_dict.get('user_id')
         history = payload_dict.get('history', False)
 
         for action in PayloadAction:
             if action.value == payload_action:
-                return Payload(action, payload_message, user_id=user_id, history=history)
+                return Payload(action, payload_message, history=history)
         return None
 
-    def __init__(self, action: PayloadAction, message: str or dict = None, user_id: str = None, history: bool = False):
+    def __init__(self, action: PayloadAction, message: str or dict = None, history: bool = False):
         self.action: str = action.value
         self.message: str or dict = message
-        self.user_id: str = user_id
         self.history: bool = history
 
 
@@ -131,7 +133,6 @@ class PayloadEncoder(json.JSONEncoder):
             payload_dict = {
                 'action': obj.action,
                 'message': obj.message,
-                'user_id': getattr(obj, 'user_id', None),
                 'history': getattr(obj, 'history', None),
             }
             return payload_dict
