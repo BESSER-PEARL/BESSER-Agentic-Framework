@@ -144,17 +144,7 @@ def load_chat():
     websocket_ready = st.session_state.get(WEBSOCKET_READY, False)
 
     ws = None
-    if websocket_ready:
-        ws = ensure_websocket_connection()
-        if ws:
-            try:
-                _send_user_profile_if_needed(ws)
-            except WebSocketConnectionClosedException:
-                reconnect_websocket()
-                st.session_state["sent_user_profile"] = False
-                st.warning("Connection dropped while sending profile. Reconnecting…")
-            except Exception as exc:
-                st.warning(f"Unable to send selected profile to the agent: {exc}")
+
 
     if username and not fetched_history:
         if not websocket_ready:
@@ -190,3 +180,14 @@ def load_chat():
         st.session_state[HISTORY].append(message)
         write_message(message, key_count, stream=True)
         key_count += 1
+    if websocket_ready:
+        ws = ensure_websocket_connection()
+        if ws:
+            try:
+                _send_user_profile_if_needed(ws)
+            except WebSocketConnectionClosedException:
+                reconnect_websocket()
+                st.session_state["sent_user_profile"] = False
+                st.warning("Connection dropped while sending profile. Reconnecting…")
+            except Exception as exc:
+                st.warning(f"Unable to send selected profile to the agent: {exc}")
