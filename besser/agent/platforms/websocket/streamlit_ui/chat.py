@@ -123,16 +123,45 @@ def write_message(message: Message, key_count: int, stream: bool = False):
             write_or_stream(message.content, stream=(stream and isinstance(message.content, str)))
 
 
+def _send_user_profile_if_needed(ws) -> None:
+    """Send the selected user profile name to the agent once per Streamlit session."""
+    profile_name = st.session_state.get("user_profile")
+    if not profile_name or st.session_state.get("sent_user_profile"):
+        return
+
+    payload = Payload(
+        action=PayloadAction.USER_SET_VARIABLE,
+        message={"user_profile": profile_name},
+    )
+
+    ws.send(json.dumps(payload, cls=PayloadEncoder))
+    st.session_state["sent_user_profile"] = True
+
+
 def load_chat():
     username = st.session_state.get("username")
     fetched_history = st.session_state.get("fetched_user_messages", False)
     websocket_ready = st.session_state.get(WEBSOCKET_READY, False)
 
+    ws = None
+    if websocket_ready:
+        ws = ensure_websocket_connection()
+        if ws:
+            try:
+                _send_user_profile_if_needed(ws)
+            except WebSocketConnectionClosedException:
+                reconnect_websocket()
+                st.session_state["sent_user_profile"] = False
+                st.warning("Connection dropped while sending profile. Reconnecting…")
+            except Exception as exc:
+                st.warning(f"Unable to send selected profile to the agent: {exc}")
+
     if username and not fetched_history:
         if not websocket_ready:
             st.info("Connecting to the chat server… your previous messages will appear shortly.")
         else:
-            ws = ensure_websocket_connection()
+            if not ws:
+                ws = ensure_websocket_connection()
             if not ws:
                 st.warning("WebSocket connection unavailable. Retrying…")
             else:

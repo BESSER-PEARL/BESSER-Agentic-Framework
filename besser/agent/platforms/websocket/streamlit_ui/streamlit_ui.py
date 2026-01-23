@@ -10,7 +10,7 @@ from besser.agent.platforms.websocket.streamlit_ui.initialization import initial
 from besser.agent.platforms.websocket.streamlit_ui.message_input import message_input
 from besser.agent.platforms.websocket.streamlit_ui.sidebar import sidebar
 from besser.agent.platforms.websocket.streamlit_ui.login import login_page
-from besser.agent.platforms.websocket.streamlit_ui.user_profile import user_profile
+from besser.agent.platforms.websocket.streamlit_ui.profile_selector import profile_selector, profiles_available
 
 
 def main():
@@ -43,28 +43,34 @@ def main():
     # Control whether to display the initial choice buttons
     st.session_state.setdefault("show_choices", True)
 
+    current_profile = st.session_state.get("user_profile")
+    if current_profile:
+        st.info(f"Selected profile: {current_profile}")
+
     if st.session_state["page"] is None and st.session_state.get("show_choices", True):
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("Edit Your User Profile"):
+            if profiles_available() and st.button("Choose Your User Profile"):
                 st.session_state["page"] = "user_profile"
                 st.session_state["show_choices"] = False
-                # Force an immediate rerun so the choice buttons disappear
                 st.rerun()
 
         with col2:
             if st.button("Chat with Agent"):
                 st.session_state["page"] = "chat"
                 st.session_state["show_choices"] = False
-                # Force an immediate rerun so the choice buttons disappear
                 st.rerun()
 
     if st.session_state["page"] == "user_profile":
-        if user_profile():  # Assuming user_profile returns True when changes are saved
+        if not profiles_available():
+            # Profiles unavailable; return to main menu
             st.session_state["page"] = None
             st.session_state["show_choices"] = True
-            # Rerun to update UI (show the choice buttons again)
+            st.rerun()
+        if profile_selector():
+            st.session_state["page"] = None
+            st.session_state["show_choices"] = True
             st.rerun()
     elif st.session_state["page"] == "chat":
         try:

@@ -1,4 +1,5 @@
 import asyncio
+import json
 import operator
 import threading
 from configparser import ConfigParser
@@ -64,7 +65,7 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str, persist_sessions: bool = False):
+    def __init__(self, name: str, persist_sessions: bool = False, user_profiles_path: str | None = None):
         self._name: str = name
         self._persist_sessions: bool = persist_sessions
         self._platforms: list[Platform] = []
@@ -81,6 +82,10 @@ class Agent:
         self.global_initial_states: list[tuple[State, Intent]] = []
         self.global_state_component: dict[State, list[State]] = dict()
         self.processors: list[Processor] = []
+        self._user_profiles: Any = None
+
+        if user_profiles_path:
+            self.load_user_profiles(user_profiles_path)
 
     @property
     def name(self):
@@ -143,6 +148,27 @@ class Agent:
         if prop.section not in self._config.sections():
             self._config.add_section(prop.section)
         self._config.set(prop.section, prop.name, str(value))
+
+    @property
+    def user_profiles(self) -> Any:
+        """Return loaded user profiles data, or None if not set."""
+        return self._user_profiles
+
+    def load_user_profiles(self, path: str) -> None:
+        """Load user profiles from a JSON file and store both data and path."""
+        try:
+            with open(path, encoding='utf-8') as profiles_file:
+                self._user_profiles = json.load(profiles_file)
+        except FileNotFoundError:
+            logger.error("User profiles file not found at %s", path)
+            self._user_profiles = None
+        except json.JSONDecodeError:
+            logger.error("Failed to parse user profiles JSON at %s", path)
+            self._user_profiles = None
+
+    def set_user_profiles(self, profiles: Any) -> None:
+        """Set user profiles programmatically."""
+        self._user_profiles = profiles
 
     def set_default_ic_config(self, ic_config: IntentClassifierConfiguration):
         """Set the default intent classifier configuration.

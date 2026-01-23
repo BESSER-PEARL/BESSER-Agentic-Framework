@@ -252,6 +252,13 @@ class WebSocketPlatform(Platform):
                     os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
                     os.environ["STREAMLIT_DB"] = str(db_streamlit) if db_streamlit else "False"
 
+                # Pass user profiles to Streamlit via environment, if available and serializable
+                if self._agent.user_profiles is not None:
+                    try:
+                        os.environ["STREAMLIT_USER_PROFILES_JSON"] = json.dumps(self._agent.user_profiles)
+                    except (TypeError, ValueError):
+                        logger.warning("Failed to serialize user profiles for Streamlit UI; continuing without them.")
+
                 subprocess.run([
                     "streamlit", "run",
                     "--server.address", self._agent.get_property(websocket.STREAMLIT_HOST),

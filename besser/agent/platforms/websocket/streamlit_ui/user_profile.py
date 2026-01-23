@@ -164,7 +164,7 @@ def user_profile():
     # Load the top-level user schema early so prefill logic can reference it
     user_schema = json_schema["definitions"]["User"]["allOf"][0]
 
-    # Try to load existing profile for the current user (DB first, then local JSON)
+    # Try to load existing profile for the current user (DB first, then env, then local JSON)
     username = st.session_state.get("username", "Guest")
     stored_profile = None
     try:
@@ -172,6 +172,29 @@ def user_profile():
         stored_profile = db.get_profile(username)
     except Exception:
         stored_profile = None
+
+    if stored_profile is None:
+        env_raw = os.environ.get("STREAMLIT_USER_PROFILES_JSON")
+        if env_raw:
+            try:
+                env_data = json.loads(env_raw)
+                candidate = None
+                if isinstance(env_data, list):
+                    candidate = next((p for p in env_data if isinstance(p, dict) and p.get("name") == username), None)
+                    if candidate is None and env_data:
+                        candidate = env_data[0]
+                elif isinstance(env_data, dict):
+                    candidate = env_data.get(username) or (next(iter(env_data.values())) if env_data else None)
+
+                if isinstance(candidate, dict):
+                    if "user_profile" in candidate:
+                        stored_profile = candidate["user_profile"]
+                    elif "User" in candidate:
+                        stored_profile = candidate["User"]
+                    else:
+                        stored_profile = candidate
+            except Exception:
+                stored_profile = None
 
     if stored_profile is None:
         profiles_path = os.path.join(os.path.dirname(__file__), "user_profiles.json")

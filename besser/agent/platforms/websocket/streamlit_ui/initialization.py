@@ -145,3 +145,6 @@ def initialize():
         add_script_run_ctx(session_monitoring_thread)
         session_monitoring_thread.start()
         st.session_state[SESSION_MONITORING] = session_monitoring_thread
+
+    # Track whether we've already sent the user profile name to the agent for this session
+    st.session_state.setdefault("sent_user_profile", False)
