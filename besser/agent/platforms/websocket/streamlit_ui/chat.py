@@ -9,6 +9,7 @@ from websocket import WebSocketConnectionClosedException
 from besser.agent.core.file import File
 from besser.agent.core.message import Message, MessageType
 from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncoder
+from besser.agent.platforms.websocket.streamlit_ui.audio_queue import enqueue_audio_playback
 from besser.agent.platforms.websocket.streamlit_ui.initialization import (
     ensure_websocket_connection,
     reconnect_websocket,
@@ -20,6 +21,7 @@ from besser.agent.platforms.websocket.streamlit_ui.vars import (
     ASSISTANT,
     USER,
     WEBSOCKET_READY,
+    PLAYED_AUDIO_IDS,
 )
 
 user_type = {
@@ -51,7 +53,12 @@ def write_message(message: Message, key_count: int, stream: bool = False):
             if isinstance(message.content, dict):
                 audio = message.content['audio']
                 sample_rate = message.content['sampling_rate']
-                st.audio(audio, format="audio/mpeg", sample_rate=sample_rate, loop=False, autoplay=True)
+                playback_registry = st.session_state.setdefault(PLAYED_AUDIO_IDS, set())
+                message_id = getattr(message, 'id', None) or f"{message.timestamp.isoformat()}_{key_count}"
+                if message_id not in playback_registry:
+                    enqueue_audio_playback(audio, sample_rate)
+                    playback_registry.add(message_id)
+                st.audio(audio, format="audio/mpeg", sample_rate=sample_rate, loop=False)
             else:
                 st.audio(message.content, format="audio/wav")
 

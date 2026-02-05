@@ -12,6 +12,7 @@ WEBSOCKET = 'websocket'
 WS_HOST = 'ws_host'
 WS_PORT = 'ws_port'
 WEBSOCKET_READY = 'websocket_ready'
+PLAYED_AUDIO_IDS = 'played_audio_ids'
 
 # Time interval to check if a streamlit session is still active, in seconds
 SESSION_MONITORING_INTERVAL = 1

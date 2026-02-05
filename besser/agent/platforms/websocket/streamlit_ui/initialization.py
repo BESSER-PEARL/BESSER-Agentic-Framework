@@ -19,6 +19,7 @@ from besser.agent.platforms.websocket.streamlit_ui.vars import (
     WS_HOST,
     WS_PORT,
     WEBSOCKET_READY,
+    PLAYED_AUDIO_IDS,
 )
 from besser.agent.platforms.websocket.streamlit_ui.websocket_callbacks import (
     on_open,
@@ -136,6 +137,9 @@ def initialize():
         host, port = _resolve_host_port()
         st.session_state[WS_HOST] = host
         st.session_state[WS_PORT] = port
+
+    if PLAYED_AUDIO_IDS not in st.session_state:
+        st.session_state[PLAYED_AUDIO_IDS] = set()
 
     if WEBSOCKET not in st.session_state:
         ensure_websocket_connection()
