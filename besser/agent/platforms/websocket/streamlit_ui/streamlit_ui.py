@@ -6,6 +6,7 @@ import streamlit as st
 from streamlit.web import cli as stcli
 
 from besser.agent.platforms.websocket.streamlit_ui.chat import load_chat
+from besser.agent.platforms.websocket.streamlit_ui.chat_interface_style import apply_chat_interface_style
 from besser.agent.platforms.websocket.streamlit_ui.initialization import initialize
 from besser.agent.platforms.websocket.streamlit_ui.message_input import message_input
 from besser.agent.platforms.websocket.streamlit_ui.sidebar import sidebar
@@ -36,7 +37,7 @@ def main():
         agent_name = 'Agent Demo'
 
 
-    st.title("Welcome to the Agent Platform")
+    st.title("Welcome to the Agent Platforsm")
 
     if "page" not in st.session_state:
         st.session_state["page"] = None
@@ -47,11 +48,18 @@ def main():
     if current_profile:
         st.info(f"Selected profile: {current_profile}")
 
+    has_profiles = profiles_available()
+
     if st.session_state["page"] is None and st.session_state.get("show_choices", True):
+        if not has_profiles:
+            st.session_state["page"] = "chat"
+            st.session_state["show_choices"] = False
+            st.rerun()
+
         col1, col2 = st.columns(2)
 
         with col1:
-            if profiles_available() and st.button("Choose Your User Profile"):
+            if has_profiles and st.button("Choose Your User Profile"):
                 st.session_state["page"] = "user_profile"
                 st.session_state["show_choices"] = False
                 st.rerun()
@@ -84,6 +92,7 @@ def main():
         st.markdown("[Github](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework)")
 
         initialize()
+        apply_chat_interface_style()
         sidebar()
         load_chat()
         message_input()
