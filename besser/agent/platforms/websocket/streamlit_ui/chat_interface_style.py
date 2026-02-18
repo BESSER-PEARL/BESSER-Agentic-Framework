@@ -31,16 +31,6 @@ _FONT_MAP = {
 }
 
 
-def _debug_enabled() -> bool:
-    raw = str(os.environ.get("STREAMLIT_CHAT_STYLE_DEBUG", "1")).strip().lower()
-    return raw in {"1", "true", "yes", "on"}
-
-
-def _debug_log(message: str) -> None:
-    if not _debug_enabled():
-        return
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    print(f"[chat-interface-style {timestamp}] {message}")
 
 
 def _load_default_style_from_env() -> dict:
@@ -52,7 +42,6 @@ def _load_default_style_from_env() -> dict:
     try:
         parsed = json.loads(raw_default_style)
     except Exception:
-        _debug_log("failed to parse STREAMLIT_CHAT_INTERFACE_DEFAULT_STYLE_JSON; using built-in defaults")
         return default_style
 
     if not isinstance(parsed, dict):
@@ -90,27 +79,22 @@ def load_interface_styles() -> dict[str, dict]:
     if not raw_configurations:
         raw_styles = os.environ.get("STREAMLIT_CHAT_INTERFACE_STYLES_JSON")
         if not raw_styles:
-            _debug_log("no agent configurations/style payload found in env")
             return {}
 
         try:
             style_data = json.loads(raw_styles)
         except Exception:
-            _debug_log("failed to parse STREAMLIT_CHAT_INTERFACE_STYLES_JSON")
             return {}
 
         extracted = _extract_styles_from_mapping(style_data)
-        _debug_log(f"loaded style keys from STREAMLIT_CHAT_INTERFACE_STYLES_JSON: {list(extracted.keys())}")
         return extracted
 
     try:
         config_data = json.loads(raw_configurations)
     except Exception:
-        _debug_log("failed to parse STREAMLIT_AGENT_CONFIGURATIONS_JSON")
         return {}
 
     extracted = _extract_styles_from_mapping(config_data)
-    _debug_log(f"loaded style keys from STREAMLIT_AGENT_CONFIGURATIONS_JSON: {list(extracted.keys())}")
     return extracted
 
 
@@ -157,16 +141,12 @@ def _resolve_style_for_profile() -> dict | None:
     default_style = _load_default_style_from_env()
     styles = st.session_state.get(CHAT_INTERFACE_STYLES, {})
     if not isinstance(styles, dict) or not styles:
-        _debug_log("resolve: no profile styles found in session_state; using config default style")
         return default_style
 
     profile_name = st.session_state.get("user_profile")
-    _debug_log(f"resolve: user_profile={profile_name!r}; available_style_keys={list(styles.keys())}")
     if isinstance(profile_name, str) and profile_name in styles and isinstance(styles[profile_name], dict):
-        _debug_log(f"resolve: exact profile match found for {profile_name!r}")
         return styles[profile_name]
 
-    _debug_log("resolve: no profile-specific style matched; using config default style")
     return default_style
 
 
@@ -200,21 +180,14 @@ def _normalize_style(style: dict) -> dict:
 
 
 def apply_chat_interface_style() -> None:
-    _debug_log("apply_chat_interface_style called")
     configured_style = _resolve_style_for_profile()
     if not configured_style:
-        _debug_log("apply: no configured style resolved; skipping CSS injection")
         st.session_state[CHAT_INTERFACE_STYLE_SIGNATURE] = ""
         return
 
     normalized = _normalize_style(configured_style)
-    _debug_log(f"apply: normalized style -> {normalized}")
     signature = json.dumps(normalized, sort_keys=True)
-    previous_signature = st.session_state.get(CHAT_INTERFACE_STYLE_SIGNATURE)
-    if previous_signature == signature:
-        _debug_log("apply: style signature unchanged; re-injecting CSS for Streamlit rerun")
     st.session_state[CHAT_INTERFACE_STYLE_SIGNATURE] = signature
-    _debug_log("apply: injecting chat CSS")
 
     st.markdown(
         f"""
