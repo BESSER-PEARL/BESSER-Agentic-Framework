@@ -37,7 +37,7 @@ def main():
         agent_name = 'Agent Demo'
 
 
-    st.title("Welcome to the Agent Platforsm")
+    st.title("Welcome to the Agent Platform")
 
     if "page" not in st.session_state:
         st.session_state["page"] = None
