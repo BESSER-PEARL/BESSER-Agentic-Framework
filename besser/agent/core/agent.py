@@ -608,7 +608,6 @@ class Agent:
         """
         # Prefer using the monitoring DB if available to retrieve stored session variables
         profile = None
-        print("fetibfbf")
         try:
             if self._monitoring_db and self._monitoring_db.connected:
                 # Use new MonitoringDB helper to get the stored profile (if present)
@@ -616,8 +615,7 @@ class Agent:
                     profile = self._monitoring_db.get_user_profile(session)
                 except Exception as e:
                     # Fall back to loading full session variables and extracting 'profile'
-                    print("failed to get user profile from monitoring db")
-                    print(e)
+                    logger.debug("failed to get user profile from monitoring db")
                     pass
         except Exception:
             # If monitoring DB isn't configured, nothing to load here
@@ -628,7 +626,6 @@ class Agent:
 
         # set the whole profile under a top-level key
         session.set("profile", profile)
-        print("loaded profile:", profile)
         # set session variables using the original JSON keys (no dot concatenation)
         # keep the entire profile under 'profile' and also expose each key present in the profile
         
