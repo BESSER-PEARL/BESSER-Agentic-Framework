@@ -576,7 +576,6 @@ class Agent:
         session = self._get_session(session_id)
         if session is None:
             session = self._new_session(session_id, platform)
-            # Attempt to load a user profile for this session (if a user DB is available)
         return session
 
     def close_session(self, session_id: str) -> None:
