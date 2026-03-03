@@ -98,7 +98,7 @@ def load_interface_styles() -> dict[str, dict]:
     return extracted
 
 
-def _safe_int(value, default: int, min_value: int, max_value: int) -> int:
+def _save_int(value, default: int, min_value: int, max_value: int) -> int:
     try:
         numeric = int(value)
     except (TypeError, ValueError):
@@ -106,7 +106,7 @@ def _safe_int(value, default: int, min_value: int, max_value: int) -> int:
     return min(max(numeric, min_value), max_value)
 
 
-def _safe_float(value, default: float, min_value: float, max_value: float) -> float:
+def _save_float(value, default: float, min_value: float, max_value: float) -> float:
     try:
         numeric = float(value)
     except (TypeError, ValueError):
@@ -114,7 +114,7 @@ def _safe_float(value, default: float, min_value: float, max_value: float) -> fl
     return min(max(numeric, min_value), max_value)
 
 
-def _safe_color(value, fallback_color: str) -> str:
+def _save_color(value, fallback_color: str) -> str:
     if not isinstance(value, str):
         return fallback_color
 
@@ -154,8 +154,8 @@ def _normalize_style(style: dict) -> dict:
     defaults = _load_default_style_from_env()
     normalized = dict(defaults)
 
-    size = _safe_int(style.get("size"), defaults["size"], 10, 32)
-    line_spacing = _safe_float(style.get("lineSpacing"), defaults["lineSpacing"], 1.0, 3.0)
+    size = _save_int(style.get("size"), defaults["size"], 10, 32)
+    line_spacing = _save_float(style.get("lineSpacing"), defaults["lineSpacing"], 1.0, 3.0)
 
     font_key = style.get("font") if isinstance(style.get("font"), str) else defaults["font"]
     font_key = font_key if font_key in _FONT_MAP else defaults["font"]
@@ -171,7 +171,7 @@ def _normalize_style(style: dict) -> dict:
     normalized["font"] = font_key
     normalized["fontFamily"] = _FONT_MAP[font_key]
     normalized["alignment"] = alignment
-    normalized["color"] = _safe_color(style.get("color"), defaults["color"])
+    normalized["color"] = _save_color(style.get("color"), defaults["color"])
     normalized["contrast"] = contrast
     normalized["fontWeight"] = 600 if contrast == "high" else 400
     normalized["opacity"] = 0.85 if contrast == "low" else 1.0
@@ -204,5 +204,5 @@ div[data-testid="stChatInput"] textarea {{
 }}
 </style>
 """,
-        unsafe_allow_html=True,
+        unsave_allow_html=True,
     )
