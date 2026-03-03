@@ -165,7 +165,7 @@ class Agent:
         return self._user_profiles
 
     def load_user_profiles(self, path: str) -> None:
-        """Load user profiles from a JSON file and store both data and path."""
+        """Load user profiles from a JSON file and store data."""
         try:
             with open(path, encoding='utf-8') as profiles_file:
                 self._user_profiles = json.load(profiles_file)
