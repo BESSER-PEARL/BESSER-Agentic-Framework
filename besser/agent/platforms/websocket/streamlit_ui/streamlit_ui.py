@@ -90,7 +90,7 @@ def main():
             agent_name = 'Agent Demo'
 
         st.header(agent_name)
-        st.markdown("[Github](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework)")
+        st.markdown("[GitHub](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework)")
 
         initialize()
         apply_chat_interface_style()
