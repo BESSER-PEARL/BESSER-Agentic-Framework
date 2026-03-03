@@ -4,6 +4,7 @@ import os
 
 import streamlit as st
 from streamlit.web import cli as stcli
+from streamlit.runtime import Runtime
 
 from besser.agent.platforms.websocket.streamlit_ui.chat import load_chat
 from besser.agent.platforms.websocket.streamlit_ui.chat_interface_style import apply_chat_interface_style
