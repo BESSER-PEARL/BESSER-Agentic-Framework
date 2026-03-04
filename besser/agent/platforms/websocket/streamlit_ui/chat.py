@@ -9,6 +9,7 @@ from websocket import WebSocketConnectionClosedException
 from besser.agent.core.file import File
 from besser.agent.core.message import Message, MessageType
 from besser.agent.platforms.payload import Payload, PayloadAction, PayloadEncoder
+from besser.agent.platforms.websocket.streamlit_ui.audio_queue import enqueue_audio_playback
 from besser.agent.platforms.websocket.streamlit_ui.initialization import (
     ensure_websocket_connection,
     reconnect_websocket,
@@ -20,6 +21,7 @@ from besser.agent.platforms.websocket.streamlit_ui.vars import (
     ASSISTANT,
     USER,
     WEBSOCKET_READY,
+    PLAYED_AUDIO_IDS,
 )
 
 user_type = {
@@ -51,7 +53,12 @@ def write_message(message: Message, key_count: int, stream: bool = False):
             if isinstance(message.content, dict):
                 audio = message.content['audio']
                 sample_rate = message.content['sampling_rate']
-                st.audio(audio, format="audio/mpeg", sample_rate=sample_rate, loop=False, autoplay=True)
+                playback_registry = st.session_state.setdefault(PLAYED_AUDIO_IDS, set())
+                message_id = getattr(message, 'id', None) or f"{message.timestamp.isoformat()}_{key_count}"
+                if message_id not in playback_registry:
+                    enqueue_audio_playback(audio, sample_rate)
+                    playback_registry.add(message_id)
+                st.audio(audio, format="audio/mpeg", sample_rate=sample_rate, loop=False)
             else:
                 st.audio(message.content, format="audio/wav")
 
@@ -73,7 +80,6 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                 payload = Payload(
                     action=PayloadAction.USER_MESSAGE,
                     message=option,
-                    user_id=st.session_state.get("username", "Guest"),
                 )
                 ws = ensure_websocket_connection()
                 if not ws:
@@ -124,23 +130,41 @@ def write_message(message: Message, key_count: int, stream: bool = False):
             write_or_stream(message.content, stream=(stream and isinstance(message.content, str)))
 
 
+def _send_user_profile_if_needed(ws) -> None:
+    """Send the selected user profile name to the agent once per Streamlit session."""
+    profile_name = st.session_state.get("user_profile")
+    if not profile_name or st.session_state.get("sent_user_profile"):
+        return
+
+    payload = Payload(
+        action=PayloadAction.USER_SET_VARIABLE,
+        message={"user_profile": profile_name},
+    )
+
+    ws.send(json.dumps(payload, cls=PayloadEncoder))
+    st.session_state["sent_user_profile"] = True
+
+
 def load_chat():
     username = st.session_state.get("username")
     fetched_history = st.session_state.get("fetched_user_messages", False)
     websocket_ready = st.session_state.get(WEBSOCKET_READY, False)
 
+    ws = None
+
+
     if username and not fetched_history:
         if not websocket_ready:
             st.info("Connecting to the chat server… your previous messages will appear shortly.")
         else:
-            ws = ensure_websocket_connection()
+            if not ws:
+                ws = ensure_websocket_connection()
             if not ws:
                 st.warning("WebSocket connection unavailable. Retrying…")
             else:
                 payload = Payload(
                     action=PayloadAction.FETCH_USER_MESSAGES,
                     message=None,
-                    user_id=username,
                 )
                 try:
                     ws.send(json.dumps(payload, cls=PayloadEncoder))
@@ -163,3 +187,14 @@ def load_chat():
         st.session_state[HISTORY].append(message)
         write_message(message, key_count, stream=True)
         key_count += 1
+    if websocket_ready:
+        ws = ensure_websocket_connection()
+        if ws:
+            try:
+                _send_user_profile_if_needed(ws)
+            except WebSocketConnectionClosedException:
+                reconnect_websocket()
+                st.session_state["sent_user_profile"] = False
+                st.warning("Connection dropped while sending profile. Reconnecting…")
+            except Exception as exc:
+                st.warning(f"Unable to send selected profile to the agent: {exc}")

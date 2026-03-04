@@ -18,6 +18,8 @@ simple *How are you?* question. This workflow is repeated *ad infinitum*.
 
 You can also see the full agent code :doc:`here <examples/greetings_agent>`
 
+The following code should be saved in a Python file named `greetings_agent.py`.
+
 Import the dependencies
 -----------------------
 

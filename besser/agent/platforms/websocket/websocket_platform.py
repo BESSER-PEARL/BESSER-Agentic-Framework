@@ -6,6 +6,7 @@ import json
 import os
 import time
 from datetime import datetime
+from urllib.parse import parse_qs, urlsplit
 
 import numpy as np
 import subprocess
@@ -33,8 +34,32 @@ from besser.agent.platforms.websocket.streamlit_ui import (
     DB_STREAMLIT_DATABASE,
     DB_STREAMLIT_USERNAME,
     DB_STREAMLIT_PASSWORD,
-    DB_STREAMLIT
+    DB_STREAMLIT,
 )
+
+
+def _extract_user_id_from_request(request) -> str | None:
+    if not request:
+        return None
+    for attr in ("path", "raw_path", "uri"):
+        value = getattr(request, attr, None)
+        if not value:
+            continue
+        if isinstance(value, bytes):
+            # Prefer UTF-8 for URL paths; fall back to latin-1 to remain robust to non-UTF-8 bytes.
+            try:
+                value = value.decode("utf-8")
+            except UnicodeDecodeError:
+                value = value.decode("latin-1", errors="replace")
+        query = urlsplit(value).query
+        if not query:
+            continue
+        params = parse_qs(query)
+        user_values = params.get("user_id")
+        if user_values:
+            return user_values[0]
+    return None
+
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -55,6 +80,7 @@ try:
 except ImportError:
     logger.warning("librosa dependencies in WebSocketPlatform could not be imported. You can install them from "
                    "the requirements/requirements-extras.txt file")
+
 
 class WebSocketPlatform(Platform):
     """The WebSocket Platform allows an agent to communicate with the users using the
@@ -84,7 +110,12 @@ class WebSocketPlatform(Platform):
             (sessions) and incoming messages
     """
 
-    def __init__(self, agent: 'Agent', use_ui: bool = True, authenticate_users: bool = False):
+    def __init__(
+            self,
+            agent: 'Agent',
+            use_ui: bool = True,
+            authenticate_users: bool = False,
+    ):
         super().__init__()
         self._agent: 'Agent' = agent
         self._host: str = None
@@ -101,33 +132,34 @@ class WebSocketPlatform(Platform):
                 conn (ServerConnection): the user connection
             """
             session: Session = None
+            current_time = datetime.now()
+            request = getattr(conn, "request", None)
+            headers = getattr(request, "headers", {}) if request else {}
+            header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
+            query_user = _extract_user_id_from_request(request)
+            session_key = header_user or query_user or str(conn.id)
+            self._connections[str(session_key)] = conn
+            session = self._agent.get_or_create_session(session_key, self)
             try:
+
                 for payload_str in conn:
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-                    if session is None:
-                        if payload.user_id:
-                            session = self._agent.get_or_create_session(payload.user_id, self)
-                            self._connections[str(payload.user_id)] = conn
-                        else:
-                            session = self._agent.get_or_create_session(str(conn.id), self)
-                            self._connections[str(conn.id)] = conn
+
                     if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
-                            chat_history = session.get_chat_history()
+                            chat_history = session.get_chat_history(until_timestamp=current_time)
                             for message in chat_history:
                                 history_payload = None
                                 if message.is_user:
                                     history_payload = Payload(action=PayloadAction.USER_MESSAGE,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 else:
                                     history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                                                               message=message.content,
-                                                              user_id=session.id,
                                                               history=True
                                                               )
                                 self._send(session.id, history_payload)
@@ -228,6 +260,42 @@ class WebSocketPlatform(Platform):
                     os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
                     os.environ["STREAMLIT_DB"] = str(db_streamlit) if db_streamlit else "False"
 
+                # Pass user profiles to Streamlit via environment, if available and serializable
+                if self._agent.user_profiles is not None:
+                    try:
+                        os.environ["STREAMLIT_USER_PROFILES_JSON"] = json.dumps(self._agent.user_profiles)
+                    except (TypeError, ValueError):
+                        logger.warning("Failed to serialize user profiles for Streamlit UI; continuing without them.")
+
+                os.environ["STREAMLIT_AGENT_WORKDIR"] = os.getcwd()
+
+                default_chat_style = {
+                    "size": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_SIZE),
+                    "font": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_FONT),
+                    "lineSpacing": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_LINE_SPACING),
+                    "alignment": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_ALIGNMENT),
+                    "color": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_COLOR),
+                    "contrast": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_CONTRAST),
+                }
+                os.environ["STREAMLIT_CHAT_INTERFACE_DEFAULT_STYLE_JSON"] = json.dumps(default_chat_style)
+
+                try:
+                    raw_configurations = self._agent.agent_configurations
+
+                    if not raw_configurations:
+                        import __main__  # noqa: PLC0415
+                        main_configurations = getattr(__main__, "agent_configurations", None)
+                        if isinstance(main_configurations, dict) and main_configurations:
+                            raw_configurations = main_configurations
+                            self._agent.set_agent_configurations(main_configurations)
+
+                    if isinstance(raw_configurations, dict) and raw_configurations:
+                        os.environ["STREAMLIT_AGENT_CONFIGURATIONS_JSON"] = json.dumps(raw_configurations)
+                    else:
+                        os.environ.pop("STREAMLIT_AGENT_CONFIGURATIONS_JSON", None)
+                except Exception:
+                    logger.warning("Failed to serialize agent configurations for Streamlit UI; using defaults.")
+
                 subprocess.run([
                     "streamlit", "run",
                     "--server.address", self._agent.get_property(websocket.STREAMLIT_HOST),
@@ -271,7 +339,6 @@ class WebSocketPlatform(Platform):
         session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message,
-                          user_id=session.id
                           )
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)

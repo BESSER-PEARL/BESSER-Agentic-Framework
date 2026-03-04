@@ -1,4 +1,5 @@
 import asyncio
+import json
 import operator
 import threading
 from configparser import ConfigParser
@@ -64,7 +65,13 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str, persist_sessions: bool = False):
+    def __init__(
+            self,
+            name: str,
+            persist_sessions: bool = False,
+            user_profiles_path: str | None = None,
+            agent_configurations_path: str | None = None,
+    ):
         self._name: str = name
         self._persist_sessions: bool = persist_sessions
         self._platforms: list[Platform] = []
@@ -81,6 +88,14 @@ class Agent:
         self.global_initial_states: list[tuple[State, Intent]] = []
         self.global_state_component: dict[State, list[State]] = dict()
         self.processors: list[Processor] = []
+        self._user_profiles: Any = None
+        self._agent_configurations: dict[str, Any] = {}
+
+        if user_profiles_path:
+            self.load_user_profiles(user_profiles_path)
+
+        if agent_configurations_path:
+            self.load_agent_configurations(agent_configurations_path)
 
     @property
     def name(self):
@@ -143,6 +158,68 @@ class Agent:
         if prop.section not in self._config.sections():
             self._config.add_section(prop.section)
         self._config.set(prop.section, prop.name, str(value))
+
+    @property
+    def user_profiles(self) -> Any:
+        """Return loaded user profiles data, or None if not set."""
+        return self._user_profiles
+
+    def load_user_profiles(self, path: str) -> None:
+        """Load user profiles from a JSON file and store data."""
+        try:
+            with open(path, encoding='utf-8') as profiles_file:
+                self._user_profiles = json.load(profiles_file)
+        except FileNotFoundError:
+            logger.error("User profiles file not found at %s", path)
+            self._user_profiles = None
+        except json.JSONDecodeError:
+            logger.error("Failed to parse user profiles JSON at %s", path)
+            self._user_profiles = None
+
+    def set_user_profiles(self, profiles: Any) -> None:
+        """Set user profiles programmatically."""
+        self._user_profiles = profiles
+
+    @property
+    def agent_configurations(self) -> dict[str, Any]:
+        """Return loaded agent configurations mapped by profile/user key."""
+        return self._agent_configurations
+
+    def load_agent_configurations(self, path: str) -> None:
+        """Load agent configurations from a JSON file.
+
+        Expected format: a mapping where keys represent profile/user identifiers
+        and values are the corresponding agent configuration objects.
+        """
+        try:
+            with open(path, encoding='utf-8') as config_file:
+                data = json.load(config_file)
+
+            if isinstance(data, dict):
+                self._agent_configurations = data
+            else:
+                logger.error("Agent configurations JSON at %s must be an object mapping keys to configurations", path)
+                self._agent_configurations = {}
+        except FileNotFoundError:
+            logger.error("Agent configurations file not found at %s", path)
+            self._agent_configurations = {}
+        except json.JSONDecodeError:
+            logger.error("Failed to parse agent configurations JSON at %s", path)
+            self._agent_configurations = {}
+
+    def set_agent_configurations(self, configurations: dict[str, Any] | None) -> None:
+        """Set agent configurations programmatically.
+
+        Args:
+            configurations (dict[str, Any] | None): mapping of profile/user keys to config objects.
+        """
+        if configurations is None:
+            self._agent_configurations = {}
+            return
+
+        if not isinstance(configurations, dict):
+            raise TypeError("Agent configurations must be a dictionary mapping keys to configuration objects")
+        self._agent_configurations = configurations
 
     def set_default_ic_config(self, ic_config: IntentClassifierConfiguration):
         """Set the default intent classifier configuration.
@@ -526,7 +603,11 @@ class Agent:
         self._monitoring_db_delete_session(self._sessions[session_id])
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True, authenticate_users: bool = False) -> WebSocketPlatform:
+    def use_websocket_platform(
+            self,
+            use_ui: bool = True,
+            authenticate_users: bool = False,
+    ) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
@@ -536,7 +617,11 @@ class Agent:
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui, authenticate_users)
+        websocket_platform = WebSocketPlatform(
+            self,
+            use_ui,
+            authenticate_users,
+        )
         self._platforms.append(websocket_platform)
         return websocket_platform
 

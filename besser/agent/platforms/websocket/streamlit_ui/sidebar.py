@@ -8,6 +8,7 @@ import streamlit as st
 from besser.agent.core.file import File
 from besser.agent.core.message import MessageType, Message
 from besser.agent.platforms.payload import PayloadEncoder, PayloadAction, Payload
+from besser.agent.platforms.websocket.streamlit_ui.audio_queue import stop_audio_playback
 from besser.agent.platforms.websocket.streamlit_ui.vars import WEBSOCKET, HISTORY, QUEUE, SUBMIT_AUDIO, SUBMIT_FILE
 
 
@@ -59,3 +60,6 @@ def sidebar():
                 ws.send(json.dumps(payload, cls=PayloadEncoder))
             except Exception as e:
                 st.error('Your message could not be sent. The connection is already closed')
+
+        st.divider()
+        st.button('⏹ Stop audio playback', on_click=stop_audio_playback, use_container_width=True)

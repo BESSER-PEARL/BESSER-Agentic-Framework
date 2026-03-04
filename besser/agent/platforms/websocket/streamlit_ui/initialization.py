@@ -7,6 +7,7 @@ import websocket
 from streamlit.runtime.scriptrunner_utils.script_run_context import add_script_run_ctx
 
 from besser.agent.platforms.websocket.streamlit_ui.session_management import session_monitoring
+from besser.agent.platforms.websocket.streamlit_ui.chat_interface_style import load_interface_styles
 from besser.agent.platforms.websocket.streamlit_ui.vars import (
     SESSION_MONITORING_INTERVAL,
     SUBMIT_TEXT,
@@ -19,6 +20,8 @@ from besser.agent.platforms.websocket.streamlit_ui.vars import (
     WS_HOST,
     WS_PORT,
     WEBSOCKET_READY,
+    PLAYED_AUDIO_IDS,
+    CHAT_INTERFACE_STYLES,
 )
 from besser.agent.platforms.websocket.streamlit_ui.websocket_callbacks import (
     on_open,
@@ -42,15 +45,27 @@ def _resolve_host_port():
 
 def _start_websocket(host: str, port: str):
     try:
-        ws = websocket.WebSocketApp(
-            f"ws://{host}:{port}/",
-            on_open=on_open,
-            on_message=on_message,
-            on_error=on_error,
-            on_close=on_close,
-            on_ping=on_ping,
-            on_pong=on_pong,
-        )
+        if st.session_state.get("username"):
+            ws = websocket.WebSocketApp(
+                f"ws://{host}:{port}/",
+                header={"X-User-ID": st.session_state["username"]},
+                on_open=on_open,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_ping=on_ping,
+                on_pong=on_pong,
+            )
+        else:
+            ws = websocket.WebSocketApp(
+                f"ws://{host}:{port}/",
+                on_open=on_open,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_ping=on_ping,
+                on_pong=on_pong,
+            )
         websocket_thread = threading.Thread(target=ws.run_forever)
         add_script_run_ctx(websocket_thread)
         websocket_thread.start()
@@ -125,6 +140,15 @@ def initialize():
         st.session_state[WS_HOST] = host
         st.session_state[WS_PORT] = port
 
+    if PLAYED_AUDIO_IDS not in st.session_state:
+        st.session_state[PLAYED_AUDIO_IDS] = set()
+
+    if CHAT_INTERFACE_STYLES not in st.session_state:
+        try:
+            st.session_state[CHAT_INTERFACE_STYLES] = load_interface_styles()
+        except Exception:
+            st.session_state[CHAT_INTERFACE_STYLES] = {}
+
     if WEBSOCKET not in st.session_state:
         ensure_websocket_connection()
     if SESSION_MONITORING not in st.session_state:
@@ -133,3 +157,6 @@ def initialize():
         add_script_run_ctx(session_monitoring_thread)
         session_monitoring_thread.start()
         st.session_state[SESSION_MONITORING] = session_monitoring_thread
+
+    # Track whether we've already sent the user profile name to the agent for this session
+    st.session_state.setdefault("sent_user_profile", False)

@@ -57,3 +57,69 @@ type: ``int``
 
 default value: ``5000``
 """
+
+STREAMLIT_CHAT_DEFAULT_SIZE = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.size', int, 16)
+"""
+Default chat font size used by Streamlit chat UI when no profile-specific style is applied.
+
+name: ``streamlit.chat.default.size``
+
+type: ``int``
+
+default value: ``16``
+"""
+
+STREAMLIT_CHAT_DEFAULT_FONT = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.font', str, 'sans')
+"""
+Default chat font family key used by Streamlit chat UI.
+
+name: ``streamlit.chat.default.font``
+
+type: ``str``
+
+default value: ``sans``
+"""
+
+STREAMLIT_CHAT_DEFAULT_LINE_SPACING = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.line_spacing', float, 1.5)
+"""
+Default chat line spacing used by Streamlit chat UI.
+
+name: ``streamlit.chat.default.line_spacing``
+
+type: ``float``
+
+default value: ``1.5``
+"""
+
+STREAMLIT_CHAT_DEFAULT_ALIGNMENT = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.alignment', str, 'left')
+"""
+Default chat text alignment used by Streamlit chat UI.
+
+name: ``streamlit.chat.default.alignment``
+
+type: ``str``
+
+default value: ``left``
+"""
+
+STREAMLIT_CHAT_DEFAULT_COLOR = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.color', str, 'inherit')
+"""
+Default chat text color used by Streamlit chat UI.
+
+name: ``streamlit.chat.default.color``
+
+type: ``str``
+
+default value: ``inherit``
+"""
+
+STREAMLIT_CHAT_DEFAULT_CONTRAST = Property(SECTION_WEBSOCKET, 'streamlit.chat.default.contrast', str, 'medium')
+"""
+Default chat contrast level used by Streamlit chat UI.
+
+name: ``streamlit.chat.default.contrast``
+
+type: ``str``
+
+default value: ``medium``
+"""

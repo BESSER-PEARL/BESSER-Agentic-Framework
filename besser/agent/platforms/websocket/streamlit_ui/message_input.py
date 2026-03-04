@@ -23,12 +23,7 @@ def message_input():
             st.write(user_input)
         message = Message(t=MessageType.STR, content=user_input, is_user=True, timestamp=datetime.now())
         st.session_state.history.append(message)
-        if st.session_state.get("authenticated", False):
-            payload = Payload(action=PayloadAction.USER_MESSAGE,
-                            message=user_input, user_id=st.session_state.get("username"))
-        else:
-            payload = Payload(action=PayloadAction.USER_MESSAGE,
-                            message=user_input)
+        payload = Payload(action=PayloadAction.USER_MESSAGE, message=user_input)
         try:
             ws = st.session_state[WEBSOCKET]
             ws.send(json.dumps(payload, cls=PayloadEncoder))
