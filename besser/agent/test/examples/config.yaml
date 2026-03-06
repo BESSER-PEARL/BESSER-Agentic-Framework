@@ -58,3 +58,18 @@ db:
     database: YOUR-DB-NAME
     username: YOUR-DB-USERNAME
     password: YOUR-DB-PASSWORD
+  sql:
+    - db1:
+        dialect: postgresql
+        host: YOUR-DB-HOST
+        port: 5432
+        database: YOUR-DB-NAME
+        username: YOUR-DB-USERNAME
+        password: YOUR-DB-PASSWORD
+    - db2:
+        dialect: postgresql
+        host: YOUR-DB-HOST
+        port: 5432
+        database: YOUR-DB-NAME
+        username: YOUR-DB-USERNAME
+        password: YOUR-DB-PASSWORD

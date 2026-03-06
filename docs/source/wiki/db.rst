@@ -12,5 +12,6 @@ Table of contents
 .. toctree::
    :maxdepth: 1
 
+   db/db_handler
    db/monitoring_db
    db/monitoring_ui

@@ -19,6 +19,7 @@ from besser.agent.core.session import Session
 from besser.agent.core.state import State
 from besser.agent.core.transition.transition import Transition
 from besser.agent.db import DB_MONITORING
+from besser.agent.db.db_handler import DBHandler
 from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
     DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound
@@ -84,6 +85,7 @@ class Agent:
         self._sessions: dict[str, Session] = {}
         self._trained: bool = False
         self._monitoring_db: MonitoringDB = None
+        self._db_handler: DBHandler | None = None
         self.states: list[State] = []
         self.intents: list[Intent] = []
         self.entities: list[Entity] = []
@@ -481,6 +483,8 @@ class Agent:
         self._stop_platforms()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
+        if self._db_handler is not None:
+            self._db_handler.close_all()
 
         for session_id in list(self._sessions.keys()):
             self.close_session(session_id)
@@ -721,6 +725,18 @@ class Agent:
         a2a_platform = A2APlatform(self)
         self._platforms.append(a2a_platform)
         return a2a_platform
+
+    def use_db_handler(self) -> DBHandler:
+        """Use the :class:`~besser.agent.db.db_handler.DBHandler` on this agent.
+
+        DB connections are established lazily, when the first query is executed.
+
+        Returns:
+            DBHandler: the database handler
+        """
+        if self._db_handler is None:
+            self._db_handler = DBHandler(self)
+        return self._db_handler
 
     def _monitoring_db_insert_session(self, session: Session) -> None:
         """Insert a session record into the monitoring database.
