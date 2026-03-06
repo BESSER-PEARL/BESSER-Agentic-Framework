@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 # Create the agent
 agent = Agent('coder_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('../config.ini')
+agent.load_properties('../config.yaml')
 agent.set_property(WEBSOCKET_PORT, 8011)
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=False)

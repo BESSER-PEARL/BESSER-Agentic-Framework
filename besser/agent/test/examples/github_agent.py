@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 agent = Agent('stargazer_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 # Define the platform your agent will use
 github_platform = agent.use_github_platform()
 
