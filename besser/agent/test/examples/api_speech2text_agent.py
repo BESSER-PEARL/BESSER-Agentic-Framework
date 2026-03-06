@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 agent = Agent('Google Speech-to-Text Agent')
 
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 # set agent properties (or define them in the config file)
 
 # other models

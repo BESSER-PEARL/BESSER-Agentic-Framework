@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 
 agent = Agent('BESSER_stargazer_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 # Define the platform your agent will use
 github_platform = agent.use_github_platform()
 telegram_platform = agent.use_telegram_platform()

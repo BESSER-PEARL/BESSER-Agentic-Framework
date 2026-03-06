@@ -2,9 +2,11 @@ import asyncio
 import json
 import operator
 import threading
-from configparser import ConfigParser
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Callable, get_type_hints
+
+import yaml
 
 from besser.agent.core.transition.event import Event
 from besser.agent.core.message import Message, MessageType
@@ -49,7 +51,7 @@ class Agent:
         _event_loop (asyncio.AbstractEventLoop): The event loop managing external events
         _event_thread (threading.Thread): The thread where the event loop is run
         _nlp_engine (NLPEngine): The agent NLP engine
-        _config (ConfigParser): The agent configuration parameters
+        _config (dict[str, Any]): The agent configuration parameters
         _default_ic_config (IntentClassifierConfiguration): the intent classifier configuration used by default for the
             agent states
         _sessions (dict[str, Session]): The agent sessions
@@ -77,7 +79,7 @@ class Agent:
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
         self._nlp_engine = NLPEngine(self)
-        self._config: ConfigParser = ConfigParser()
+        self._config: dict[str, Any] = {}
         self._default_ic_config: IntentClassifierConfiguration = SimpleIntentClassifierConfiguration()
         self._sessions: dict[str, Session] = {}
         self._trained: bool = False
@@ -109,20 +111,72 @@ class Agent:
 
     @property
     def config(self):
-        """ConfigParser: The agent configuration parameters."""
+        """dict[str, Any]: The agent configuration parameters."""
         return self._config
 
     def load_properties(self, path: str) -> None:
         """Read a properties file and store its properties in the agent configuration.
 
-        An example properties file, `config.ini`:
+        Supported formats are YAML (``.yaml``, ``.yml``).
 
-        .. literalinclude:: ../../../../besser/agent/test/examples/config.ini
+        Example YAML properties file, ``config.yaml``:
+
+        .. literalinclude:: ../../../../besser/agent/test/examples/config.yaml
 
         Args:
             path (str): the path to the properties file
         """
-        self._config.read(path)
+        suffix = Path(path).suffix.lower()
+        if suffix not in {'.yaml', '.yml'}:
+            raise ValueError('Only YAML configuration files are supported (.yaml, .yml)')
+
+        with open(path, encoding='utf-8') as config_file:
+            loaded_config = yaml.safe_load(config_file) or {}
+        if not isinstance(loaded_config, dict):
+            raise ValueError('YAML properties file must contain a mapping at the root level')
+        self._flatten_yaml_properties(loaded_config)
+
+    def _flatten_yaml_properties(self, data: Any, prefix: str = '') -> None:
+        if isinstance(data, dict):
+            for key, value in data.items():
+                next_prefix = f'{prefix}.{key}' if prefix else str(key)
+                self._flatten_yaml_properties(value, next_prefix)
+            return
+
+        if isinstance(data, list):
+            for index, item in enumerate(data):
+                if isinstance(item, dict) and len(item) == 1:
+                    item_key, item_value = next(iter(item.items()))
+                    next_prefix = f'{prefix}.{item_key}' if prefix else str(item_key)
+                    self._flatten_yaml_properties(item_value, next_prefix)
+                else:
+                    next_prefix = f'{prefix}.{index}' if prefix else str(index)
+                    self._flatten_yaml_properties(item, next_prefix)
+            return
+
+        if prefix:
+            self._config[prefix] = data
+
+    @staticmethod
+    def _coerce_property_value(value: Any, target_type: type) -> Any:
+        if isinstance(value, target_type):
+            return value
+
+        if target_type is bool:
+            if isinstance(value, str):
+                normalized = value.strip().lower()
+                if normalized in {'true', '1', 'yes', 'y', 'on'}:
+                    return True
+                if normalized in {'false', '0', 'no', 'n', 'off'}:
+                    return False
+                raise ValueError(f'Cannot parse boolean value from {value!r}')
+            if isinstance(value, (int, float)):
+                return bool(value)
+
+        if target_type in {str, int, float}:
+            return target_type(value)
+
+        return value
 
     def get_property(self, prop: Property) -> Any:
         """Get an agent property's value
@@ -133,17 +187,22 @@ class Agent:
         Returns:
             Any: the property value, or None
         """
-        if prop.type == str:
-            getter = self._config.get
-        elif prop.type == bool:
-            getter = self._config.getboolean
-        elif prop.type == int:
-            getter = self._config.getint
-        elif prop.type == float:
-            getter = self._config.getfloat
-        else:
-            return None
-        return getter(prop.section, prop.name, fallback=prop.default_value)
+        value = self._config.get(prop.name)
+
+        if value is None:
+            return prop.default_value
+
+        try:
+            return self._coerce_property_value(value, prop.type)
+        except (TypeError, ValueError):
+            logger.warning(
+                "Could not cast property '%s' value %r to %s. Using default value %r",
+                prop.name,
+                value,
+                prop.type,
+                prop.default_value,
+            )
+            return prop.default_value
 
     def set_property(self, prop: Property, value: Any):
         """Set an agent property.
@@ -153,11 +212,9 @@ class Agent:
             value (Any): the property value
         """
         if (value is not None) and (not isinstance(value, prop.type)):
-            raise TypeError(f"Attempting to set the agent property '{prop.name}' in section '{prop.section}' with a "
+            raise TypeError(f"Attempting to set the agent property '{prop.name}' with a "
                             f"{type(value)} value: {value}. The expected property value type is {prop.type}")
-        if prop.section not in self._config.sections():
-            self._config.add_section(prop.section)
-        self._config.set(prop.section, prop.name, str(value))
+        self._config[prop.name] = value
 
     @property
     def user_profiles(self) -> Any:

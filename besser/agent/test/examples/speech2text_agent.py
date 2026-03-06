@@ -26,7 +26,7 @@ logger.setLevel(logging.INFO)
 agent = Agent('Huggingface Speech-to-Text Agent')
 
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 
 # example models
 # 'Lemswasabi/wav2vec2-large-xlsr-53-842h-luxembourgish-14h-with-lm'

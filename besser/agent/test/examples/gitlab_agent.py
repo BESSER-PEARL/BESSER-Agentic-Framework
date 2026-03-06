@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 
 agent = Agent('issue_thanking_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 # Define the platform your agent will use
 gitlab_platform = agent.use_gitlab_platform()
 

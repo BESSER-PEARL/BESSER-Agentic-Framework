@@ -204,5 +204,5 @@ div[data-testid="stChatInput"] textarea {{
 }}
 </style>
 """,
-        unsave_allow_html=True,
+        unsafe_allow_html=True,
     )
