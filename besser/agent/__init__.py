@@ -2,9 +2,7 @@
 
 from besser.agent.core.property import Property
 
-SECTION_AGENT = 'agent'
-
-CHECK_TRANSITIONS_DELAY = Property(SECTION_AGENT, 'agent.check_transitions.delay', float, 1.0)
+CHECK_TRANSITIONS_DELAY = Property('agent.check_transitions_delay', float, 1.0)
 """
 An agent evaluates periodically all the transitions from the current state to check if someone is satisfied.
 

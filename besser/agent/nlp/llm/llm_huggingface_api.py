@@ -90,7 +90,7 @@ class LLMHuggingFaceAPI(LLM):
         else:
             parameters = parameters.copy()
         parameters['return_full_text'] = False
-        headers = {"Authorization": f"Bearer {self._nlp_engine.get_property(nlp.HF_API_KEY)}"}
+        headers = {"Authorization": f"Bearer {self._nlp_engine.get_property(nlp.HF_TOKEN)}"}
         api_url = F"https://api-inference.huggingface.co/models/{self.name}"
         context_messages = ""
         if self._global_context:
