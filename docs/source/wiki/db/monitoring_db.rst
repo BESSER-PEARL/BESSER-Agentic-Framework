@@ -58,6 +58,7 @@ This table stores a record for each new session.
       - session_id
       - platform_name
       - timestamp
+      - variables
 
     * - 1
       - greetings_agent
@@ -71,12 +72,14 @@ This table stores a record for each new session.
       - 6642498531
       - TelegramPlatform
       - 2024-05-02 14:53:46
+      - {}
 
     * - 3
       - weather_agent
       - 6ff6cf75-d6ea-495b-a465-fe4856e1b5f9
       - WebSocketPlatform
       - 2024-05-02 14:53:50
+      - {}
 
 In this example, there are 3 different sessions recorded into the database, where the 2 first are from an agent called
 *greetings_agent* and the 3rd from a *weather_agent*. The platform of the session and the creation time (*timestamp* column)
