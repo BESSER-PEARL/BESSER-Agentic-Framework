@@ -72,6 +72,43 @@ You can also provide a natural language query and an LLM to translate it into SQ
         llm=gpt,
     )
 
+Operation-specific Queries
+--------------------------
+
+Besides ``query()``, the DB handler provides operation-specific methods:
+
+- ``select()``: only accepts ``SELECT`` SQL
+- ``insert()``: only accepts ``INSERT`` SQL
+- ``update()``: only accepts ``UPDATE`` SQL
+- ``delete()``: only accepts ``DELETE`` SQL
+
+If the SQL command does not match the called method, the query is not executed, an error is logged,
+and the method returns ``None``. This validation also applies when SQL is generated from natural
+language with an LLM.
+
+.. code:: python
+
+    # SELECT
+    rows = session.db_handler.select('db1', 'SELECT * FROM weather')
+
+    # INSERT
+    session.db_handler.insert(
+        'db1',
+        "INSERT INTO weather(city, temperature) VALUES ('Barcelona', 21)",
+    )
+
+    # UPDATE
+    session.db_handler.update(
+        'db1',
+        "UPDATE weather SET temperature=22 WHERE city='Barcelona'",
+    )
+
+    # DELETE
+    session.db_handler.delete(
+        'db1',
+        "DELETE FROM weather WHERE city='Barcelona'",
+    )
+
 API References
 --------------
 
@@ -79,3 +116,7 @@ API References
 - Agent.use_db_handler(): :meth:`besser.agent.core.agent.Agent.use_db_handler`
 - Session.db_handler: :attr:`besser.agent.core.session.Session.db_handler`
 - DBHandler.query(): :meth:`besser.agent.db.db_handler.DBHandler.query`
+- DBHandler.select(): :meth:`besser.agent.db.db_handler.DBHandler.select`
+- DBHandler.insert(): :meth:`besser.agent.db.db_handler.DBHandler.insert`
+- DBHandler.update(): :meth:`besser.agent.db.db_handler.DBHandler.update`
+- DBHandler.delete(): :meth:`besser.agent.db.db_handler.DBHandler.delete`
