@@ -97,6 +97,9 @@ def generate_api_rst_files(preffix, dir, output_dir):
         'platforms/streamlit_ui.py',
         'platforms/vars.py',
         'platforms/websocket_callbacks.py',
+        'platforms/audio_queue.py',
+        'platforms/chat_interface_style.py',
+        'platforms/profile_selector.py',
 
     ]
     api_excluded_files = [
