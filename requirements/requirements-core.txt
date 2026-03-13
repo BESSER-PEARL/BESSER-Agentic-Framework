@@ -3,6 +3,7 @@ gidgethub==5.3.0
 gidgetlab==2.1.0
 dateparser==1.1.8
 langdetect==1.0.9
+markdownify==1.2.2
 nltk==3.9.1
 numpy==1.26.4
 pandas==2.3.3

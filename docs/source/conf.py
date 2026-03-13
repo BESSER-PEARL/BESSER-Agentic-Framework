@@ -153,6 +153,7 @@ generate_api_rst_files('../../', 'besser/agent/library', './api/library')
 generate_api_rst_files('../../', 'besser/agent/nlp', './api/nlp')
 generate_api_rst_files('../../', 'besser/agent/db', './api/db')
 generate_api_rst_files('../../', 'besser/agent/platforms', './api/platforms')
+generate_api_rst_files('../../', 'besser/agent/utils', './api/utils')
 
 
 def linkcode_resolve(domain, info):
