@@ -7,9 +7,6 @@
 
 # import sys
 # sys.path.append("your/path/to/BESSER-Agentic-Framework") # If you clone this repository, then add the location to BESSER-Agentic-Framework here.
-import sys
-sys.path.append("C:/Users/chidambaram/Downloads/GitHub/BESSER-Agentic-Framework_Natarajan")
-
 
 import asyncio
 from aiohttp import web
