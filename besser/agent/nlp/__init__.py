@@ -93,7 +93,7 @@ HF_TOKEN = Property('nlp.huggingface.token', str, None)
 """
 The HuggingFace (Inference) API key, necessary to use a HuggingFace Inference API LLM.
 
-name: ``nlp.hf.api_key``
+name: ``nlp.huggingface.token``
 
 type: ``str``
 
