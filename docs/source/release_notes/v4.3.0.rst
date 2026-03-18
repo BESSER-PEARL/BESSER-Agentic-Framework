@@ -1,0 +1,46 @@
+Version 4.3.0
+=============
+
+Released: March 18, 2026
+
+This release introduces three major features: a database handler for agent state bodies,
+migration of the configuration format from INI to YAML, and a website crawler utility
+with an accompanying example agent.
+
+New Features
+------------
+
+DB Handler
+~~~~~~~~~~
+
+Agents can now interact with relational databases through the new ``DBHandler`` class.
+It provides structured, type-safe access to one or more SQL databases directly from
+within state body functions, with support for both raw SQL and natural language queries
+translated to SQL via an LLM.
+
+Configuration Migration: INI → YAML
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The agent configuration format has been fully migrated from ``.ini`` files to ``.yaml`` files.
+
+This allows for a more hierarchical and expressive configuration structure, better support for complex data types, 
+and improved readability. All existing configuration keys and values are preserved, but they are now organised 
+in a nested YAML format instead of flat INI sections.
+
+Website Crawler and Web Crawl Agent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A new utility function ``crawl_website`` performs a breadth-first crawl of a website
+and returns the text content of each visited page, either as raw HTML or converted
+Markdown. This is primarily intended for building lightweight knowledge bases to ground
+LLM responses (retrieval-augmented generation over website content).
+
+An example agent ``web_crawl_agent`` demonstrates how to use this utility to fetch and process website content.
+
+
+Breaking Changes
+----------------
+
+- ``config.ini`` files are no longer supported. All agent configurations must be
+  migrated to ``config.yaml``. See the migration guide above and the updated example
+  configuration files in ``besser/agent/test/examples/``.
