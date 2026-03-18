@@ -83,11 +83,11 @@ def crawl_website(
         if depth > max_depth or url in visited:
             continue
 
+        visited.add(url)
+
         html = fetch_html(url)
         if not html:
             continue
-
-        visited.add(url)
         logger.debug(f'[Depth {depth}] Crawling {url}')
 
         # store content
