@@ -16,5 +16,6 @@ Table of contents
    wiki/nlp
    wiki/platforms
    wiki/db
+   wiki/utils
    wiki/configuration_properties
    wiki/languages

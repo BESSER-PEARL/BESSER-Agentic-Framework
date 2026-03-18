@@ -53,7 +53,10 @@ def messages_data(monitoring_db, agent_names):
 
     st.info(f'**Total sessions: {total_sessions}**')
     st.info(f'**Total messages: {total_messages} ({total_user_messages} user and {total_agent_messages} agent)**')
-    st.info(f'**Messages per session: {round(total_messages/total_sessions, 3)} ({round(total_user_messages/total_sessions, 3)} user and {round(total_agent_messages/total_sessions, 3)} agent)**')
+    if total_sessions > 0:
+        st.info(f'**Messages per session: {round(total_messages/total_sessions, 3)} ({round(total_user_messages/total_sessions, 3)} user and {round(total_agent_messages/total_sessions, 3)} agent)**')
+    else:
+        st.info('**Messages per session: 0**')
 
     data = {'names': ['User', 'Agent'], 'values': [total_user_messages, total_agent_messages]}
     # TODO: SHOW ANOTHER CHART PER TYPE OF MESSAGE (STR, FILE...)

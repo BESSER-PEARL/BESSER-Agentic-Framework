@@ -5,18 +5,16 @@ from besser.agent.core.property import Property
 
 # --- Streamlit DB properties ---
 
-SECTION_STREAMLIT_DB = 'streamlit_db'
-
-DB_STREAMLIT = Property(SECTION_STREAMLIT_DB, 'db.streamlit', bool, None)
+DB_STREAMLIT = Property('db.streamlit.enabled', bool, False)
 """
 Enable Streamlit user database persistence.
 
-name: ``db.streamlit``
+name: ``db.streamlit.enabled``
 type: ``bool``
-default value: ``None``
+default value: ``False``
 """
 
-DB_STREAMLIT_DIALECT = Property(SECTION_STREAMLIT_DB, 'db.streamlit.dialect', str, 'postgresql')
+DB_STREAMLIT_DIALECT = Property('db.streamlit.dialect', str, 'postgresql')
 """
 Database dialect for Streamlit user database.
 
@@ -25,7 +23,7 @@ type: ``str``
 default value: ``postgresql``
 """
 
-DB_STREAMLIT_HOST = Property(SECTION_STREAMLIT_DB, 'db.streamlit.host', str, None)
+DB_STREAMLIT_HOST = Property('db.streamlit.host', str, None)
 """
 Database host for Streamlit user database.
 
@@ -34,7 +32,7 @@ type: ``str``
 default value: ``None``
 """
 
-DB_STREAMLIT_PORT = Property(SECTION_STREAMLIT_DB, 'db.streamlit.port', int, 5432)
+DB_STREAMLIT_PORT = Property('db.streamlit.port', int, 5432)
 """
 Database port for Streamlit user database.
 
@@ -43,7 +41,7 @@ type: ``int``
 default value: ``5432``
 """
 
-DB_STREAMLIT_DATABASE = Property(SECTION_STREAMLIT_DB, 'db.streamlit.database', str, None)
+DB_STREAMLIT_DATABASE = Property('db.streamlit.database', str, None)
 """
 Database name for Streamlit user database.
 
@@ -52,7 +50,7 @@ type: ``str``
 default value: ``None``
 """
 
-DB_STREAMLIT_USERNAME = Property(SECTION_STREAMLIT_DB, 'db.streamlit.username', str, None)
+DB_STREAMLIT_USERNAME = Property('db.streamlit.username', str, None)
 """
 Database username for Streamlit user database.
 
@@ -61,7 +59,7 @@ type: ``str``
 default value: ``None``
 """
 
-DB_STREAMLIT_PASSWORD = Property(SECTION_STREAMLIT_DB, 'db.streamlit.password', str, None)
+DB_STREAMLIT_PASSWORD = Property('db.streamlit.password', str, None)
 """
 Database password for Streamlit user database.
 

@@ -1,0 +1,75 @@
+agent:
+  check_transitions_delay: 5
+
+nlp:
+  language: en
+  region: US
+  timezone: Europe/Madrid
+  pre_processing: True
+  intent_threshold: 0.4
+  huggingface:
+    token: YOUR-TOKEN
+  openai:
+    api_key: YOUR-API-KEY
+  replicate:
+    api_key: YOUR-API-KEY
+
+platforms:
+  websocket:
+    host: localhost
+    port: 8765
+    streamlit:
+      host: localhost
+      port: 5000
+      chat:
+        size: 16
+        font: sans
+        line_spacing: 1.5
+        alignment: left
+        color: inherit
+        contrast: medium
+  telegram:
+    token: YOUR-BOT-TOKEN
+  github:
+    personal_token: YOUR-PERSONAL-TOKEN
+    webhook_token: YOUR-WEBHOOK-TOKEN
+    webhook_port: 8901
+  gitlab:
+    personal_token: YOUR-PERSONAL-TOKEN
+    webhook_token: YOUR-WEBHOOK-TOKEN
+    webhook_port: 8901
+  a2a:
+    port: 8000
+
+db:
+  monitoring:
+    enabled: True
+    dialect: postgresql
+    host: YOUR-DB-HOST
+    port: 5432
+    database: YOUR-DB-NAME
+    username: YOUR-DB-USERNAME
+    password: YOUR-DB-PASSWORD
+  streamlit:
+    enabled: True
+    dialect: postgresql
+    host: YOUR-DB-HOST
+    port: 5432
+    database: YOUR-DB-NAME
+    username: YOUR-DB-USERNAME
+    password: YOUR-DB-PASSWORD
+  sql:
+    - db1:
+        dialect: postgresql
+        host: YOUR-DB-HOST
+        port: 5432
+        database: YOUR-DB-NAME
+        username: YOUR-DB-USERNAME
+        password: YOUR-DB-PASSWORD
+    - db2:
+        dialect: postgresql
+        host: YOUR-DB-HOST
+        port: 5432
+        database: YOUR-DB-NAME
+        username: YOUR-DB-USERNAME
+        password: YOUR-DB-PASSWORD

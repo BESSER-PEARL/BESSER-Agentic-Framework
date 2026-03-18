@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)
 # Create the agent
 agent = Agent('rag_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
 

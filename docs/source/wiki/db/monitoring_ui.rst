@@ -13,7 +13,7 @@ It can be run in 2 different ways:
 
 Three parameters are mandatory:
 
-- Path to a .ini file containing the :any:`DB credentials <properties-database>`
+- Path to a .yaml file containing the :any:`DB credentials <properties-database>`
 - Host address where it is to be deployed (e.g., localhost)
 - Port where it is to be deployed (e.g., 8401)
 

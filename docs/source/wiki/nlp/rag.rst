@@ -39,7 +39,7 @@ First of all, we create our agent:
     from besser.agent.core.agent import Agent
 
     agent = Agent('greetings_agent')
-    agent.load_properties('config.ini')
+    agent.load_properties('config.yaml')
     websocket_platform = agent.use_websocket_platform(use_ui=True)
 
 Now, we have to create the RAG components using the LangChain library.

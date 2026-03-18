@@ -4,8 +4,10 @@ Configuration properties
 An agent needs some parameters to be set to properly work. In this section, you will find all of them, and we will explain
 you how to load them in the agent.
 
-An agent :class:`Property <besser.agent.core.property.Property>` has a section, a name, a type and a default value
+An agent :class:`Property <besser.agent.core.property.Property>` has a name, a type and a default value
 (for when the property is not defined by the agent developer).
+
+Property names follow flattened dot notation from the YAML hierarchy, e.g. ``platforms.websocket.host``.
 
 
 Loading properties
@@ -13,17 +15,17 @@ Loading properties
 
 You can define your agent properties in 2 different ways:
 
-- **Using a configuration `.ini` file:** It is a file containing all the agent properties. Let's see an example
-  ``config.ini`` file:
+- **Using a configuration `.yaml` file:** It is a file containing all the agent properties. Let's see an example
+   ``config.yaml`` file:
 
-.. literalinclude:: ../../../besser/agent/test/examples/config.ini
+.. literalinclude:: ../../../besser/agent/test/examples/config.yaml
 
 Now you have to load the file into the agent:
 
 .. code:: python
 
     agent = Agent('example_agent')
-    agent.load_properties('config.ini')
+    agent.load_properties('config.yaml')
 
 - **Setting individual properties:** You can also set (and get) properties individually from the agent code.
 
@@ -46,11 +48,11 @@ You can also create your own properties:
 
     from besser.agent.core.property import Property
     ...
-    FACEBOOK_PROFILE = Property('facebook', 'facebook.profile', str, 'https://www.facebook.com/foo')
+    FACEBOOK_PROFILE = Property('facebook.profile', str, 'https://www.facebook.com/foo')
     ...
     agent.set_property(FACEBOOK_PROFILE, 'https://www.facebook.com/john_doe')
 
-Next, let's see all the built in properties, divided by sections.
+Next, let's see all built-in properties, grouped by domain.
 
 .. _properties-agent:
 
@@ -100,6 +102,14 @@ GitLab Platform
 .. automodule:: besser.agent.platforms.gitlab
    :members:
 
+.. _properties-a2a_platform:
+
+A2A Platform
+------------
+
+.. automodule:: besser.agent.platforms.a2a
+   :members:
+
 .. _properties-database:
 
 Database
@@ -110,7 +120,7 @@ Database
 
 .. _properties-streamlit_database:
 
-Streamlit_Database
+Streamlit Database
 ------------------
 
 .. automodule:: besser.agent.platforms.websocket.streamlit_ui

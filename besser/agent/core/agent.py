@@ -1,9 +1,12 @@
 import asyncio
+import json
 import operator
 import threading
-from configparser import ConfigParser
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Callable, get_type_hints
+
+import yaml
 
 from besser.agent.core.transition.event import Event
 from besser.agent.core.message import Message, MessageType
@@ -16,6 +19,7 @@ from besser.agent.core.session import Session
 from besser.agent.core.state import State
 from besser.agent.core.transition.transition import Transition
 from besser.agent.db import DB_MONITORING
+from besser.agent.db.db_handler import DBHandler
 from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
     DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound
@@ -48,7 +52,7 @@ class Agent:
         _event_loop (asyncio.AbstractEventLoop): The event loop managing external events
         _event_thread (threading.Thread): The thread where the event loop is run
         _nlp_engine (NLPEngine): The agent NLP engine
-        _config (ConfigParser): The agent configuration parameters
+        _config (dict[str, Any]): The agent configuration parameters
         _default_ic_config (IntentClassifierConfiguration): the intent classifier configuration used by default for the
             agent states
         _sessions (dict[str, Session]): The agent sessions
@@ -64,23 +68,38 @@ class Agent:
         processors (list[Processors]): List of processors used by the agent
     """
 
-    def __init__(self, name: str, persist_sessions: bool = False):
+    def __init__(
+            self,
+            name: str,
+            persist_sessions: bool = False,
+            user_profiles_path: str | None = None,
+            agent_configurations_path: str | None = None,
+    ):
         self._name: str = name
         self._persist_sessions: bool = persist_sessions
         self._platforms: list[Platform] = []
         self._platforms_threads: list[threading.Thread] = []
         self._nlp_engine = NLPEngine(self)
-        self._config: ConfigParser = ConfigParser()
+        self._config: dict[str, Any] = {}
         self._default_ic_config: IntentClassifierConfiguration = SimpleIntentClassifierConfiguration()
         self._sessions: dict[str, Session] = {}
         self._trained: bool = False
         self._monitoring_db: MonitoringDB = None
+        self._db_handler: DBHandler | None = None
         self.states: list[State] = []
         self.intents: list[Intent] = []
         self.entities: list[Entity] = []
         self.global_initial_states: list[tuple[State, Intent]] = []
         self.global_state_component: dict[State, list[State]] = dict()
         self.processors: list[Processor] = []
+        self._user_profiles: Any = None
+        self._agent_configurations: dict[str, Any] = {}
+
+        if user_profiles_path:
+            self.load_user_profiles(user_profiles_path)
+
+        if agent_configurations_path:
+            self.load_agent_configurations(agent_configurations_path)
 
     @property
     def name(self):
@@ -94,20 +113,72 @@ class Agent:
 
     @property
     def config(self):
-        """ConfigParser: The agent configuration parameters."""
+        """dict[str, Any]: The agent configuration parameters."""
         return self._config
 
     def load_properties(self, path: str) -> None:
         """Read a properties file and store its properties in the agent configuration.
 
-        An example properties file, `config.ini`:
+        Supported formats are YAML (``.yaml``, ``.yml``).
 
-        .. literalinclude:: ../../../../besser/agent/test/examples/config.ini
+        Example YAML properties file, ``config.yaml``:
+
+        .. literalinclude:: ../../../../besser/agent/test/examples/config.yaml
 
         Args:
             path (str): the path to the properties file
         """
-        self._config.read(path)
+        suffix = Path(path).suffix.lower()
+        if suffix not in {'.yaml', '.yml'}:
+            raise ValueError('Only YAML configuration files are supported (.yaml, .yml)')
+
+        with open(path, encoding='utf-8') as config_file:
+            loaded_config = yaml.safe_load(config_file) or {}
+        if not isinstance(loaded_config, dict):
+            raise ValueError('YAML properties file must contain a mapping at the root level')
+        self._flatten_yaml_properties(loaded_config)
+
+    def _flatten_yaml_properties(self, data: Any, prefix: str = '') -> None:
+        if isinstance(data, dict):
+            for key, value in data.items():
+                next_prefix = f'{prefix}.{key}' if prefix else str(key)
+                self._flatten_yaml_properties(value, next_prefix)
+            return
+
+        if isinstance(data, list):
+            for index, item in enumerate(data):
+                if isinstance(item, dict) and len(item) == 1:
+                    item_key, item_value = next(iter(item.items()))
+                    next_prefix = f'{prefix}.{item_key}' if prefix else str(item_key)
+                    self._flatten_yaml_properties(item_value, next_prefix)
+                else:
+                    next_prefix = f'{prefix}.{index}' if prefix else str(index)
+                    self._flatten_yaml_properties(item, next_prefix)
+            return
+
+        if prefix:
+            self._config[prefix] = data
+
+    @staticmethod
+    def _coerce_property_value(value: Any, target_type: type) -> Any:
+        if isinstance(value, target_type):
+            return value
+
+        if target_type is bool:
+            if isinstance(value, str):
+                normalized = value.strip().lower()
+                if normalized in {'true', '1', 'yes', 'y', 'on'}:
+                    return True
+                if normalized in {'false', '0', 'no', 'n', 'off'}:
+                    return False
+                raise ValueError(f'Cannot parse boolean value from {value!r}')
+            if isinstance(value, (int, float)):
+                return bool(value)
+
+        if target_type in {str, int, float}:
+            return target_type(value)
+
+        return value
 
     def get_property(self, prop: Property) -> Any:
         """Get an agent property's value
@@ -118,17 +189,22 @@ class Agent:
         Returns:
             Any: the property value, or None
         """
-        if prop.type == str:
-            getter = self._config.get
-        elif prop.type == bool:
-            getter = self._config.getboolean
-        elif prop.type == int:
-            getter = self._config.getint
-        elif prop.type == float:
-            getter = self._config.getfloat
-        else:
-            return None
-        return getter(prop.section, prop.name, fallback=prop.default_value)
+        value = self._config.get(prop.name)
+
+        if value is None:
+            return prop.default_value
+
+        try:
+            return self._coerce_property_value(value, prop.type)
+        except (TypeError, ValueError):
+            logger.warning(
+                "Could not cast property '%s' value %r to %s. Using default value %r",
+                prop.name,
+                value,
+                prop.type,
+                prop.default_value,
+            )
+            return prop.default_value
 
     def set_property(self, prop: Property, value: Any):
         """Set an agent property.
@@ -138,11 +214,71 @@ class Agent:
             value (Any): the property value
         """
         if (value is not None) and (not isinstance(value, prop.type)):
-            raise TypeError(f"Attempting to set the agent property '{prop.name}' in section '{prop.section}' with a "
+            raise TypeError(f"Attempting to set the agent property '{prop.name}' with a "
                             f"{type(value)} value: {value}. The expected property value type is {prop.type}")
-        if prop.section not in self._config.sections():
-            self._config.add_section(prop.section)
-        self._config.set(prop.section, prop.name, str(value))
+        self._config[prop.name] = value
+
+    @property
+    def user_profiles(self) -> Any:
+        """Return loaded user profiles data, or None if not set."""
+        return self._user_profiles
+
+    def load_user_profiles(self, path: str) -> None:
+        """Load user profiles from a JSON file and store data."""
+        try:
+            with open(path, encoding='utf-8') as profiles_file:
+                self._user_profiles = json.load(profiles_file)
+        except FileNotFoundError:
+            logger.error("User profiles file not found at %s", path)
+            self._user_profiles = None
+        except json.JSONDecodeError:
+            logger.error("Failed to parse user profiles JSON at %s", path)
+            self._user_profiles = None
+
+    def set_user_profiles(self, profiles: Any) -> None:
+        """Set user profiles programmatically."""
+        self._user_profiles = profiles
+
+    @property
+    def agent_configurations(self) -> dict[str, Any]:
+        """Return loaded agent configurations mapped by profile/user key."""
+        return self._agent_configurations
+
+    def load_agent_configurations(self, path: str) -> None:
+        """Load agent configurations from a JSON file.
+
+        Expected format: a mapping where keys represent profile/user identifiers
+        and values are the corresponding agent configuration objects.
+        """
+        try:
+            with open(path, encoding='utf-8') as config_file:
+                data = json.load(config_file)
+
+            if isinstance(data, dict):
+                self._agent_configurations = data
+            else:
+                logger.error("Agent configurations JSON at %s must be an object mapping keys to configurations", path)
+                self._agent_configurations = {}
+        except FileNotFoundError:
+            logger.error("Agent configurations file not found at %s", path)
+            self._agent_configurations = {}
+        except json.JSONDecodeError:
+            logger.error("Failed to parse agent configurations JSON at %s", path)
+            self._agent_configurations = {}
+
+    def set_agent_configurations(self, configurations: dict[str, Any] | None) -> None:
+        """Set agent configurations programmatically.
+
+        Args:
+            configurations (dict[str, Any] | None): mapping of profile/user keys to config objects.
+        """
+        if configurations is None:
+            self._agent_configurations = {}
+            return
+
+        if not isinstance(configurations, dict):
+            raise TypeError("Agent configurations must be a dictionary mapping keys to configuration objects")
+        self._agent_configurations = configurations
 
     def set_default_ic_config(self, ic_config: IntentClassifierConfiguration):
         """Set the default intent classifier configuration.
@@ -347,6 +483,8 @@ class Agent:
         self._stop_platforms()
         if self.get_property(DB_MONITORING) and self._monitoring_db.connected:
             self._monitoring_db.close_connection()
+        if self._db_handler is not None:
+            self._db_handler.close_all()
 
         for session_id in list(self._sessions.keys()):
             self.close_session(session_id)
@@ -526,7 +664,11 @@ class Agent:
         self._monitoring_db_delete_session(self._sessions[session_id])
         del self._sessions[session_id]
 
-    def use_websocket_platform(self, use_ui: bool = True, authenticate_users: bool = False) -> WebSocketPlatform:
+    def use_websocket_platform(
+            self,
+            use_ui: bool = True,
+            authenticate_users: bool = False,
+    ) -> WebSocketPlatform:
         """Use the :class:`~besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform` on this agent.
 
         Args:
@@ -536,7 +678,11 @@ class Agent:
         Returns:
             WebSocketPlatform: the websocket platform
         """
-        websocket_platform = WebSocketPlatform(self, use_ui, authenticate_users)
+        websocket_platform = WebSocketPlatform(
+            self,
+            use_ui,
+            authenticate_users,
+        )
         self._platforms.append(websocket_platform)
         return websocket_platform
 
@@ -579,6 +725,18 @@ class Agent:
         a2a_platform = A2APlatform(self)
         self._platforms.append(a2a_platform)
         return a2a_platform
+
+    def use_db_handler(self) -> DBHandler:
+        """Use the :class:`~besser.agent.db.db_handler.DBHandler` on this agent.
+
+        DB connections are established lazily, when the first query is executed.
+
+        Returns:
+            DBHandler: the database handler
+        """
+        if self._db_handler is None:
+            self._db_handler = DBHandler(self)
+        return self._db_handler
 
     def _monitoring_db_insert_session(self, session: Session) -> None:
         """Insert a session record into the monitoring database.

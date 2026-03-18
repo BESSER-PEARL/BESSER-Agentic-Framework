@@ -3,6 +3,7 @@ gidgethub==5.3.0
 gidgetlab==2.1.0
 dateparser==1.1.8
 langdetect==1.0.9
+markdownify==1.2.2
 nltk==3.9.1
 numpy==1.26.4
 pandas==2.3.3
@@ -10,6 +11,7 @@ python-telegram-bot==21.0
 psycopg2-binary>=2.9.10
 pydantic==2.11.7
 pyvis==0.3.2
+PyYAML==6.0.2
 requests==2.31.0
 snowballstemmer==2.2.0
 sqlalchemy==2.0.29
