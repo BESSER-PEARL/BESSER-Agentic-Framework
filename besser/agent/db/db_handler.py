@@ -20,7 +20,11 @@ class DBHandler:
     configuration and opens connections lazily when they are first needed.
     """
 
-    _REQUIRED_DB_FIELDS = {'dialect', 'host', 'port', 'database', 'username', 'password'}
+    _DEFAULT_REQUIRED_DB_FIELDS = {'dialect', 'host', 'port', 'database', 'username', 'password'}
+    _DIALECT_REQUIRED_DB_FIELDS = {
+        'sqlite': {'dialect', 'file'},
+        'postgres': {'dialect', 'host', 'port', 'database', 'username', 'password'}
+    }
     _SQL_COMMAND_PATTERN = re.compile(r'^\s*(?:/\*.*?\*/\s*|--.*?(?:\n|\r\n?)\s*)*([a-zA-Z]+)', re.DOTALL)
 
     def __init__(self, agent: 'Agent'):
@@ -50,16 +54,28 @@ class DBHandler:
         return db_configs
 
     def _validate_db_config(self, db_name: str, db_config: dict[str, Any]) -> bool:
-        missing = sorted(field for field in self._REQUIRED_DB_FIELDS if db_config.get(field) is None)
+        required_fields = self._required_db_fields(db_config)
+        missing = sorted(field for field in required_fields if db_config.get(field) is None)
         if missing:
+            dialect = db_config.get('dialect')
             logger.error(
-                "Missing required DB properties for '%s': %s. Expected under 'db.sql.%s'.",
+                "Missing required DB properties for '%s' (dialect=%s): %s. Expected under 'db.sql.%s'. Required fields: %s.",
                 db_name,
+                dialect,
                 ', '.join(missing),
                 db_name,
+                ', '.join(sorted(required_fields)),
             )
             return False
         return True
+
+    def _required_db_fields(self, db_config: dict[str, Any]) -> set[str]:
+        dialect = db_config.get('dialect')
+        if dialect is None:
+            return {'dialect'}
+
+        dialect_name = str(dialect).split('+', 1)[0].lower()
+        return self._DIALECT_REQUIRED_DB_FIELDS.get(dialect_name, self._DEFAULT_REQUIRED_DB_FIELDS)
 
     def _build_db_url(self, db_name: str) -> URL | str | None:
         try:
@@ -67,7 +83,7 @@ class DBHandler:
             dialect = str(db_config['dialect'])
 
             if dialect.startswith('sqlite'):
-                return URL.create(drivername=dialect, database=str(db_config['database']))
+                return URL.create(drivername=dialect, database=str(db_config['file']))
 
             return URL.create(
                 drivername=dialect,
