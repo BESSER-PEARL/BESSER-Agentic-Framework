@@ -175,6 +175,11 @@ class WebSocketPlatform(Platform):
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
                         message = self._agent.nlp_engine.speech2text(session, audio_bytes)
+
+                        # Send transcribed message back to the client
+                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message)
+                        self._send(session.id, payload)
+
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=message,
                             session=session,
