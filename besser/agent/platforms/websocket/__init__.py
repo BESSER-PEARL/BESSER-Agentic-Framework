@@ -4,7 +4,7 @@ WEBSOCKET_HOST = Property('platforms.websocket.host', str, 'localhost')
 """
 The WebSocket host address. An agent has a WebSocket server that has to establish connection with a WebSocket client.
 
-name: ``websocket.host``
+name: ``platforms.websocket.host``
 
 type: ``str``
 
@@ -15,7 +15,7 @@ WEBSOCKET_PORT = Property('platforms.websocket.port', int, 8765)
 """
 The WebSocket address port. The WebSocket address is composed by a host name and a port
 
-name: ``websocket.port``
+name: ``platforms.websocket.port``
 
 type: ``int``
 
@@ -26,7 +26,7 @@ WEBSOCKET_MAX_SIZE = Property('platforms.websocket.max_size', int, None)
 """
 WebSocket's maximum size of incoming messages, in bytes. :obj:`None` disables the limit.
 
-name: ``platformswebsocket.max_size``
+name: ``platforms.websocket.max_size``
 
 type: ``int``
 
@@ -38,7 +38,7 @@ STREAMLIT_HOST = Property('platforms.websocket.streamlit.host', str, 'localhost'
 The Streamlit UI host address. If you are using our default UI, you must define its address where you can access and 
 interact with the agent.
 
-name: ``streamlit.host``
+name: ``platforms.websocket.streamlit.host``
 
 type: ``str``
 
@@ -49,7 +49,7 @@ STREAMLIT_PORT = Property('platforms.websocket.streamlit.port', int, 5000)
 """
 The Streamlit UI address port. The Streamlit UI address is composed by a host name and a port
 
-name: ``streamlit.port``
+name: ``platforms.websocket.streamlit.port``
 
 type: ``int``
 
@@ -60,7 +60,7 @@ STREAMLIT_CHAT_DEFAULT_SIZE = Property('platforms.websocket.streamlit.chat.size'
 """
 Default chat font size used by Streamlit chat UI when no profile-specific style is applied.
 
-name: ``streamlit.chat.size``
+name: ``platforms.websocket.streamlit.chat.size``
 
 type: ``int``
 
@@ -71,7 +71,7 @@ STREAMLIT_CHAT_DEFAULT_FONT = Property('platforms.websocket.streamlit.chat.font'
 """
 Default chat font family key used by Streamlit chat UI.
 
-name: ``streamlit.chat.font``
+name: ``platforms.websocket.streamlit.chat.font``
 
 type: ``str``
 
@@ -82,7 +82,7 @@ STREAMLIT_CHAT_DEFAULT_LINE_SPACING = Property('platforms.websocket.streamlit.ch
 """
 Default chat line spacing used by Streamlit chat UI.
 
-name: ``streamlit.chat.line_spacing``
+name: ``platforms.websocket.streamlit.chat.line_spacing``
 
 type: ``float``
 
@@ -93,7 +93,7 @@ STREAMLIT_CHAT_DEFAULT_ALIGNMENT = Property('platforms.websocket.streamlit.chat.
 """
 Default chat text alignment used by Streamlit chat UI.
 
-name: ``streamlit.chat.alignment``
+name: ``platforms.websocket.streamlit.chat.alignment``
 
 type: ``str``
 
@@ -104,7 +104,7 @@ STREAMLIT_CHAT_DEFAULT_COLOR = Property('platforms.websocket.streamlit.chat.colo
 """
 Default chat text color used by Streamlit chat UI.
 
-name: ``streamlit.chat.color``
+name: ``platforms.websocket.streamlit.chat.color``
 
 type: ``str``
 
@@ -115,7 +115,7 @@ STREAMLIT_CHAT_DEFAULT_CONTRAST = Property('platforms.websocket.streamlit.chat.c
 """
 Default chat contrast level used by Streamlit chat UI.
 
-name: ``streamlit.chat.contrast``
+name: ``platforms.websocket.streamlit.chat.contrast``
 
 type: ``str``
 
