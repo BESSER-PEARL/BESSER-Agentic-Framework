@@ -45,7 +45,7 @@ def main():
         config_path = sys.argv[1]
     except Exception as e:
         # If not provided, we use default value
-        config_path = '../../test/examples/config.ini'
+        config_path = '../../test/examples/config.yaml'
     if 'monitoring_db' not in st.session_state:
         st.session_state['monitoring_db'] = connect_to_db(config_path)
     with st.sidebar:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         if len(sys.argv) != 4:
             print('ERROR: Wrong arguments')
             print('Usage: python monitoring_ui.py <config_path> <ui_host> <ui_port>')
-            print('Example: python monitoring_ui.py config.ini localhost 8401')
+            print('Example: python monitoring_ui.py config.yaml localhost 8401')
             sys.exit(1)
         sys.argv = ["streamlit", "run",
                     "--server.address", sys.argv[2],
