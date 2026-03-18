@@ -1,7 +1,8 @@
 import atexit
-from configparser import ConfigParser
+from pathlib import Path
 from typing import Any
 
+import yaml
 from sqlalchemy import create_engine
 
 from besser.agent.core.property import Property
@@ -11,18 +12,84 @@ from besser.agent.db.monitoring_db import MonitoringDB
 from besser.agent.exceptions.logger import logger
 
 
-def get_property(config: ConfigParser, prop: Property) -> Any:
-    if prop.type == str:
-        getter = config.get
-    elif prop.type == bool:
-        getter = config.getboolean
-    elif prop.type == int:
-        getter = config.getint
-    elif prop.type == float:
-        getter = config.getfloat
-    else:
+def _flatten_yaml_properties(data: Any, config: dict[str, Any], prefix: str = '') -> None:
+    if isinstance(data, dict):
+        for key, value in data.items():
+            next_prefix = f'{prefix}.{key}' if prefix else str(key)
+            _flatten_yaml_properties(value, config, next_prefix)
+        return
+
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            if isinstance(item, dict) and len(item) == 1:
+                item_key, item_value = next(iter(item.items()))
+                next_prefix = f'{prefix}.{item_key}' if prefix else str(item_key)
+                _flatten_yaml_properties(item_value, config, next_prefix)
+            else:
+                next_prefix = f'{prefix}.{index}' if prefix else str(index)
+                _flatten_yaml_properties(item, config, next_prefix)
+        return
+
+    if prefix:
+        config[prefix] = data
+
+
+def load_properties(path: str) -> dict[str, Any] | None:
+    config: dict[str, Any] = {}
+    suffix = Path(path).suffix.lower()
+
+    if suffix not in {'.yaml', '.yml'}:
+        logger.error('Only YAML config files are supported (.yaml, .yml): %s', path)
         return None
-    return getter(prop.section, prop.name, fallback=prop.default_value)
+
+    with open(path, encoding='utf-8') as config_file:
+        loaded_config = yaml.safe_load(config_file) or {}
+    if not isinstance(loaded_config, dict):
+        logger.error('YAML config must contain a mapping at root level: %s', path)
+        return None
+
+    _flatten_yaml_properties(loaded_config, config)
+    return config
+
+
+def _coerce_property_value(value: Any, target_type: type) -> Any:
+    if isinstance(value, target_type):
+        return value
+
+    if target_type is bool:
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {'true', '1', 'yes', 'y', 'on'}:
+                return True
+            if normalized in {'false', '0', 'no', 'n', 'off'}:
+                return False
+            raise ValueError(f'Cannot parse boolean value from {value!r}')
+        if isinstance(value, (int, float)):
+            return bool(value)
+
+    if target_type in {str, int, float}:
+        return target_type(value)
+
+    return value
+
+
+def get_property(config: dict[str, Any], prop: Property) -> Any:
+    value = config.get(prop.name)
+
+    if value is None:
+        return prop.default_value
+
+    try:
+        return _coerce_property_value(value, prop.type)
+    except (TypeError, ValueError):
+        logger.warning(
+            "Could not cast property '%s' value %r to %s. Using default value %r",
+            prop.name,
+            value,
+            prop.type,
+            prop.default_value,
+        )
+        return prop.default_value
 
 
 def close_connection(monitoring_db: MonitoringDB):
@@ -33,9 +100,8 @@ def close_connection(monitoring_db: MonitoringDB):
 
 def connect_to_db(config_path: str):
     # Path to the configuration file where the DB credentials are defined
-    config: ConfigParser = ConfigParser()
-    read_files = config.read(config_path)
-    if read_files:
+    config = load_properties(config_path)
+    if config is not None:
         monitoring_db = MonitoringDB()
         try:
             dialect = get_property(config, DB_MONITORING_DIALECT)
@@ -51,8 +117,8 @@ def connect_to_db(config_path: str):
             logger.info('Connected to DB')
             return monitoring_db
         except Exception as e:
-            logger.error(f"An error occurred while trying to connect to the monitoring DB in the monitoring UI. "
-                          f"See the attached exception:")
+            logger.error("An error occurred while trying to connect to the monitoring DB in the monitoring UI. "
+                         "See the attached exception:")
             logger.error(e)
             return None
     else:

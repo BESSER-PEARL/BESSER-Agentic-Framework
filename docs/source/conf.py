@@ -97,6 +97,9 @@ def generate_api_rst_files(preffix, dir, output_dir):
         'platforms/streamlit_ui.py',
         'platforms/vars.py',
         'platforms/websocket_callbacks.py',
+        'platforms/audio_queue.py',
+        'platforms/chat_interface_style.py',
+        'platforms/profile_selector.py',
 
     ]
     api_excluded_files = [
@@ -150,6 +153,7 @@ generate_api_rst_files('../../', 'besser/agent/library', './api/library')
 generate_api_rst_files('../../', 'besser/agent/nlp', './api/nlp')
 generate_api_rst_files('../../', 'besser/agent/db', './api/db')
 generate_api_rst_files('../../', 'besser/agent/platforms', './api/platforms')
+generate_api_rst_files('../../', 'besser/agent/utils', './api/utils')
 
 
 def linkcode_resolve(domain, info):

@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 agent = Agent('Huggingface Text-to-Speech Agent')
 
 # Load agent properties stored in a dedicated file
-agent.load_properties('config.ini')
+agent.load_properties('config.yaml')
 
 # example models
 # 'facebook/mms-tts-eng'

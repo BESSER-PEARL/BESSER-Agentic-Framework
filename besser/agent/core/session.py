@@ -23,6 +23,7 @@ from besser.agent.platforms.payload import PayloadEncoder, Payload, PayloadActio
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
+    from besser.agent.db.db_handler import DBHandler
     from besser.agent.core.state import State
     from besser.agent.platforms.platform import Platform
 
@@ -81,6 +82,11 @@ class Session:
     def platform(self):
         """Platform: The session platform."""
         return self._platform
+
+    @property
+    def db_handler(self) -> 'DBHandler':
+        """DBHandler: relational DB handler configured for this agent."""
+        return self._agent.use_db_handler()
 
     @property
     def current_state(self):

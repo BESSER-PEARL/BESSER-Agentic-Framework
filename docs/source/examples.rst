@@ -18,3 +18,4 @@ agents
    examples/text2speech_agent
    examples/speech2speech_agent
    examples/a2a_multiagent
+   examples/web_crawl_agent

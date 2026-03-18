@@ -111,8 +111,6 @@ class NLPEngine:
         Returns:
             Any: the property value, or None if the property is not an NLP property
         """
-        if prop.section != nlp.SECTION_NLP:
-            return None
         return self._agent.get_property(prop)
 
     def train(self) -> None:

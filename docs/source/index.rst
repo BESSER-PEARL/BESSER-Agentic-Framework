@@ -81,3 +81,4 @@ Example agents
 - :doc:`examples/telegram_agent`: Introducing the :doc:`wiki/platforms/telegram_platform`
 - :doc:`examples/github_agent`: Introducing the :doc:`wiki/platforms/github_platform`
 - :doc:`examples/gitlab_agent`: Introducing the :doc:`wiki/platforms/gitlab_platform`
+- :doc:`examples/web_crawl_agent`: Crawling websites and grounding answers with :doc:`wiki/utils/web_crawl`

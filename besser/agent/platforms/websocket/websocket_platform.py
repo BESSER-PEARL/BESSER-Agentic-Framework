@@ -34,8 +34,9 @@ from besser.agent.platforms.websocket.streamlit_ui import (
     DB_STREAMLIT_DATABASE,
     DB_STREAMLIT_USERNAME,
     DB_STREAMLIT_PASSWORD,
-    DB_STREAMLIT
+    DB_STREAMLIT,
 )
+
 
 def _extract_user_id_from_request(request) -> str | None:
     if not request:
@@ -59,6 +60,7 @@ def _extract_user_id_from_request(request) -> str | None:
             return user_values[0]
     return None
 
+
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
 
@@ -78,6 +80,7 @@ try:
 except ImportError:
     logger.warning("librosa dependencies in WebSocketPlatform could not be imported. You can install them from "
                    "the requirements/requirements-extras.txt file")
+
 
 class WebSocketPlatform(Platform):
     """The WebSocket Platform allows an agent to communicate with the users using the
@@ -107,7 +110,12 @@ class WebSocketPlatform(Platform):
             (sessions) and incoming messages
     """
 
-    def __init__(self, agent: 'Agent', use_ui: bool = True, authenticate_users: bool = False):
+    def __init__(
+            self,
+            agent: 'Agent',
+            use_ui: bool = True,
+            authenticate_users: bool = False,
+    ):
         super().__init__()
         self._agent: 'Agent' = agent
         self._host: str = None
@@ -167,6 +175,11 @@ class WebSocketPlatform(Platform):
                         # Decode the base64 string to get audio bytes
                         audio_bytes = base64.b64decode(payload.message.encode('utf-8'))
                         message = self._agent.nlp_engine.speech2text(session, audio_bytes)
+
+                        # Send transcribed message back to the client
+                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message)
+                        self._send(session.id, payload)
+
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
                             message=message,
                             session=session,
@@ -251,6 +264,42 @@ class WebSocketPlatform(Platform):
                     os.environ["STREAMLIT_DB_USER"] = str(db_user) if db_user else ""
                     os.environ["STREAMLIT_DB_PASSWORD"] = str(db_password) if db_password else ""
                     os.environ["STREAMLIT_DB"] = str(db_streamlit) if db_streamlit else "False"
+
+                # Pass user profiles to Streamlit via environment, if available and serializable
+                if self._agent.user_profiles is not None:
+                    try:
+                        os.environ["STREAMLIT_USER_PROFILES_JSON"] = json.dumps(self._agent.user_profiles)
+                    except (TypeError, ValueError):
+                        logger.warning("Failed to serialize user profiles for Streamlit UI; continuing without them.")
+
+                os.environ["STREAMLIT_AGENT_WORKDIR"] = os.getcwd()
+
+                default_chat_style = {
+                    "size": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_SIZE),
+                    "font": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_FONT),
+                    "lineSpacing": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_LINE_SPACING),
+                    "alignment": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_ALIGNMENT),
+                    "color": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_COLOR),
+                    "contrast": self._agent.get_property(websocket.STREAMLIT_CHAT_DEFAULT_CONTRAST),
+                }
+                os.environ["STREAMLIT_CHAT_INTERFACE_DEFAULT_STYLE_JSON"] = json.dumps(default_chat_style)
+
+                try:
+                    raw_configurations = self._agent.agent_configurations
+
+                    if not raw_configurations:
+                        import __main__  # noqa: PLC0415
+                        main_configurations = getattr(__main__, "agent_configurations", None)
+                        if isinstance(main_configurations, dict) and main_configurations:
+                            raw_configurations = main_configurations
+                            self._agent.set_agent_configurations(main_configurations)
+
+                    if isinstance(raw_configurations, dict) and raw_configurations:
+                        os.environ["STREAMLIT_AGENT_CONFIGURATIONS_JSON"] = json.dumps(raw_configurations)
+                    else:
+                        os.environ.pop("STREAMLIT_AGENT_CONFIGURATIONS_JSON", None)
+                except Exception:
+                    logger.warning("Failed to serialize agent configurations for Streamlit UI; using defaults.")
 
                 subprocess.run([
                     "streamlit", "run",
