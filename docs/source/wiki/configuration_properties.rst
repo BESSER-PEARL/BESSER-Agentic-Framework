@@ -25,7 +25,7 @@ Now you have to load the file into the agent:
 .. code:: python
 
     agent = Agent('example_agent')
-   agent.load_properties('config.yaml')
+    agent.load_properties('config.yaml')
 
 - **Setting individual properties:** You can also set (and get) properties individually from the agent code.
 
