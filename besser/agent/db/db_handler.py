@@ -208,9 +208,8 @@ class DBHandler:
             required_sql_command: str | None = None,
             ) -> str | None:
         sql_query = query
-        if llm is None and not self._looks_like_sql(query):
-            llm = self._default_llm()
 
+        # Only perform NL-to-SQL translation when an LLM is explicitly provided.
         if llm is not None:
             sql_query = self._nl_to_sql(
                 db_name=db_name,
