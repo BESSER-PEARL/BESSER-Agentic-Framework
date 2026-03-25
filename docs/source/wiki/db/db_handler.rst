@@ -35,12 +35,8 @@ You can define multiple DBs in configuration:
             username: user
             password: pass
         - db2:
-            dialect: postgresql
-            host: localhost
-            port: 5432
-            database: analytics_db
-            username: user
-            password: pass
+            dialect: sqlite
+            file: path/to/local_database.db
 
 Query a DB in a State Body
 --------------------------
