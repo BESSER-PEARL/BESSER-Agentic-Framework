@@ -33,6 +33,25 @@ Of course, you are free to use or create your own UI as long as it has a WebSock
     There are some properties the agent needs in order to properly set the WebSocket connection. More details in the
     :any:`configuration properties <properties-websocket_platform>` documentation.
 
+Restricting allowed origins
+---------------------------
+
+By default, the WebSocket server accepts connections from any origin. You can restrict which origins are
+allowed to connect by setting the ``origins`` property in your ``config.yaml``:
+
+.. code:: yaml
+
+    platforms:
+      websocket:
+        host: localhost
+        port: 8765
+        origins:
+          - "https://editor.besser-pearl.org"
+          - "https://experimental.besser-pearl.org"
+
+When ``origins`` is set, the server will reject WebSocket upgrade requests from any origin not in the list.
+When not set (default), all origins are accepted.
+
 How to use it
 -------------
 

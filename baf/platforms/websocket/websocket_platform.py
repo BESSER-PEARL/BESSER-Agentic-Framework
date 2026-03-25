@@ -227,11 +227,13 @@ class WebSocketPlatform(Platform):
     def initialize(self) -> None:
         self._host = self._agent.get_property(websocket.WEBSOCKET_HOST)
         self._port = self._agent.get_property(websocket.WEBSOCKET_PORT)
+        origins = self._agent.get_property(websocket.WEBSOCKET_ORIGINS)
         self._websocket_server = serve(
             handler=self._message_handler,
             host=self._host,
             port=self._port,
-            max_size=self._agent.get_property(websocket.WEBSOCKET_MAX_SIZE)
+            max_size=self._agent.get_property(websocket.WEBSOCKET_MAX_SIZE),
+            origins=origins,
         )
 
     def start(self) -> None:
