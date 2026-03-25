@@ -56,7 +56,7 @@ The following example wait for issues to open to add a thanking message as comme
 .. code:: python
 
     # How to import the Issue class
-    from besser.agent.platforms.github.github_objects import Issue
+    from baf.platforms.github.github_objects import Issue
 
     def issue_body(session: Session):
         # Access through the Session to the IssuesOpened GitHubEvent that triggered the transition
@@ -99,14 +99,14 @@ you can simply call it and it will be forwarded:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.use_github_platform(): :meth:`besser.agent.core.agent.Agent.use_github_platform`
-- GitHubEvent: :meth:`besser.agent.library.transition.events.github_webhooks_events.GitHubEvent`
-- GitHubPlatform: :class:`besser.agent.platforms.github.github_platform.GitHubPlatform`
-- GitHubPlatform.comment_issue(): :meth:`besser.agent.platforms.github.github_platform.GitHubPlatform.comment_issue`
-- Issue: :meth:`besser.agent.platforms.github.github_objects.Issue`
-- IssuesOpened: :meth:`besser.agent.library.transition.events.github_webhooks_events.IssuesOpened`
-- LabelCreated: :meth:`besser.agent.library.transition.events.github_webhooks_events.LabelCreated`
-- PullRequestOpened: :meth:`besser.agent.library.transition.events.github_webhooks_events.PullRequestOpened`
-- StarCreated: :meth:`besser.agent.library.transition.events.github_webhooks_events.StarCreated`
-- User: :meth:`besser.agent.platforms.github.github_objects.User`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.use_github_platform(): :meth:`baf.core.agent.Agent.use_github_platform`
+- GitHubEvent: :meth:`baf.library.transition.events.github_webhooks_events.GitHubEvent`
+- GitHubPlatform: :class:`baf.platforms.github.github_platform.GitHubPlatform`
+- GitHubPlatform.comment_issue(): :meth:`baf.platforms.github.github_platform.GitHubPlatform.comment_issue`
+- Issue: :meth:`baf.platforms.github.github_objects.Issue`
+- IssuesOpened: :meth:`baf.library.transition.events.github_webhooks_events.IssuesOpened`
+- LabelCreated: :meth:`baf.library.transition.events.github_webhooks_events.LabelCreated`
+- PullRequestOpened: :meth:`baf.library.transition.events.github_webhooks_events.PullRequestOpened`
+- StarCreated: :meth:`baf.library.transition.events.github_webhooks_events.StarCreated`
+- User: :meth:`baf.platforms.github.github_objects.User`

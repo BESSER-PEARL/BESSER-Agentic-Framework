@@ -1,7 +1,7 @@
 session
 =======
 
-.. automodule:: besser.agent.core.session
+.. automodule:: baf.core.session
    :members:
    :private-members:
    :undoc-members:

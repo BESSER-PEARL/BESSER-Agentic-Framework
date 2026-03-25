@@ -124,16 +124,16 @@ We can check for the mime type to differentiate between a Speech2Text or a Text2
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- APISpeech2Text: :class:`besser.agent.nlp.speech2text.api_speech2text.APISpeech2Text`
-- HFSpeech2Text: :class:`besser.agent.nlp.speech2text.hf_speech2text.HFSpeech2Text`
-- HFText2Speech: :class:`besser.agent.nlp.text2speech.hf_text2speech.HFText2Speech`
-- LuxASRSpeech2Text: :class:`besser.agent.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`
-- NLPEngine: :class:`besser.agent.nlp.nlp_engine.NLPEngine`
-- OpenAISpeech2Text: :class:`besser.agent.nlp.speech2text.openai_speech2text.OpenAISpeech2Text`
-- OpenAIText2Speech: :class:`besser.agent.nlp.text2speech.openai_text2speech.OpenAIText2Speech`
-- PiperText2Speech: :class:`besser.agent.nlp.text2speech.piper_text2speech.PiperText2Speech`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Speech2Text: :class:`besser.agent.nlp.speech2text.speech2text.Speech2Text`
-- Text2Speech: :class:`besser.agent.nlp.text2speech.text2speech.Text2Speech`
+- Agent: :class:`baf.core.agent.Agent`
+- APISpeech2Text: :class:`baf.nlp.speech2text.api_speech2text.APISpeech2Text`
+- HFSpeech2Text: :class:`baf.nlp.speech2text.hf_speech2text.HFSpeech2Text`
+- HFText2Speech: :class:`baf.nlp.text2speech.hf_text2speech.HFText2Speech`
+- LuxASRSpeech2Text: :class:`baf.nlp.speech2text.luxasr_speech2text.LuxASRSpeech2Text`
+- NLPEngine: :class:`baf.nlp.nlp_engine.NLPEngine`
+- OpenAISpeech2Text: :class:`baf.nlp.speech2text.openai_speech2text.OpenAISpeech2Text`
+- OpenAIText2Speech: :class:`baf.nlp.text2speech.openai_text2speech.OpenAIText2Speech`
+- PiperText2Speech: :class:`baf.nlp.text2speech.piper_text2speech.PiperText2Speech`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Speech2Text: :class:`baf.nlp.speech2text.speech2text.Speech2Text`
+- Text2Speech: :class:`baf.nlp.text2speech.text2speech.Text2Speech`

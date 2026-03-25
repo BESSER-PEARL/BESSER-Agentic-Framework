@@ -28,8 +28,8 @@ the requirements folder as they will be needed for the agent to run).
 
 .. code:: python
 
-    from besser.agent.core.agent import Agent
-    from besser.agent.core.session import Session
+    from baf.core.agent import Agent
+    from baf.core.session import Session
 
 .. note::
 
@@ -39,7 +39,7 @@ the requirements folder as they will be needed for the agent to run).
     .. code:: python
 
         import logging
-        from besser.agent.exceptions.logger import logger
+        from baf.exceptions.logger import logger
         logger.setLevel(logging.WARNING)
 
 

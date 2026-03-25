@@ -1,6 +1,6 @@
 Weather agent
 =============
 
-.. literalinclude:: ../../../besser/agent/test/examples/weather_agent.py
+.. literalinclude:: ../../../baf/test/examples/weather_agent.py
    :language: python
    :linenos:

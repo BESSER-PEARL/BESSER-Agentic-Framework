@@ -5,7 +5,7 @@ We provide a Graphical User Interface  for the :doc:`monitoring_db`, which is ai
 It is just an example to illustrate some possible applications of the Monitoring DB. You can also create your own custom
 dashboard for the Monitoring DB, or contact us with ideas you would like to include!
 
-The UI is built with `Streamlit <https://streamlit.io/>`_, and included in the BAF library (`source code <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/tree/main/besser/agent/db/monitoring_ui>`_)
+The UI is built with `Streamlit <https://streamlit.io/>`_, and included in the BAF library (`source code <https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/tree/main/baf/db/monitoring_ui>`_)
 
 It can be run in 2 different ways:
 
@@ -19,14 +19,14 @@ Three parameters are mandatory:
 
 .. code:: bash
 
-    cd besser/agent/db/monitoring_ui
+    cd baf/db/monitoring_ui
     python monitoring_ui.py <config_path> <ui_host> <ui_port>
 
 2. Directly run the Monitoring UI from Python code:
 
 .. code:: python
 
-    from besser.agent.db.monitoring_ui.monitoring_ui import start_ui
+    from baf.db.monitoring_ui.monitoring_ui import start_ui
     start_ui(config_path, host, port)
 
 Next, we briefly show each page of the Monitoring UI.

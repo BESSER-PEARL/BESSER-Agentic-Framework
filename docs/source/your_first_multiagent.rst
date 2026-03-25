@@ -54,7 +54,7 @@ The following sections show the code implementation for each agent.
 Developer Main Agent
 --------------------
 
-.. literalinclude:: ../../besser/agent/test/examples/multiagent/main_agent.py
+.. literalinclude:: ../../baf/test/examples/multiagent/main_agent.py
    :language: python
    :linenos:
 
@@ -62,7 +62,7 @@ Developer Main Agent
 Coder Agent
 -----------
 
-.. literalinclude:: ../../besser/agent/test/examples/multiagent/coder_agent.py
+.. literalinclude:: ../../baf/test/examples/multiagent/coder_agent.py
    :language: python
    :linenos:
 
@@ -70,6 +70,6 @@ Coder Agent
 Code Reviewer Agent
 -------------------
 
-.. literalinclude:: ../../besser/agent/test/examples/multiagent/reviewer_agent.py
+.. literalinclude:: ../../baf/test/examples/multiagent/reviewer_agent.py
    :language: python
    :linenos:

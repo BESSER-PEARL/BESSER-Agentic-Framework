@@ -1,7 +1,7 @@
 Files
 =====
 
-The :class:`File <besser.agent.core.file.File>` class was added as a way to help with the definition of file objects that are both sent and received by users.
+The :class:`File <baf.core.file.File>` class was added as a way to help with the definition of file objects that are both sent and received by users.
 
 File Object Definition
 ----------------------
@@ -54,8 +54,8 @@ platform-specific function (not every platform might support it):
 API References
 --------------
 
-- File: :class:`besser.agent.core.file.File`
-- ReceiveFileEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveFileEvent`
-- Session: :class:`besser.agent.core.session.Session`
-- TelegramPlatform.reply_file(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
-- WebSocketPlatform.reply_file(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`
+- File: :class:`baf.core.file.File`
+- ReceiveFileEvent: :class:`baf.library.transition.events.base_events.ReceiveFileEvent`
+- Session: :class:`baf.core.session.Session`
+- TelegramPlatform.reply_file(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
+- WebSocketPlatform.reply_file(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`

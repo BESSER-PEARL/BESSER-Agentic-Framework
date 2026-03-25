@@ -1,7 +1,7 @@
 property
 ========
 
-.. automodule:: besser.agent.core.property
+.. automodule:: baf.core.property
    :members:
    :private-members:
    :undoc-members:

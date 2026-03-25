@@ -36,7 +36,7 @@ First of all, we create our agent:
 
 .. code:: python
 
-    from besser.agent.core.agent import Agent
+    from baf.core.agent import Agent
 
     agent = Agent('greetings_agent')
     agent.load_properties('config.yaml')
@@ -103,7 +103,7 @@ An LLM, using the BAF :doc:`LLM wrappers <llm>`:
 
 .. code:: python
 
-    from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
+    from baf.nlp.llm.llm_openai_api import LLMOpenAI
 
     gpt = LLMOpenAI(agent=agent, name='gpt-4o-mini')
 
@@ -168,7 +168,7 @@ Finally, let's use the RAG within a state (it can be used in both the body and t
         websocket_platform.reply_rag(session, rag_message)
 
 
-A :class:`~besser.agent.nlp.rag.rag.RAGMessage` is the return object of the RAG. It contains the generated answer together
+A :class:`~baf.nlp.rag.rag.RAGMessage` is the return object of the RAG. It contains the generated answer together
 with the retrieved documents, and additional metadata.
 
 The :doc:`../platforms/websocket_platform` includes a method to reply this kind of messages, and our Streamlit UI can display them within
@@ -177,15 +177,15 @@ expander containers that show the retrieved documents to the user.
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.load_properties(): :meth:`besser.agent.core.agent.Agent.load_properties`
-- Agent.use_websocket_platform(): :meth:`besser.agent.core.agent.Agent.use_websocket_platform`
-- LLMOpenAI: :class:`besser.agent.nlp.llm.llm_openai_api.LLMOpenAI`
-- RAG: :class:`besser.agent.nlp.rag.rag.RAG`
-- RAG.load_pdfs(): :meth:`besser.agent.nlp.rag.rag.RAG.load_pdfs`
-- RAG.run(): :meth:`besser.agent.nlp.rag.rag.RAG.run`
-- RAGMessage: :class:`besser.agent.nlp.rag.rag.RAGMessage`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Session.run_rag(): :meth:`besser.agent.core.session.Session.run_rag`
-- WebSocketPlatform.reply_rag(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_rag`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.load_properties(): :meth:`baf.core.agent.Agent.load_properties`
+- Agent.use_websocket_platform(): :meth:`baf.core.agent.Agent.use_websocket_platform`
+- LLMOpenAI: :class:`baf.nlp.llm.llm_openai_api.LLMOpenAI`
+- RAG: :class:`baf.nlp.rag.rag.RAG`
+- RAG.load_pdfs(): :meth:`baf.nlp.rag.rag.RAG.load_pdfs`
+- RAG.run(): :meth:`baf.nlp.rag.rag.RAG.run`
+- RAGMessage: :class:`baf.nlp.rag.rag.RAGMessage`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Session.run_rag(): :meth:`baf.core.session.Session.run_rag`
+- WebSocketPlatform.reply_rag(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_rag`

@@ -59,7 +59,7 @@ Let's see how to use base entities with an example:
 
 .. code:: python
 
-    from besser.agent.library.entity.base_entities import number_entity
+    from baf.library.entity.base_entities import number_entity
     ...
     agent.add_entity(number_entity)
 
@@ -80,17 +80,17 @@ Let's see how to use base entities with an example:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.add_entity(): :meth:`besser.agent.core.agent.Agent.add_entity`
-- Agent.new_entity(): :meth:`besser.agent.core.agent.Agent.new_entity`
-- Entity: :class:`besser.agent.core.entity.entity.Entity`
-- EntityEntry: :class:`besser.agent.core.entity.entity_entry.EntityEntry`
-- Intent: :class:`besser.agent.core.intent.intent.Intent`
-- Intent.parameter(): :meth:`besser.agent.core.intent.intent.Intent.parameter`
-- IntentClassifierPrediction: :class:`besser.agent.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
-- MatchedParameter: :class:`besser.agent.nlp.ner.matched_parameter.MatchedParameter`
-- ReceiveTextEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveTextEvent`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Session.set(): :meth:`besser.agent.core.session.Session.set`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.add_entity(): :meth:`baf.core.agent.Agent.add_entity`
+- Agent.new_entity(): :meth:`baf.core.agent.Agent.new_entity`
+- Entity: :class:`baf.core.entity.entity.Entity`
+- EntityEntry: :class:`baf.core.entity.entity_entry.EntityEntry`
+- Intent: :class:`baf.core.intent.intent.Intent`
+- Intent.parameter(): :meth:`baf.core.intent.intent.Intent.parameter`
+- IntentClassifierPrediction: :class:`baf.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
+- MatchedParameter: :class:`baf.nlp.ner.matched_parameter.MatchedParameter`
+- ReceiveTextEvent: :class:`baf.library.transition.events.base_events.ReceiveTextEvent`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Session.set(): :meth:`baf.core.session.Session.set`
 

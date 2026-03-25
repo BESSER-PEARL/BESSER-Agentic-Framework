@@ -12,8 +12,8 @@ Create the handler once when defining the agent:
 
 .. code:: python
 
-    from besser.agent.core.agent import Agent
-    from besser.agent.db import DBHandler
+    from baf.core.agent import Agent
+    from baf.db import DBHandler
 
     agent = Agent('weather_agent')
     agent.load_properties('config.yaml')
@@ -45,7 +45,7 @@ The handler is available in sessions as ``session.db_handler``.
 
 .. code:: python
 
-    from besser.agent.core.session import Session
+    from baf.core.session import Session
 
     def weather_body(session: Session):
         city = 'Barcelona'
@@ -108,11 +108,11 @@ language with an LLM.
 API References
 --------------
 
-- DBHandler: :class:`besser.agent.db.db_handler.DBHandler`
-- Agent.use_db_handler(): :meth:`besser.agent.core.agent.Agent.use_db_handler`
-- Session.db_handler: :attr:`besser.agent.core.session.Session.db_handler`
-- DBHandler.query(): :meth:`besser.agent.db.db_handler.DBHandler.query`
-- DBHandler.select(): :meth:`besser.agent.db.db_handler.DBHandler.select`
-- DBHandler.insert(): :meth:`besser.agent.db.db_handler.DBHandler.insert`
-- DBHandler.update(): :meth:`besser.agent.db.db_handler.DBHandler.update`
-- DBHandler.delete(): :meth:`besser.agent.db.db_handler.DBHandler.delete`
+- DBHandler: :class:`baf.db.db_handler.DBHandler`
+- Agent.use_db_handler(): :meth:`baf.core.agent.Agent.use_db_handler`
+- Session.db_handler: :attr:`baf.core.session.Session.db_handler`
+- DBHandler.query(): :meth:`baf.db.db_handler.DBHandler.query`
+- DBHandler.select(): :meth:`baf.db.db_handler.DBHandler.select`
+- DBHandler.insert(): :meth:`baf.db.db_handler.DBHandler.insert`
+- DBHandler.update(): :meth:`baf.db.db_handler.DBHandler.update`
+- DBHandler.delete(): :meth:`baf.db.db_handler.DBHandler.delete`

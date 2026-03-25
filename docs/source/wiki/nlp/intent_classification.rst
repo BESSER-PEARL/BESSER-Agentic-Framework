@@ -27,7 +27,7 @@ This is how you can create an intent classifier configuration:
 
 .. code:: python
 
-    from besser.agent.nlp.intent_classifier.intent_classifier_configuration import SimpleIntentClassifierConfiguration
+    from baf.nlp.intent_classifier.intent_classifier_configuration import SimpleIntentClassifierConfiguration
 
     agent = Agent('example_agent')
 
@@ -56,8 +56,8 @@ Or a default configuration for all states (note that this would replace any prev
 
 .. note::
 
-    All intent classifier configuration classes implement the :class:`~besser.agent.nlp.intent_classifier.intent_classifier_configuration.IntentClassifierConfiguration` class
-    and all intent classifiers implement the :class:`~besser.agent.nlp.intent_classifier.intent_classifier.IntentClassifier` class
+    All intent classifier configuration classes implement the :class:`~baf.nlp.intent_classifier.intent_classifier_configuration.IntentClassifierConfiguration` class
+    and all intent classifiers implement the :class:`~baf.nlp.intent_classifier.intent_classifier.IntentClassifier` class
 
 
 .. _simple-intent-classifier:
@@ -71,11 +71,11 @@ sentences.
 
 We provide 2 implementations of the same intent classifier:
 
-- :class:`~besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch.SimpleIntentClassifierTorch`:
+- :class:`~baf.nlp.intent_classifier.simple_intent_classifier_pytorch.SimpleIntentClassifierTorch`:
   PyTorch-based implementation. It uses a `PyTorch module <https://pytorch.org/docs/stable/generated/torch.nn.Module>`_
   as the prediction model.
 
-- :class:`~besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow.SimpleIntentClassifierTF`:
+- :class:`~baf.nlp.intent_classifier.simple_intent_classifier_tensorflow.SimpleIntentClassifierTF`:
   Tensorflow-based implementation. It uses a `Keras <https://keras.io/>`_ neural network as the prediction model.
 
 .. note::
@@ -91,9 +91,9 @@ neural network as the prediction model. It is trained with the intent's training
 When running, it is able to predict the intent of a message if it is close to any of the training sentences.
 
 You can see all the configuration possibilities of this intent classifier here (including the framework selection):
-:class:`~besser.agent.nlp.intent_classifier.intent_classifier_configuration.SimpleIntentClassifierConfiguration`
+:class:`~baf.nlp.intent_classifier.intent_classifier_configuration.SimpleIntentClassifierConfiguration`
 
-The :obj:`~besser.agent.nlp.NLP_PRE_PROCESSING` agent property influences the performance of this intent classifier. If you
+The :obj:`~baf.nlp.NLP_PRE_PROCESSING` agent property influences the performance of this intent classifier. If you
 decide to preprocess the user messages (this is done before the intent prediction), the intent predictions will
 probably be more accurate.
 
@@ -151,13 +151,13 @@ reply_options message and let the user write, although if you want to force the 
 LLM Intent Classifier
 ---------------------
 
-The :class:`~besser.agent.nlp.intent_classifier.llm_intent_classifier.LLMIntentClassifier` uses a :doc:`Large Language Model
+The :class:`~baf.nlp.intent_classifier.llm_intent_classifier.LLMIntentClassifier` uses a :doc:`Large Language Model
 (LLM) <llm>` to predict the intent of a message. LLMs are multimodal models that can solve a wide variety of tasks just by
 providing them the right prompts in natural language. In this case, we can ask them to classify a sentence into the
 appropriate intent.
 
 You can see all the configuration possibilities of this intent classifier here:
-:class:`~besser.agent.nlp.intent_classifier.intent_classifier_configuration.LLMIntentClassifierConfiguration`
+:class:`~baf.nlp.intent_classifier.intent_classifier_configuration.LLMIntentClassifierConfiguration`
 
 When to use it?
 ~~~~~~~~~~~~~~~
@@ -193,8 +193,8 @@ want to think about them all, we can simply provide an intent description and us
 
 .. code:: python
 
-    from besser.agent.nlp.intent_classifier.intent_classifier_configuration import LLMIntentClassifierConfiguration
-    from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
+    from baf.nlp.intent_classifier.intent_classifier_configuration import LLMIntentClassifierConfiguration
+    from baf.nlp.llm.llm_openai_api import LLMOpenAI
 
     agent = Agent('example_agent')
     llm = LLMOpenAI(agent=agent, name='gpt-4o-mini')
@@ -230,19 +230,19 @@ want to think about them all, we can simply provide an intent description and us
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.new_intent(): :meth:`besser.agent.core.agent.Agent.new_intent`
-- Agent.new_state(): :meth:`besser.agent.core.agent.Agent.new_state`
-- Agent.set_default_ic_config(): :meth:`besser.agent.core.agent.Agent.set_default_ic_config`
-- Intent: :class:`besser.agent.core.intent.intent.Intent`
-- IntentClassifierConfiguration: :class:`besser.agent.nlp.intent_classifier.intent_classifier_configuration.IntentClassifierConfiguration`
-- LLMIntentClassifierConfiguration: :class:`besser.agent.nlp.intent_classifier.intent_classifier_configuration.LLMIntentClassifierConfiguration`
-- LLMOpenAI: :class:`besser.agent.nlp.llm.llm_openai_api.LLMIntentClassifierConfiguration`
-- Session: :class:`besser.agent.core.session.Session`
-- SimpleIntentClassifierConfiguration: :class:`besser.agent.nlp.intent_classifier.intent_classifier_configuration.SimpleIntentClassifierConfiguration`
-- SimpleIntentClassifierTF: :class:`besser.agent.nlp.intent_classifier.simple_intent_classifier_tensorflow.SimpleIntentClassifierTF`
-- SimpleIntentClassifierTorch: :class:`besser.agent.nlp.intent_classifier.simple_intent_classifier_pytorch.SimpleIntentClassifierTorch`
-- State: :class:`besser.agent.core.state.State`
-- State.set_body(): :meth:`besser.agent.core.state.State.set_body`
-- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
-- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.new_intent(): :meth:`baf.core.agent.Agent.new_intent`
+- Agent.new_state(): :meth:`baf.core.agent.Agent.new_state`
+- Agent.set_default_ic_config(): :meth:`baf.core.agent.Agent.set_default_ic_config`
+- Intent: :class:`baf.core.intent.intent.Intent`
+- IntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.IntentClassifierConfiguration`
+- LLMIntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.LLMIntentClassifierConfiguration`
+- LLMOpenAI: :class:`baf.nlp.llm.llm_openai_api.LLMIntentClassifierConfiguration`
+- Session: :class:`baf.core.session.Session`
+- SimpleIntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.SimpleIntentClassifierConfiguration`
+- SimpleIntentClassifierTF: :class:`baf.nlp.intent_classifier.simple_intent_classifier_tensorflow.SimpleIntentClassifierTF`
+- SimpleIntentClassifierTorch: :class:`baf.nlp.intent_classifier.simple_intent_classifier_pytorch.SimpleIntentClassifierTorch`
+- State: :class:`baf.core.state.State`
+- State.set_body(): :meth:`baf.core.state.State.set_body`
+- State.when_intent_matched(): :meth:`baf.core.state.State.when_intent_matched`
+- TransitionBuilder.go_to(): :meth:`baf.core.transition.transition_builder.TransitionBuilder.go_to`

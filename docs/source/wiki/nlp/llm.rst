@@ -33,7 +33,7 @@ We are going to create an LLMOpenAI:
 
 .. code:: python
 
-    from besser.agent.nlp.llm.llm_openai_api import LLMOpenAI
+    from baf.nlp.llm.llm_openai_api import LLMOpenAI
 
     agent = Agent('example_agent')
 
@@ -93,20 +93,20 @@ Available LLMs
 --------------
 
 BAF comes with LLM wrappers that provide the necessary methods to use them. All LLM wrappers must implement the
-:class:`~besser.agent.nlp.llm.llm.LLM` class, which comes with the following methods to be implemented:
+:class:`~baf.nlp.llm.llm.LLM` class, which comes with the following methods to be implemented:
 
-- :meth:`~besser.agent.nlp.llm.llm.LLM.initialize`: Initialize the LLM.
-- :meth:`~besser.agent.nlp.llm.llm.LLM.predict`: Generate the output for a given input.
-- :meth:`~besser.agent.nlp.llm.llm.LLM.chat`: Simulate a conversation. The LLM receives previous messages to be able to continue with a conversation. Necessary to get chat history from the :doc:`database <../db/monitoring_db>`. Not mandatory to implement.
-- :meth:`~besser.agent.nlp.llm.llm.LLM.intent_classification`: Predict the intent of a given message (it allows the
+- :meth:`~baf.nlp.llm.llm.LLM.initialize`: Initialize the LLM.
+- :meth:`~baf.nlp.llm.llm.LLM.predict`: Generate the output for a given input.
+- :meth:`~baf.nlp.llm.llm.LLM.chat`: Simulate a conversation. The LLM receives previous messages to be able to continue with a conversation. Necessary to get chat history from the :doc:`database <../db/monitoring_db>`. Not mandatory to implement.
+- :meth:`~baf.nlp.llm.llm.LLM.intent_classification`: Predict the intent of a given message (it allows the
   :any:`llm-intent-classifier` to use this LLM). Not mandatory to implement.
 
 These are the currently available LLM wrappers in BAF:
 
-- :class:`~besser.agent.nlp.llm.llm_openai_api.LLMOpenAI`: For `OpenAI <https://platform.openai.com/docs/models>`_ LLMs
-- :class:`~besser.agent.nlp.llm.llm_huggingface.LLMHuggingFace`: For `HuggingFace <https://huggingface.co/>`_ LLMs locally deployed
-- :class:`~besser.agent.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`: For HuggingFace LLMs, through its `Inference API <https://huggingface.co/docs/api-inference>`_
-- :class:`~besser.agent.nlp.llm.llm_replicate_api.LLMReplicate`: For `Replicate <https://replicate.com/>`_ LLMs, through its API
+- :class:`~baf.nlp.llm.llm_openai_api.LLMOpenAI`: For `OpenAI <https://platform.openai.com/docs/models>`_ LLMs
+- :class:`~baf.nlp.llm.llm_huggingface.LLMHuggingFace`: For `HuggingFace <https://huggingface.co/>`_ LLMs locally deployed
+- :class:`~baf.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`: For HuggingFace LLMs, through its `Inference API <https://huggingface.co/docs/api-inference>`_
+- :class:`~baf.nlp.llm.llm_replicate_api.LLMReplicate`: For `Replicate <https://replicate.com/>`_ LLMs, through its API
 
 .. note::
 
@@ -116,14 +116,14 @@ These are the currently available LLM wrappers in BAF:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- LLM: :class:`besser.agent.nlp.llm.llm.LLM`
-- LLM.predict(): :meth:`besser.agent.nlp.llm.llm.LLM.predict`
-- LLM.add_user_context(): :meth:`besser.agent.nlp.llm.llm.LLM.add_user_context`
-- LLM.remove_user_context(): :meth:`besser.agent.nlp.llm.llm.LLM.remove_user_context`
-- LLMHuggingFace: :class:`besser.agent.nlp.llm.llm_huggingface.LLMHuggingFace`:
-- LLMHuggingFaceAPI: :class:`besser.agent.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`:
-- LLMOpenAI: :class:`besser.agent.nlp.llm.llm_openai_api.LLMOpenAI`
-- LLMReplicate: :class:`besser.agent.nlp.llm.llm_replicate_api.LLMReplicate`:
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
+- Agent: :class:`baf.core.agent.Agent`
+- LLM: :class:`baf.nlp.llm.llm.LLM`
+- LLM.predict(): :meth:`baf.nlp.llm.llm.LLM.predict`
+- LLM.add_user_context(): :meth:`baf.nlp.llm.llm.LLM.add_user_context`
+- LLM.remove_user_context(): :meth:`baf.nlp.llm.llm.LLM.remove_user_context`
+- LLMHuggingFace: :class:`baf.nlp.llm.llm_huggingface.LLMHuggingFace`:
+- LLMHuggingFaceAPI: :class:`baf.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`:
+- LLMOpenAI: :class:`baf.nlp.llm.llm_openai_api.LLMOpenAI`
+- LLMReplicate: :class:`baf.nlp.llm.llm_replicate_api.LLMReplicate`:
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`

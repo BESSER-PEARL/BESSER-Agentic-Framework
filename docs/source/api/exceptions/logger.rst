@@ -1,7 +1,7 @@
 logger
 ======
 
-.. automodule:: besser.agent.exceptions.logger
+.. automodule:: baf.exceptions.logger
    :members:
    :private-members:
    :undoc-members:

@@ -137,7 +137,7 @@ You could update the chat history to record the audio messages, either adding th
 .. code:: python
 
     from datetime import datetime
-    from besser.agent.core.message import Message, MessageType
+    from baf.core.message import Message, MessageType
 
     def custom_send_audio(session: Session, audio):
         message = Message(MessageType.AUDIO, audio, is_user=False, timestamp=datetime.now())
@@ -155,15 +155,15 @@ The Telegram platform has session persistence enabled by default if the :doc:`mo
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.get_or_create_session(): :meth:`besser.agent.core.agent.Agent.get_or_create_session`
-- Agent.use_telegram_platform(): :meth:`besser.agent.core.agent.Agent.use_telegram_platform`
-- File: :class:`besser.agent.core.file.File`
-- Message: :class:`besser.agent.core.message.Message`
-- MessageType: :class:`besser.agent.core.message.MessageType`
-- TelegramPlatform: :class:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform`
-- TelegramPlatform.add_handler(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.add_handler`
-- TelegramPlatform.reply(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply`
-- TelegramPlatform.reply_file(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
-- TelegramPlatform.reply_image(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply_image`
-- TelegramPlatform.reply_location(): :meth:`besser.agent.platforms.telegram.telegram_platform.TelegramPlatform.reply_location`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.get_or_create_session(): :meth:`baf.core.agent.Agent.get_or_create_session`
+- Agent.use_telegram_platform(): :meth:`baf.core.agent.Agent.use_telegram_platform`
+- File: :class:`baf.core.file.File`
+- Message: :class:`baf.core.message.Message`
+- MessageType: :class:`baf.core.message.MessageType`
+- TelegramPlatform: :class:`baf.platforms.telegram.telegram_platform.TelegramPlatform`
+- TelegramPlatform.add_handler(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.add_handler`
+- TelegramPlatform.reply(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply`
+- TelegramPlatform.reply_file(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
+- TelegramPlatform.reply_image(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply_image`
+- TelegramPlatform.reply_location(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply_location`

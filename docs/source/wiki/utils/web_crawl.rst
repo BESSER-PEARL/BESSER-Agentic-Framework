@@ -10,7 +10,7 @@ Basic usage
 
 .. code:: python
 
-    from besser.agent.utils.web_crawl import crawl_website
+    from baf.utils.web_crawl import crawl_website
 
     pages = crawl_website(
         initial_url="https://besser-pearl.org/",
@@ -25,7 +25,7 @@ Basic usage
 How it works
 ------------
 
-- URLs are normalized with :func:`besser.agent.utils.web_crawl.normalize_url`.
+- URLs are normalized with :func:`baf.utils.web_crawl.normalize_url`.
 - Crawling is breadth-first up to ``max_depth`` and ``max_pages``.
 - Links are restricted to the same domain as ``initial_url``.
 - If ``base_url_prefix`` is provided, only matching URLs are included.
@@ -33,5 +33,5 @@ How it works
 API References
 --------------
 
-- normalize_url(): :func:`besser.agent.utils.web_crawl.normalize_url`
-- crawl_website(): :func:`besser.agent.utils.web_crawl.crawl_website`
+- normalize_url(): :func:`baf.utils.web_crawl.normalize_url`
+- crawl_website(): :func:`baf.utils.web_crawl.crawl_website`

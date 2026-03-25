@@ -43,4 +43,4 @@ Breaking Changes
 
 - ``config.ini`` files are no longer supported. All agent configurations must be
   migrated to ``config.yaml``. See the migration guide above and the updated example
-  configuration files in ``besser/agent/test/examples/``.
+  configuration files in ``baf/test/examples/``.

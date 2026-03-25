@@ -1,7 +1,7 @@
 event
 =====
 
-.. automodule:: besser.agent.core.transition.event
+.. automodule:: baf.core.transition.event
    :members:
    :private-members:
    :undoc-members:

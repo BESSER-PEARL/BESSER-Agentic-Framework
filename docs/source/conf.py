@@ -147,13 +147,13 @@ f"""{module_name}
         file.write(package_rst)
 
 
-generate_api_rst_files('../../', 'besser/agent/core', './api/core')
-generate_api_rst_files('../../', 'besser/agent/exceptions', './api/exceptions')
-generate_api_rst_files('../../', 'besser/agent/library', './api/library')
-generate_api_rst_files('../../', 'besser/agent/nlp', './api/nlp')
-generate_api_rst_files('../../', 'besser/agent/db', './api/db')
-generate_api_rst_files('../../', 'besser/agent/platforms', './api/platforms')
-generate_api_rst_files('../../', 'besser/agent/utils', './api/utils')
+generate_api_rst_files('../../', 'baf/agent/core', './api/core')
+generate_api_rst_files('../../', 'baf/agent/exceptions', './api/exceptions')
+generate_api_rst_files('../../', 'baf/agent/library', './api/library')
+generate_api_rst_files('../../', 'baf/agent/nlp', './api/nlp')
+generate_api_rst_files('../../', 'baf/agent/db', './api/db')
+generate_api_rst_files('../../', 'baf/agent/platforms', './api/platforms')
+generate_api_rst_files('../../', 'baf/agent/utils', './api/utils')
 
 
 def linkcode_resolve(domain, info):

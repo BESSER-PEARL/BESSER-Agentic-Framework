@@ -1,7 +1,7 @@
 entity_entry
 ============
 
-.. automodule:: besser.agent.core.entity.entity_entry
+.. automodule:: baf.core.entity.entity_entry
    :members:
    :private-members:
    :undoc-members:
