@@ -18,6 +18,9 @@ platforms:
   websocket:
     host: localhost
     port: 8765
+    # origins:
+    #   - "https://example.com"
+    #   - "https://app.example.com"
     streamlit:
       host: localhost
       port: 5000

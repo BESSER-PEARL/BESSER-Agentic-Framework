@@ -146,6 +146,8 @@ class Agent:
             return
 
         if isinstance(data, list):
+            if prefix:
+                self._config[prefix] = data
             for index, item in enumerate(data):
                 if isinstance(item, dict) and len(item) == 1:
                     item_key, item_value = next(iter(item.items()))

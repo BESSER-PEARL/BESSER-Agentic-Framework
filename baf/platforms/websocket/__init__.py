@@ -33,6 +33,26 @@ type: ``int``
 default value: ``None``
 """
 
+WEBSOCKET_ORIGINS = Property('platforms.websocket.origins', list, None)
+"""
+List of allowed origins for WebSocket connections. When set, only connections from these origins
+will be accepted. When :obj:`None` (default), connections from any origin are allowed.
+
+Example in ``config.yaml``::
+
+    platforms:
+      websocket:
+        origins:
+          - "https://editor.besser-pearl.org"
+          - "https://localhost"
+
+name: ``platforms.websocket.origins``
+
+type: ``list``
+
+default value: ``None``
+"""
+
 STREAMLIT_HOST = Property('platforms.websocket.streamlit.host', str, 'localhost')
 """
 The Streamlit UI host address. If you are using our default UI, you must define its address where you can access and 
