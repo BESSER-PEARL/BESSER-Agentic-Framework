@@ -47,7 +47,7 @@ allowed to connect by setting the ``origins`` property in your ``config.yaml``:
         port: 8765
         origins:
           - "https://editor.besser-pearl.org"
-          - "https://experimental.besser-pearl.org"
+          - "https://localhost:8000"
 
 When ``origins`` is set, the server will reject WebSocket upgrade requests from any origin not in the list.
 When not set (default), all origins are accepted.
