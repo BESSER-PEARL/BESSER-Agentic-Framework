@@ -9,7 +9,7 @@ from baf.library.coroutine.async_helpers import sync_coro_call
 from baf.core.session import Session
 from baf.exceptions.logger import logger
 from baf.platforms import gitlab
-from baf.platforms.gitlab.gitlab_actions import *
+from baf.platforms.gitlab.gitlab_actions import open_issue, get_issue, comment_issue, set_label, assign_user
 from baf.platforms.gitlab.gitlab_objects import Issue
 from baf.library.transition.events.gitlab_webhooks_events import GitLabEvent
 from baf.platforms.payload import Payload

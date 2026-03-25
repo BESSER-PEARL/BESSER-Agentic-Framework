@@ -140,7 +140,7 @@ def _set_ready_state(value: bool):
 
 
 def on_error(ws, error):
-    pass
+    logger.error(f"WebSocket error: {error}")
 
 
 def on_open(ws):
@@ -150,7 +150,7 @@ def on_open(ws):
 def on_close(ws, close_status_code, close_msg):
     try:
         _set_ready_state(False)
-    except:
+    except Exception:
         logger.info(f"Websocket connection is closed with code {close_status_code}")
 
 

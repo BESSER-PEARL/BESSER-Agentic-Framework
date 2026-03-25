@@ -207,11 +207,9 @@ class WebSocketPlatform(Platform):
                             session.set(key, value)
                             logger.info(f"Session variable {key} set to {value}.")
             except ConnectionClosedError:
-                pass
-                # logger.error(f'The client closed unexpectedly')
+                logger.info('Client connection closed unexpectedly')
             except Exception as e:
-                pass
-                # logger.error(f"Server Error: {e}")
+                logger.error(f"Server Error: {e}")
             finally:
                 # Remove connection from tracking
                 if session:

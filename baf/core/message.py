@@ -24,6 +24,7 @@ def get_message_type(value: str):
     for message_type in MessageType:
         if message_type.value == value:
             return message_type
+    return None
 
 
 class Message:

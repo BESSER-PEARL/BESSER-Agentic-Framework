@@ -43,6 +43,7 @@ class PiperText2Speech(Text2Speech):
 
     def text2speech(self, text: str) -> dict:
         """Sends text to the Dockerized Piper service and plays the audio."""
+        tts = {}
         try:
             payload = {"text": text}
             logger.info(f"Sending request to {self._piper_api_url}...")
@@ -75,7 +76,7 @@ class PiperText2Speech(Text2Speech):
             # Print response body if it contains error details
             try:
                 logger.error(f"Service Response: {response.json()}")
-            except:  # Handle cases where response is not JSON
+            except Exception:  # Handle cases where response is not JSON
                 logger.error(f"Service Response (raw): {response.text}")
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")

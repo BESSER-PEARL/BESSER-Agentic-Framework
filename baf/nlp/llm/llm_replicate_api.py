@@ -65,7 +65,9 @@ class LLMReplicate(LLM):
 
     def initialize(self) -> None:
         if 'REPLICATE_API_TOKEN' not in os.environ:
-            os.environ['REPLICATE_API_TOKEN'] = self._nlp_engine.get_property(nlp.REPLICATE_API_KEY)
+            api_key = self._nlp_engine.get_property(nlp.REPLICATE_API_KEY)
+            if api_key:
+                os.environ['REPLICATE_API_TOKEN'] = str(api_key)
 
     def predict(self, message: str, parameters: dict = None, session: 'Session' = None, system_message: str = None) -> str:
         if not parameters:

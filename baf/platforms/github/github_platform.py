@@ -10,7 +10,7 @@ from baf.library.coroutine.async_helpers import sync_coro_call
 from baf.core.session import Session
 from baf.exceptions.logger import logger
 from baf.platforms import github
-from baf.platforms.github.github_actions import *
+from baf.platforms.github.github_actions import open_issue, get_issue, comment_issue, set_label, assign_user
 from baf.platforms.github.github_objects import Issue
 from baf.library.transition.events.github_webhooks_events import GitHubEvent
 from baf.platforms.payload import Payload
