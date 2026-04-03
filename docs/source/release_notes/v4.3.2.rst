@@ -1,0 +1,11 @@
+Version 4.3.2
+=============
+
+Breaking Changes
+----------------
+
+This release primarily updates the codebase to use the new baf package namespace instead of the previous besser.agent namespace.
+It also updates import statements, documentation references, and example paths to reflect this change.
+Additionally, there are minor functional improvements and bug fixes.
+
+See the reference issue --> https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/issues/164
