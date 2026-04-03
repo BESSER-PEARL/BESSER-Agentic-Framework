@@ -1,7 +1,7 @@
 rag
 ===
 
-.. automodule:: besser.agent.nlp.rag.rag
+.. automodule:: baf.nlp.rag.rag
    :members:
    :private-members:
    :undoc-members:

@@ -13,9 +13,9 @@ Required imports are:
 
     import asyncio
     from aiohttp import web
-    from besser.agent.core.agent import Agent
-    from besser.agent.platforms.a2a.agent_registry import AgentRegistry
-    from besser.agent.platforms.a2a.server import create_app
+    from baf.core.agent import Agent
+    from baf.platforms.a2a.agent_registry import AgentRegistry
+    from baf.platforms.a2a.server import create_app
 
 
 Define an agent (with its name), attach it to an A2A platform and register the agent's platform with an ID (this is the agent ID that the users will use to identify this agent).
@@ -146,19 +146,19 @@ More examples can be viewed at :doc:`/examples/a2a_multiagent`
 API References
 --------------
 
-For more details, see the :class:`besser.agent.platforms.a2a.A2APlatform` class documentation.
+For more details, see the :class:`baf.platforms.a2a.A2APlatform` class documentation.
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.use_a2a_platform(): :meth:`besser.agent.core.agent.Agent.use_a2a_platform`
-- A2APlatform: :class:`besser.agent.platforms.a2a.a2a_platform.A2APlatform`
-- AgentCard: :class:`besser.agent.platforms.a2a.agent_card.AgentCard`
-- HTTP_polling(): :meth:`besser.agent.platforms.a2a.server.a2a_handler`
-- SSE(): :meth:`besser.agent.platforms.a2a.server.sse_event_handler`
-- Task: :class:`besser.agent.platforms.a2a.task_protocol.Task`
-- A2ARouter: :class:`besser.agent.platforms.a2a.message_router.A2ARouter`
-- aiohttp_handler(): :meth:`besser.agent.platforms.a2a.message_router.A2ARouter.aiohttp_handler`
-- error_response(): :meth:`besser.agent.platforms.a2a.error_handler.error_response`
-- AgentRegistry: :class:`besser.agent.platforms.a2a.agent_registry.AgentRegistry`
-- rpc_call_agent(): :meth:`besser.agent.platforms.a2a.a2a_platform.A2APlatform.rpc_call_agent`
-- rpc_call_agent_tracked(): :meth:`besser.agent.platforms.a2a.a2a_platform.A2APlatform.rpc_call_agent_tracked`
-- register_orchestration_as_task(): :meth:`besser.agent.platforms.a2a.a2a_platform.A2APlatform.register_orchestration_as_task`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.use_a2a_platform(): :meth:`baf.core.agent.Agent.use_a2a_platform`
+- A2APlatform: :class:`baf.platforms.a2a.a2a_platform.A2APlatform`
+- AgentCard: :class:`baf.platforms.a2a.agent_card.AgentCard`
+- HTTP_polling(): :meth:`baf.platforms.a2a.server.a2a_handler`
+- SSE(): :meth:`baf.platforms.a2a.server.sse_event_handler`
+- Task: :class:`baf.platforms.a2a.task_protocol.Task`
+- A2ARouter: :class:`baf.platforms.a2a.message_router.A2ARouter`
+- aiohttp_handler(): :meth:`baf.platforms.a2a.message_router.A2ARouter.aiohttp_handler`
+- error_response(): :meth:`baf.platforms.a2a.error_handler.error_response`
+- AgentRegistry: :class:`baf.platforms.a2a.agent_registry.AgentRegistry`
+- rpc_call_agent(): :meth:`baf.platforms.a2a.a2a_platform.A2APlatform.rpc_call_agent`
+- rpc_call_agent_tracked(): :meth:`baf.platforms.a2a.a2a_platform.A2APlatform.rpc_call_agent_tracked`
+- register_orchestration_as_task(): :meth:`baf.platforms.a2a.a2a_platform.A2APlatform.register_orchestration_as_task`

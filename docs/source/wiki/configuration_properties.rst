@@ -4,7 +4,7 @@ Configuration properties
 An agent needs some parameters to be set to properly work. In this section, you will find all of them, and we will explain
 you how to load them in the agent.
 
-An agent :class:`Property <besser.agent.core.property.Property>` has a name, a type and a default value
+An agent :class:`Property <baf.core.property.Property>` has a name, a type and a default value
 (for when the property is not defined by the agent developer).
 
 Property names follow flattened dot notation from the YAML hierarchy, e.g. ``platforms.websocket.host``.
@@ -18,7 +18,7 @@ You can define your agent properties in 2 different ways:
 - **Using a configuration `.yaml` file:** It is a file containing all the agent properties. Let's see an example
    ``config.yaml`` file:
 
-.. literalinclude:: ../../../besser/agent/test/examples/config.yaml
+.. literalinclude:: ../../../baf/test/examples/config.yaml
 
 Now you have to load the file into the agent:
 
@@ -31,7 +31,7 @@ Now you have to load the file into the agent:
 
 .. code:: python
 
-    from besser.agent.nlp import NLP_LANGUAGE
+    from baf.nlp import NLP_LANGUAGE
     ...
     agent = Agent('example_agent')
     agent.set_property(NLP_LANGUAGE, 'es')
@@ -46,7 +46,7 @@ You can also create your own properties:
 
 .. code:: python
 
-    from besser.agent.core.property import Property
+    from baf.core.property import Property
     ...
     FACEBOOK_PROFILE = Property('facebook.profile', str, 'https://www.facebook.com/foo')
     ...
@@ -59,7 +59,7 @@ Next, let's see all built-in properties, grouped by domain.
 Agent
 -----
 
-.. automodule:: besser.agent
+.. automodule:: baf
    :members:
 
 .. _properties-nlp:
@@ -67,7 +67,7 @@ Agent
 NLP
 ---
 
-.. automodule:: besser.agent.nlp
+.. automodule:: baf.nlp
    :members:
 
 .. _properties-websocket_platform:
@@ -75,7 +75,7 @@ NLP
 WebSocket Platform
 ------------------
 
-.. automodule:: besser.agent.platforms.websocket
+.. automodule:: baf.platforms.websocket
    :members:
 
 .. _properties-telegram_platform:
@@ -83,7 +83,7 @@ WebSocket Platform
 Telegram Platform
 ------------------
 
-.. automodule:: besser.agent.platforms.telegram
+.. automodule:: baf.platforms.telegram
    :members:
 
 .. _properties-github_platform:
@@ -91,7 +91,7 @@ Telegram Platform
 GitHub Platform
 ---------------
 
-.. automodule:: besser.agent.platforms.github
+.. automodule:: baf.platforms.github
    :members:
 
 .. _properties-gitlab_platform:
@@ -99,7 +99,7 @@ GitHub Platform
 GitLab Platform
 ---------------
 
-.. automodule:: besser.agent.platforms.gitlab
+.. automodule:: baf.platforms.gitlab
    :members:
 
 .. _properties-a2a_platform:
@@ -107,7 +107,7 @@ GitLab Platform
 A2A Platform
 ------------
 
-.. automodule:: besser.agent.platforms.a2a
+.. automodule:: baf.platforms.a2a
    :members:
 
 .. _properties-database:
@@ -115,7 +115,7 @@ A2A Platform
 Database
 --------
 
-.. automodule:: besser.agent.db
+.. automodule:: baf.db
    :members:
 
 .. _properties-streamlit_database:
@@ -123,14 +123,14 @@ Database
 Streamlit Database
 ------------------
 
-.. automodule:: besser.agent.platforms.websocket.streamlit_ui
+.. automodule:: baf.platforms.websocket.streamlit_ui
    :members:
 
 
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.set_property(): :meth:`besser.agent.core.agent.Agent.set_property`
-- Agent.get_property(): :meth:`besser.agent.core.agent.Agent.get_property`
-- Property: :class:`besser.agent.core.property.Property`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.set_property(): :meth:`baf.core.agent.Agent.set_property`
+- Agent.get_property(): :meth:`baf.core.agent.Agent.get_property`
+- Property: :class:`baf.core.property.Property`

@@ -18,7 +18,7 @@ New Features
     - Added support for all other HF Models (not just Whisper models)
     - Added support for OpenAI models (through the OpenAI API)
     - Added support for Luxembourgish speech recognition model (`LuxASR <https://luxasr.uni.lu/>`_)
-- Added the :class:`~besser.agent.core.processors.audio_language_detection_processor` class:
+- Added the :class:`~baf.core.processors.audio_language_detection_processor` class:
     - Allows you to recognize the language the user speaks and automatically assign the best model
 
 Improvements
@@ -29,4 +29,4 @@ Improvements
 Changes
 -------
 
-- NLPEngine.speech2text(): :meth:`besser.agent.nlp.nlp_engine.NLPEngine.speech2text` now requires a Session parameter
+- NLPEngine.speech2text(): :meth:`baf.nlp.nlp_engine.NLPEngine.speech2text` now requires a Session parameter

@@ -1,7 +1,7 @@
 client
 ======
 
-.. automodule:: besser.agent.platforms.a2a.client
+.. automodule:: baf.platforms.a2a.client
    :members:
    :private-members:
    :undoc-members:

@@ -31,7 +31,7 @@ After that, you can use the different :any:`events sent by GitLab <gitlab-events
 .. code:: python
 
     # Importing the events
-    from besser.agent.platforms.gitlab.gitlab_webhooks_events import MergeRequestOpened, IssuesOpened, WikiPageCreated, Push
+    from baf.platforms.gitlab.gitlab_webhooks_events import MergeRequestOpened, IssuesOpened, WikiPageCreated, Push
 
     # Merge Request
     idle.when_event(MergeRequestOpened()).go_to(merge_state)
@@ -61,7 +61,7 @@ The following example wait for issues opening events to add a thanking message a
 .. code:: python
 
     # How to import the Issue class
-    from besser.agent.platforms.gitlab.gitlab_objects import Issue
+    from baf.platforms.gitlab.gitlab_objects import Issue
 
     def issue_body(session: Session):
         # Access through the Session to the IssuesOpened GitLabEvent that triggered the transition
@@ -115,14 +115,14 @@ you can simply call it and it will be forwarded:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.use_gitlab_platform(): :meth:`besser.agent.core.agent.Agent.use_gitlab_platform`
-- GitLabEvent: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.GitLabEvent`
-- GitLabPlatform: :class:`besser.agent.platforms.gitlab.gitlab_platform.GitLabPlatform`
-- GitLabPlatform.comment_issue(): :meth:`besser.agent.platforms.gitlab.gitlab_platform.GitLabPlatform.comment_issue`
-- GitLabPlatform.get_issue(): :meth:`besser.agent.platforms.gitlab.gitlab_platform.GitLabPlatform.get_issue`
-- Issue: :meth:`besser.agent.platforms.gitlab.gitlab_objects.Issue`
-- IssuesOpened: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.IssuesOpened`
-- MergeRequestOpened: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.MergeRequestOpened`
-- Push: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.Push`
-- WikiPageCreated: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.WikiPageCreated`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.use_gitlab_platform(): :meth:`baf.core.agent.Agent.use_gitlab_platform`
+- GitLabEvent: :meth:`baf.library.transition.events.gitlab_webhooks_events.GitLabEvent`
+- GitLabPlatform: :class:`baf.platforms.gitlab.gitlab_platform.GitLabPlatform`
+- GitLabPlatform.comment_issue(): :meth:`baf.platforms.gitlab.gitlab_platform.GitLabPlatform.comment_issue`
+- GitLabPlatform.get_issue(): :meth:`baf.platforms.gitlab.gitlab_platform.GitLabPlatform.get_issue`
+- Issue: :meth:`baf.platforms.gitlab.gitlab_objects.Issue`
+- IssuesOpened: :meth:`baf.library.transition.events.gitlab_webhooks_events.IssuesOpened`
+- MergeRequestOpened: :meth:`baf.library.transition.events.gitlab_webhooks_events.MergeRequestOpened`
+- Push: :meth:`baf.library.transition.events.gitlab_webhooks_events.Push`
+- WikiPageCreated: :meth:`baf.library.transition.events.gitlab_webhooks_events.WikiPageCreated`

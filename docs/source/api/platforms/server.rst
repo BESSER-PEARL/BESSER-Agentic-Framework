@@ -1,7 +1,7 @@
 server
 ======
 
-.. automodule:: besser.agent.platforms.a2a.server
+.. automodule:: baf.platforms.a2a.server
    :members:
    :private-members:
    :undoc-members:

@@ -46,5 +46,5 @@ combination of both). Let's see an example entity:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.new_entity(): :meth:`besser.agent.core.agent.Agent.new_entity`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.new_entity(): :meth:`baf.core.agent.Agent.new_entity`

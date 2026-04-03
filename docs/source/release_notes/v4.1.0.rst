@@ -9,12 +9,12 @@ Using the standarized :doc:`Agent2Agent <../wiki/platforms/a2a_platform>` protoc
 New Features
 ------------
 
-- Registered a new platform for agent to communicate through Agent2Agent protocol :meth:`besser.agent.core.agent.use_a2a_platform`
-- Register an agent through :class:`~besser.agent.platforms.a2a.agent_registry.AgentRegistry` in the platform
+- Registered a new platform for agent to communicate through Agent2Agent protocol :meth:`baf.core.agent.use_a2a_platform`
+- Register an agent through :class:`~baf.platforms.a2a.agent_registry.AgentRegistry` in the platform
 - Exposing agents that are present and their respective agent-card through different host endpoints
 - Submitting a job as a task to the agent
 - Support for HTTP polling to know the status of a task 
-- Live task updates through SSE :meth:`besser.agent.platforms.a2a.server.sse_event_handler` (no need to reload the page to know the status)
+- Live task updates through SSE :meth:`baf.platforms.a2a.server.sse_event_handler` (no need to reload the page to know the status)
 - Filtering based on session_id is now possible in the DB monitoring
 
 Bug Fix

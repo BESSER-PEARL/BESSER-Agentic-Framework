@@ -1,7 +1,7 @@
 processor
 =========
 
-.. automodule:: besser.agent.core.processors.processor
+.. automodule:: baf.core.processors.processor
    :members:
    :private-members:
    :undoc-members:

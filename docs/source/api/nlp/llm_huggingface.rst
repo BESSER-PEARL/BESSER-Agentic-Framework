@@ -1,7 +1,7 @@
 llm_huggingface
 ===============
 
-.. automodule:: besser.agent.nlp.llm.llm_huggingface
+.. automodule:: baf.nlp.llm.llm_huggingface
    :members:
    :private-members:
    :undoc-members:

@@ -171,15 +171,15 @@ Note that, the final transition back to the original state always gets added to 
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.new_state(): :meth:`besser.agent.core.agent.Agent.new_state`
-- Agent.set_global_fallback_body(): :meth:`besser.agent.core.agent.Agent.set_global_fallback_body`
-- Intent: :class:`besser.agent.core.intent.intent.Intent`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- State: :class:`besser.agent.core.state.State`
-- State.set_body(): :meth:`besser.agent.core.state.State.set_body`
-- State.set_fallback_body(): :meth:`besser.agent.core.state.State.set_fallback_body`
-- State.set_global(): :meth:`besser.agent.core.state.State.set_global`
-- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
-- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.new_state(): :meth:`baf.core.agent.Agent.new_state`
+- Agent.set_global_fallback_body(): :meth:`baf.core.agent.Agent.set_global_fallback_body`
+- Intent: :class:`baf.core.intent.intent.Intent`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- State: :class:`baf.core.state.State`
+- State.set_body(): :meth:`baf.core.state.State.set_body`
+- State.set_fallback_body(): :meth:`baf.core.state.State.set_fallback_body`
+- State.set_global(): :meth:`baf.core.state.State.set_global`
+- State.when_intent_matched(): :meth:`baf.core.state.State.when_intent_matched`
+- TransitionBuilder.go_to(): :meth:`baf.core.transition.transition_builder.TransitionBuilder.go_to`

@@ -1,7 +1,7 @@
 payload
 =======
 
-.. automodule:: besser.agent.platforms.payload
+.. automodule:: baf.platforms.payload
    :members:
    :private-members:
    :undoc-members:

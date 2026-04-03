@@ -1,7 +1,7 @@
 message
 =======
 
-.. automodule:: besser.agent.core.message
+.. automodule:: baf.core.message
    :members:
    :private-members:
    :undoc-members:

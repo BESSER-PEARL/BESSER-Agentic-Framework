@@ -1,7 +1,7 @@
 message_router
 ==============
 
-.. automodule:: besser.agent.platforms.a2a.message_router
+.. automodule:: baf.platforms.a2a.message_router
    :members:
    :private-members:
    :undoc-members:

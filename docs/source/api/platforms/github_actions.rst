@@ -1,7 +1,7 @@
 github_actions
 ==============
 
-.. automodule:: besser.agent.platforms.github.github_actions
+.. automodule:: baf.platforms.github.github_actions
    :members:
    :private-members:
    :undoc-members:

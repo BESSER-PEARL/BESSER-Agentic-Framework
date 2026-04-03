@@ -79,15 +79,15 @@ Let's see the different things we can do with a user session.
 API References
 --------------
 
-- Event: :class:`besser.agent.core.transition.event.Event`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.delete(): :meth:`besser.agent.core.session.Session.delete`
-- Session.get(): :meth:`besser.agent.core.session.Session.get`
-- Session.get_chat_history(): :meth:`besser.agent.core.session.Session.get_chat_history`
-- Session.run_rag(): :meth:`besser.agent.core.session.Session.run_rag`
-- Session.send_message_to_websocket(): :meth:`besser.agent.core.session.Session.send_message_to_websocket`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Session.set(): :meth:`besser.agent.core.session.Session.set`
+- Event: :class:`baf.core.transition.event.Event`
+- Session: :class:`baf.core.session.Session`
+- Session.delete(): :meth:`baf.core.session.Session.delete`
+- Session.get(): :meth:`baf.core.session.Session.get`
+- Session.get_chat_history(): :meth:`baf.core.session.Session.get_chat_history`
+- Session.run_rag(): :meth:`baf.core.session.Session.run_rag`
+- Session.send_message_to_websocket(): :meth:`baf.core.session.Session.send_message_to_websocket`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Session.set(): :meth:`baf.core.session.Session.set`
 
 
 Table of contents

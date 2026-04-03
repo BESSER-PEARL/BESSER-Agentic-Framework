@@ -10,16 +10,16 @@ Available Text-to-Speech models
 
 BAF supports a variety of implementations for text-to-speech:
 
-- :class:`~besser.agent.nlp.text2speech.hf_text2speech.HFText2Speech`: For `HuggingFace <https://huggingface.co/>`_ TTS
+- :class:`~baf.nlp.text2speech.hf_text2speech.HFText2Speech`: For `HuggingFace <https://huggingface.co/>`_ TTS
   models. Example model: ``facebook/mms-tts-eng``
-  Optional parameters for :meth:`~besser.agent.nlp.text2speech.hf_text2speech.HFText2Speech.text2speech`:
+  Optional parameters for :meth:`~baf.nlp.text2speech.hf_text2speech.HFText2Speech.text2speech`:
   - ``return_tensor``. Example ``pt`` (default)
 
-- :class:`~besser.agent.nlp.text2speech.openai_text2speech.OpenAIText2Speech`: For
+- :class:`~baf.nlp.text2speech.openai_text2speech.OpenAIText2Speech`: For
   `OpenAI <https://platform.openai.com/docs/guides/text-to-speech>`_ TTS models. You can set the optional class parameter
   ``voice`` (default ``alloy``). Example model ``gpt-4o-mini-tts``.
 
-- :class:`~besser.agent.nlp.text2speech.piper_text2speech.PiperText2Speech`: For the `Piper <https://github.com/rhasspy/piper>`_
+- :class:`~baf.nlp.text2speech.piper_text2speech.PiperText2Speech`: For the `Piper <https://github.com/rhasspy/piper>`_
   TTS implementation (Only tested with the HuggingFace Model mbarnig/lb_rhasspy_piper_tts). You need to download
   the model and run it through a Docker container as Piper currently only works on Linux. Example Model:
   ``mbarnig/lb_rhasspy_piper_tts`` (default).
@@ -51,11 +51,11 @@ the synthesised audio which is then send back to the user as an audio message:
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- HFText2Speech: :class:`besser.agent.nlp.text2speech.hf_text2speech.HFText2Speech`
-- NLPEngine: :class:`besser.agent.nlp.nlp_engine.NLPEngine`
-- OpenAIText2Speech: :class:`besser.agent.nlp.text2speech.openai_text2speech.OpenAIText2Speech`
-- PiperText2Speech: :class:`besser.agent.nlp.text2speech.piper_text2speech.PiperText2Speech`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Text2Speech: :class:`besser.agent.nlp.text2speech.text2speech.Text2Speech`
+- Agent: :class:`baf.core.agent.Agent`
+- HFText2Speech: :class:`baf.nlp.text2speech.hf_text2speech.HFText2Speech`
+- NLPEngine: :class:`baf.nlp.nlp_engine.NLPEngine`
+- OpenAIText2Speech: :class:`baf.nlp.text2speech.openai_text2speech.OpenAIText2Speech`
+- PiperText2Speech: :class:`baf.nlp.text2speech.piper_text2speech.PiperText2Speech`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Text2Speech: :class:`baf.nlp.text2speech.text2speech.Text2Speech`

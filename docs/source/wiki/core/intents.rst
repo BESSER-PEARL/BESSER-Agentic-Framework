@@ -50,7 +50,7 @@ the message's intent is hello_intent, the user will move to handle_hello_state, 
 Intents with parameters
 -----------------------
 
-Intents can have embedded :class:`parameters <besser.agent.core.intent.intent_parameter.IntentParameter>`. This means that
+Intents can have embedded :class:`parameters <baf.core.intent.intent_parameter.IntentParameter>`. This means that
 we can extract data from a user message. At the same time, this can help reducing the number of intents in an agent.
 
 We are going to create an intent to ask about the weather in a city.
@@ -111,7 +111,7 @@ Within a :any:`state-body` we can access the latest predicted intent from the us
 
 .. warning::
 
-    The predicted intent is only available when the session event is a :class:`~besser.agent.library.transition.events.base_events.ReceiveTextEvent`
+    The predicted intent is only available when the session event is a :class:`~baf.library.transition.events.base_events.ReceiveTextEvent`
 
 Let's see it with an example body function.
 
@@ -149,17 +149,17 @@ Let's see it with an example body function.
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.new_state(): :meth:`besser.agent.core.agent.Agent.new_state`
-- Agent.new_intent(): :meth:`besser.agent.core.agent.Agent.new_intent`
-- Intent: :class:`besser.agent.core.intent.intent.Intent`
-- Intent.parameter(): :meth:`besser.agent.core.intent.intent.Intent.parameter`
-- IntentClassifierPrediction: :class:`besser.agent.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
-- IntentParameter: :class:`besser.agent.core.intent.intent_parameter.IntentParameter`
-- MatchedParameter: :class:`besser.agent.nlp.ner.matched_parameter.MatchedParameter`
-- ReceiveTextEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveTextEvent`
-- State: :class:`besser.agent.core.state.State`
-- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.new_state(): :meth:`baf.core.agent.Agent.new_state`
+- Agent.new_intent(): :meth:`baf.core.agent.Agent.new_intent`
+- Intent: :class:`baf.core.intent.intent.Intent`
+- Intent.parameter(): :meth:`baf.core.intent.intent.Intent.parameter`
+- IntentClassifierPrediction: :class:`baf.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
+- IntentParameter: :class:`baf.core.intent.intent_parameter.IntentParameter`
+- MatchedParameter: :class:`baf.nlp.ner.matched_parameter.MatchedParameter`
+- ReceiveTextEvent: :class:`baf.library.transition.events.base_events.ReceiveTextEvent`
+- State: :class:`baf.core.state.State`
+- State.when_intent_matched(): :meth:`baf.core.state.State.when_intent_matched`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- TransitionBuilder.go_to(): :meth:`baf.core.transition.transition_builder.TransitionBuilder.go_to`

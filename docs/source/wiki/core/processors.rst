@@ -17,9 +17,9 @@ Here is an example of how to create a custom processor that processes both user 
 
 .. code:: python
 
-    from besser.agent.core.agent import Agent
-    from besser.agent.core.session import Session
-    from besser.agent.processors.processor import Processor
+    from baf.core.agent import Agent
+    from baf.core.session import Session
+    from baf.processors.processor import Processor
 
     class MyCustomProcessor(Processor):
         def __init__(self, agent):
@@ -97,7 +97,7 @@ This section contains a list of implemented processors.
 LanguageDetectionProcessor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :class:`LanguageDetectionProcessor <besser.agent.core.processors.language_detection_processor.LanguageDetectionProcessor>`
+The :class:`LanguageDetectionProcessor <baf.core.processors.language_detection_processor.LanguageDetectionProcessor>`
 attempts to detect the language of given messages by using the `langdetect <https://pypi.org/project/langdetect/>`_ library.
 When processed, the recognized language will be stored as a session variable in ISO 639-1 format and can be fetched with the following call:
 
@@ -111,7 +111,7 @@ When processed, the recognized language will be stored as a session variable in 
 UserAdaptationProcessor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :class:`UserAdaptationProcessor <besser.agent.core.processors.user_adaptation_processor.UserAdaptationProcessor>`
+The :class:`UserAdaptationProcessor <baf.core.processors.user_adaptation_processor.UserAdaptationProcessor>`
 attempts to adapt the agent's responses based on the user's profile. The user profile can be added using the following call:
 
 .. code:: python
@@ -122,8 +122,8 @@ attempts to adapt the agent's responses based on the user's profile. The user pr
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Processor: :class:`besser.agent.core.processors.processor.Processor`
-- Processor.process(): :meth:`besser.agent.core.processors.processor.Processor.process`
-- Session: :class:`besser.agent.core.session.Session`
-- ProcessorTargetUndefined: :class:`besser.agent.exceptions.exceptions.ProcessorTargetUndefined`
+- Agent: :class:`baf.core.agent.Agent`
+- Processor: :class:`baf.core.processors.processor.Processor`
+- Processor.process(): :meth:`baf.core.processors.processor.Processor.process`
+- Session: :class:`baf.core.session.Session`
+- ProcessorTargetUndefined: :class:`baf.exceptions.exceptions.ProcessorTargetUndefined`

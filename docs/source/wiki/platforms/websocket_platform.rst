@@ -26,12 +26,31 @@ Of course, you are free to use or create your own UI as long as it has a WebSock
    websocket_platform/streamlit_ui
    websocket_platform/chat_widget
 
-(Their source code can be found in the besser.agent.platforms.websocket package)
+(Their source code can be found in the baf.platforms.websocket package)
 
 .. note::
 
     There are some properties the agent needs in order to properly set the WebSocket connection. More details in the
     :any:`configuration properties <properties-websocket_platform>` documentation.
+
+Restricting allowed origins
+---------------------------
+
+By default, the WebSocket server accepts connections from any origin. You can restrict which origins are
+allowed to connect by setting the ``origins`` property in your ``config.yaml``:
+
+.. code:: yaml
+
+    platforms:
+      websocket:
+        host: localhost
+        port: 8765
+        origins:
+          - "https://editor.besser-pearl.org"
+          - "https://localhost:8000"
+
+When ``origins`` is set, the server will reject WebSocket upgrade requests from any origin not in the list.
+When not set (default), all origins are accepted.
 
 How to use it
 -------------
@@ -230,16 +249,16 @@ transition to another state, etc.
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.use_websocket_platform(): :meth:`besser.agent.core.agent.Agent.use_websocket_platform`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.reply(): :meth:`besser.agent.core.session.Session.reply`
-- Session.send_message_to_websocket(): :meth:`besser.agent.core.session.Session.send_message_to_websocket`
-- WebSocketPlatform: :class:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform`
-- WebSocketPlatform.reply(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply`
-- WebSocketPlatform.reply_dataframe(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_dataframe`
-- WebSocketPlatform.reply_file(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`
-- WebSocketPlatform.reply_location(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_location`
-- WebSocketPlatform.reply_options(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_options`
-- WebSocketPlatform.reply_plotly(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_plotly`
-- WebSocketPlatform.reply_rag(): :meth:`besser.agent.platforms.websocket.websocket_platform.WebSocketPlatform.reply_rag`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.use_websocket_platform(): :meth:`baf.core.agent.Agent.use_websocket_platform`
+- Session: :class:`baf.core.session.Session`
+- Session.reply(): :meth:`baf.core.session.Session.reply`
+- Session.send_message_to_websocket(): :meth:`baf.core.session.Session.send_message_to_websocket`
+- WebSocketPlatform: :class:`baf.platforms.websocket.websocket_platform.WebSocketPlatform`
+- WebSocketPlatform.reply(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply`
+- WebSocketPlatform.reply_dataframe(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_dataframe`
+- WebSocketPlatform.reply_file(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_file`
+- WebSocketPlatform.reply_location(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_location`
+- WebSocketPlatform.reply_options(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_options`
+- WebSocketPlatform.reply_plotly(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_plotly`
+- WebSocketPlatform.reply_rag(): :meth:`baf.platforms.websocket.websocket_platform.WebSocketPlatform.reply_rag`

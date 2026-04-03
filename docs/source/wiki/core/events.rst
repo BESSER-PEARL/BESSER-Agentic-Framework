@@ -1,7 +1,7 @@
 Events
 ======
 
-An agent can receive :class:`events <besser.agent.core.transition.event.Event>` through its platforms.
+An agent can receive :class:`events <baf.core.transition.event.Event>` through its platforms.
 
 An agent can define transitions from one state to another based on the reception of specific events.
 
@@ -89,10 +89,10 @@ You can use the :doc:`../platforms/gitlab_platform` in an agent to receive event
 API References
 --------------
 
-- Event: :class:`besser.agent.core.transition.event.Event`
-- GitHubEvent: :meth:`besser.agent.library.transition.events.github_webhooks_events.GitHubEvent`
-- GitLabEvent: :meth:`besser.agent.library.transition.events.gitlab_webhooks_events.GitLabEvent`
-- IntentClassifierPrediction: :class:`besser.agent.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
-- ReceiveFileEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveFileEvent`
-- ReceiveTextEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveTextEvent`
-- Session: :class:`besser.agent.core.session.Session`
+- Event: :class:`baf.core.transition.event.Event`
+- GitHubEvent: :meth:`baf.library.transition.events.github_webhooks_events.GitHubEvent`
+- GitLabEvent: :meth:`baf.library.transition.events.gitlab_webhooks_events.GitLabEvent`
+- IntentClassifierPrediction: :class:`baf.nlp.intent_classifier.intent_classifier_prediction.IntentClassifierPrediction`
+- ReceiveFileEvent: :class:`baf.library.transition.events.base_events.ReceiveFileEvent`
+- ReceiveTextEvent: :class:`baf.library.transition.events.base_events.ReceiveTextEvent`
+- Session: :class:`baf.core.session.Session`

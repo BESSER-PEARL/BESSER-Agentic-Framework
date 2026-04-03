@@ -34,7 +34,7 @@ Let's say we have the following agent:
 Transition Builder
 ------------------
 
-To help us define a full transition, we use a :class:`~besser.agent.core.transition.transition_builder.TransitionBuilder`
+To help us define a full transition, we use a :class:`~baf.core.transition.transition_builder.TransitionBuilder`
 object that will add each element to the transition for us.
 
 Essentially, a Transition Builder has 3 elements:
@@ -52,7 +52,7 @@ Let's see an example transition that should be triggered when a ReceiveMessageEv
 
 .. code:: python
 
-    from besser.agent.library.transition.events.base_events import ReceiveMessageEvent
+    from baf.library.transition.events.base_events import ReceiveMessageEvent
     ...
 
     event = ReceiveMessageEvent()
@@ -186,8 +186,8 @@ When the user sends a message to the agent, it gets the user intent and uses it 
 user intent matches with a specified transition intent, the agent moves to that transition's destination state.
 
 
-It uses the :class:`~besser.agent.library.transition.events.base_events.ReceiveTextEvent` and
-:class:`~besser.agent.library.transition.conditions.IntentMatcher` condition.
+It uses the :class:`~baf.library.transition.events.base_events.ReceiveTextEvent` and
+:class:`~baf.library.transition.conditions.IntentMatcher` condition.
 
 .. code:: python
 
@@ -218,7 +218,7 @@ Session variables
 We can define transitions that take a session variable and applies some operator to compare it with a target value.
 In the previous section we saw how to manually create such conditions, but here you will see how to do it with the built-in transitions.
 
-This transition uses the :class:`~besser.agent.library.transition.conditions.VariableOperationMatcher` condition (and no event).
+This transition uses the :class:`~baf.library.transition.conditions.VariableOperationMatcher` condition (and no event).
 
 .. code:: python
 
@@ -236,7 +236,7 @@ File reception
 
 It is also possible to trigger a transition in case a file is sent to the agent
 
-It uses the :class:`~besser.agent.library.transition.events.base_events.ReceiveFileEvent`.
+It uses the :class:`~baf.library.transition.events.base_events.ReceiveFileEvent`.
 
 .. code:: python
 
@@ -268,18 +268,18 @@ This transition has no event nor condition (therefore, being always satisfied)
 API References
 --------------
 
-- Agent: :class:`besser.agent.core.agent.Agent`
-- Agent.new_state(): :meth:`besser.agent.core.agent.Agent.new_state`
-- ReceiveMessageEvent: :class:`besser.agent.library.transition.events.base_events.ReceiveMessageEvent`
-- Session: :class:`besser.agent.core.session.Session`
-- Session.get(): :meth:`besser.agent.core.session.Session.get`
-- State: :class:`besser.agent.core.state.State`
-- State.go_to(): :meth:`besser.agent.core.state.State.go_to`
-- State.when_condition(): :meth:`besser.agent.core.state.State.when_condition`
-- State.when_event(): :meth:`besser.agent.core.state.State.when_event`
-- State.when_intent_matched(): :meth:`besser.agent.core.state.State.when_intent_matched`
-- State.when_no_intent_matched(): :meth:`besser.agent.core.state.State.when_no_intent_matched`
-- State.when_variable_matches_operation(): :meth:`besser.agent.core.state.State.when_variable_matches_operation`
-- TransitionBuilder: :class:`besser.agent.core.transition.transition_builder.TransitionBuilder`
-- TransitionBuilder.go_to(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.go_to`
-- TransitionBuilder.with_condition(): :meth:`besser.agent.core.transition.transition_builder.TransitionBuilder.with_condition`
+- Agent: :class:`baf.core.agent.Agent`
+- Agent.new_state(): :meth:`baf.core.agent.Agent.new_state`
+- ReceiveMessageEvent: :class:`baf.library.transition.events.base_events.ReceiveMessageEvent`
+- Session: :class:`baf.core.session.Session`
+- Session.get(): :meth:`baf.core.session.Session.get`
+- State: :class:`baf.core.state.State`
+- State.go_to(): :meth:`baf.core.state.State.go_to`
+- State.when_condition(): :meth:`baf.core.state.State.when_condition`
+- State.when_event(): :meth:`baf.core.state.State.when_event`
+- State.when_intent_matched(): :meth:`baf.core.state.State.when_intent_matched`
+- State.when_no_intent_matched(): :meth:`baf.core.state.State.when_no_intent_matched`
+- State.when_variable_matches_operation(): :meth:`baf.core.state.State.when_variable_matches_operation`
+- TransitionBuilder: :class:`baf.core.transition.transition_builder.TransitionBuilder`
+- TransitionBuilder.go_to(): :meth:`baf.core.transition.transition_builder.TransitionBuilder.go_to`
+- TransitionBuilder.with_condition(): :meth:`baf.core.transition.transition_builder.TransitionBuilder.with_condition`

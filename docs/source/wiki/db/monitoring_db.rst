@@ -8,11 +8,11 @@ many interactions they need in order to achieve their goal when using the agent.
 
 **You can rely on a database to store usage information for later monitoring and analysis!**
 
-BAF agents have a :class:`MonitoringDB <besser.agent.db.monitoring_db.MonitoringDB>` attribute (optionally used) in charge
+BAF agents have a :class:`MonitoringDB <baf.db.monitoring_db.MonitoringDB>` attribute (optionally used) in charge
 of managing the DB connection and the data insertion. When running the agent, right after its training, it connects to
-the DB (:meth:`MonitoringDB.connect_to_db() <besser.agent.db.monitoring_db.MonitoringDB.connect_to_db()>`) and initializes
+the DB (:meth:`MonitoringDB.connect_to_db() <baf.db.monitoring_db.MonitoringDB.connect_to_db()>`) and initializes
 it, creating the tables if they don't exist
-(:meth:`MonitoringDB.initialize_db() <besser.agent.db.monitoring_db.MonitoringDB.initialize_db()>`). This process is
+(:meth:`MonitoringDB.initialize_db() <baf.db.monitoring_db.MonitoringDB.initialize_db()>`). This process is
 hidden from the user. To activate it, you simply need to define the
 :any:`configuration properties <properties-database>` to properly connect to the database, BAF is in charge of the rest.
 

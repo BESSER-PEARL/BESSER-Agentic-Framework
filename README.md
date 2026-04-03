@@ -63,13 +63,13 @@ Note that if you want to set your agent's language to **Luxembourgish**, you wil
 
 ### Example agents
 
-- [greetings_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/greetings_agent.py): Very simple agent for the first contact with the framework
-- [weather_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/weather_agent.py): Introducing [entities](https://besser-agentic-framework.readthedocs.io/latest/wiki/core/entities.html)
-- [llm_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/llm_agent.py): Introducing [Large Language Models (LLMs)](https://besser-agentic-framework.readthedocs.io/latest/wiki/nlp/llm.html)
-- [rag_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/rag_agent.py): Introducing [Retrieval Augmented Generation (RAG)](https://besser-agentic-framework.readthedocs.io/latest/wiki/nlp/rag.html)
-- [telegram_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/telegram_agent.py): Introducing the [TelegramPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/telegram_platform.html)
-- [github_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/github_agent.py): Introducing [GitHubPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/github_platform.html)
-- [gitlab_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/gitlab_agent.py): Introducing the [GitLabPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/gitlab_platform.html)
-- [a2a_multiagent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/besser/agent/test/examples/a2a_multiagent.py): Introducing the [A2APlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/a2a_platform.html)
+- [greetings_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/greetings_agent.py): Very simple agent for the first contact with the framework
+- [weather_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/weather_agent.py): Introducing [entities](https://besser-agentic-framework.readthedocs.io/latest/wiki/core/entities.html)
+- [llm_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/llm_agent.py): Introducing [Large Language Models (LLMs)](https://besser-agentic-framework.readthedocs.io/latest/wiki/nlp/llm.html)
+- [rag_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/rag_agent.py): Introducing [Retrieval Augmented Generation (RAG)](https://besser-agentic-framework.readthedocs.io/latest/wiki/nlp/rag.html)
+- [telegram_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/telegram_agent.py): Introducing the [TelegramPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/telegram_platform.html)
+- [github_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/github_agent.py): Introducing [GitHubPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/github_platform.html)
+- [gitlab_agent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/gitlab_agent.py): Introducing the [GitLabPlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/gitlab_platform.html)
+- [a2a_multiagent](https://github.com/BESSER-PEARL/BESSER-Agentic-Framework/blob/main/baf/test/examples/a2a_multiagent.py): Introducing the [A2APlatform](https://besser-agentic-framework.readthedocs.io/latest/wiki/platforms/a2a_platform.html)
 
 For more example agents, check out the [BAF-agent-examples](https://github.com/BESSER-PEARL/BAF-agent-examples) repository!
