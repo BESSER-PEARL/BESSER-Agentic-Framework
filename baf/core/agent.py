@@ -602,12 +602,14 @@ class Agent:
         else:
             return None
 
-    def _new_session(self, session_id: str, platform: Platform) -> Session:
+    def _new_session(self, session_id: str, platform: Platform, username: str or None = None, session_name: str or None = None) -> Session:
         """Create a new session for the agent.
 
         Args:
             session_id (str): the session id
             platform (Platform): the platform where the session is to be created and used
+            username (str): the name of the session user (optional)
+            session_name (str): the name of the session (optional)
 
         Returns:
             Session: the session
@@ -616,7 +618,7 @@ class Agent:
             raise ValueError(f'Trying to create a new session with an existing id" {session_id}')
         if platform not in self._platforms:
             raise ValueError(f"Platform {platform.__class__.__name__} not found in agent '{self.name}'")
-        session = Session(session_id, self, platform)
+        session = Session(session_id, self, platform, username, session_name)
         self._sessions[session_id] = session
         if self._persist_sessions and self._monitoring_db_session_exists(session_id, platform):
             dest_state = self._monitoring_db_get_last_state_of_session(session_id, platform)
@@ -635,10 +637,10 @@ class Agent:
         session._run_event_thread()
         return session
 
-    def get_or_create_session(self, session_id: str, platform: Platform) -> Session:
+    def get_or_create_session(self, session_id: str, platform: Platform, username: str or None = None, session_name: str or None = None) -> Session:
         session = self._get_session(session_id)
         if session is None:
-            session = self._new_session(session_id, platform)
+            session = self._new_session(session_id, platform, username, session_name)
         return session
 
     def close_session(self, session_id: str) -> None:

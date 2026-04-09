@@ -38,7 +38,7 @@ from baf.platforms.websocket.streamlit_ui import (
 )
 
 
-def _extract_user_id_from_request(request) -> str | None:
+def _extract_parameter_from_request(parameter, request) -> str | None:
     if not request:
         return None
     for attr in ("path", "raw_path", "uri"):
@@ -55,7 +55,7 @@ def _extract_user_id_from_request(request) -> str | None:
         if not query:
             continue
         params = parse_qs(query)
-        user_values = params.get("user_id")
+        user_values = params.get(parameter)
         if user_values:
             return user_values[0]
     return None
@@ -136,10 +136,15 @@ class WebSocketPlatform(Platform):
             request = getattr(conn, "request", None)
             headers = getattr(request, "headers", {}) if request else {}
             header_user = headers.get("X-User-ID") if hasattr(headers, "get") else None
-            query_user = _extract_user_id_from_request(request)
-            session_key = header_user or query_user or str(conn.id)
+            header_session = headers.get("X-Session-ID") if hasattr(headers, "get") else None
+            query_user = _extract_parameter_from_request('user_id', request)
+            query_session = _extract_parameter_from_request('session_id', request)
+            query_session_name = _extract_parameter_from_request('session_name', request)
+            username = header_user or query_user
+            session_key = header_session or query_session or str(conn.id)
+            session_name = query_session_name
             self._connections[str(session_key)] = conn
-            session = self._agent.get_or_create_session(session_key, self)
+            session = self._agent.get_or_create_session(session_key, self, username, session_name)
             try:
 
                 for payload_str in conn:
