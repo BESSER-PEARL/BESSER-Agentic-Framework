@@ -176,7 +176,7 @@ class WebSocketPlatform(Platform):
                         message = self._agent.nlp_engine.speech2text(session, audio_bytes)
 
                         # Send transcribed message back to the client
-                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message)
+                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message, history=True)
                         self._send(session.id, payload)
 
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
