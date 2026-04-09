@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+from baf.platforms.payload import PayloadAction
+
 
 class MessageType(Enum):
     """Enumeration of the different message types in :class:`Message`."""
@@ -51,3 +53,57 @@ class Message:
         self.is_user: bool = is_user
         self.timestamp: datetime = timestamp
         # TODO: Parse content to specific type (in DB, messages are stored a str)
+
+    def get_action(self):
+        if self.is_user:
+            match self.type:
+                case MessageType.STR:
+                    return PayloadAction.USER_MESSAGE
+                case MessageType.JSON:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.MARKDOWN:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.HTML:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.FILE:
+                    return PayloadAction.USER_FILE
+                case MessageType.IMAGE:
+                    return PayloadAction.USER_FILE  # TODO: Not implemented
+                case MessageType.DATAFRAME:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.PLOTLY:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.LOCATION:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.OPTIONS:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+                case MessageType.AUDIO:
+                    return PayloadAction.USER_VOICE
+                case MessageType.RAG_ANSWER:
+                    return PayloadAction.USER_MESSAGE  # TODO: Not implemented
+        else:
+            match self.type:
+                case MessageType.STR:
+                    return PayloadAction.AGENT_REPLY_STR
+                case MessageType.JSON:
+                    return PayloadAction.AGENT_REPLY_STR  # TODO: Not implemented
+                case MessageType.MARKDOWN:
+                    return PayloadAction.AGENT_REPLY_MARKDOWN
+                case MessageType.HTML:
+                    return PayloadAction.AGENT_REPLY_HTML
+                case MessageType.FILE:
+                    return PayloadAction.AGENT_REPLY_FILE
+                case MessageType.IMAGE:
+                    return PayloadAction.AGENT_REPLY_IMAGE
+                case MessageType.DATAFRAME:
+                    return PayloadAction.AGENT_REPLY_DF
+                case MessageType.PLOTLY:
+                    return PayloadAction.AGENT_REPLY_PLOTLY
+                case MessageType.LOCATION:
+                    return PayloadAction.AGENT_REPLY_LOCATION
+                case MessageType.OPTIONS:
+                    return PayloadAction.AGENT_REPLY_OPTIONS
+                case MessageType.AUDIO:
+                    return PayloadAction.AGENT_REPLY_AUDIO
+                case MessageType.RAG_ANSWER:
+                    return PayloadAction.AGENT_REPLY_RAG

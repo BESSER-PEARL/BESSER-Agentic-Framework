@@ -156,17 +156,11 @@ class WebSocketPlatform(Platform):
                         try:
                             chat_history = session.get_chat_history(until_timestamp=current_time)
                             for message in chat_history:
-                                history_payload = None
-                                if message.is_user:
-                                    history_payload = Payload(action=PayloadAction.USER_MESSAGE,
-                                                              message=message.content,
-                                                              history=True
-                                                              )
-                                else:
-                                    history_payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
-                                                              message=message.content,
-                                                              history=True
-                                                              )
+                                action = message.get_action()
+                                history_payload = Payload(action=action,
+                                                          message=message.content,
+                                                          history=True
+                                                          )
                                 self._send(session.id, history_payload)
                         except Exception as e:
                             logger.error(f"Error fetching chat history: {e}")
