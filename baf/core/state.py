@@ -275,8 +275,12 @@ class State:
             TransitionBuilder: the transition builder
         """
         event = ReceiveFileEvent()
+        if allowed_types:
+            params = {'allowed_types': allowed_types}
+        else:
+            params = {}
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event)
-        transition_builder.with_condition(function=file_type, params={'allowed_types': allowed_types})
+        transition_builder.with_condition(function=file_type, params=params)
         return transition_builder
 
     def check_transitions(self, session: Session) -> None:
