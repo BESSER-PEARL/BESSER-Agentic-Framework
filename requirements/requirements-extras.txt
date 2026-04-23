@@ -1,6 +1,6 @@
 # NLP
 # spellux @ git+https://github.com/Aran30/spellux  # Not available in PyPi. Install manually with `pip install git+https://github.com/Aran30/spellux.git`
-spacy==3.7.2
+spacy==3.8.7
 scikit-learn>=1.7.0
 
 # Speech-to-text
@@ -17,8 +17,11 @@ opencv-python==4.10.0.84
 plotly==5.18.0
 
 # RAG
-chromadb==0.5.4
-langchain==0.2.9
-langchain-community==0.2.7
+chromadb==0.5.4; python_version < "3.13"
+chromadb==1.0.0; python_version >= "3.13"
+langchain==0.2.9; python_version < "3.13"
+langchain-community==0.2.7; python_version < "3.13"
+langchain==0.3.10; python_version >= "3.13"
+langchain-community==0.3.10; python_version >= "3.13"
 pypdf==4.3.1
 tiktoken==0.9.0
