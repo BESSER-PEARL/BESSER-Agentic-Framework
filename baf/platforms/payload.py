@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from enum import Enum
 
@@ -111,10 +112,11 @@ class Payload:
                 return Payload(action, payload_message, history=history)
         return None
 
-    def __init__(self, action: PayloadAction, message: str or dict = None, history: bool = False):
+    def __init__(self, action: PayloadAction, message: str or dict = None, history: bool = False, timestamp: datetime = None):
         self.action: str = action.value
         self.message: str or dict = message
         self.history: bool = history
+        self.timestamp: datetime = timestamp
 
 
 class PayloadEncoder(json.JSONEncoder):
@@ -138,10 +140,14 @@ class PayloadEncoder(json.JSONEncoder):
         """
         if isinstance(obj, Payload):
             # Convert the Payload object to a dictionary
+            timestamp = getattr(obj, 'timestamp', None)
+            if timestamp:
+                timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
             payload_dict = {
                 'action': obj.action,
                 'message': obj.message,
                 'history': getattr(obj, 'history', None),
+                'timestamp': timestamp
             }
             return payload_dict
         return super().default(obj)

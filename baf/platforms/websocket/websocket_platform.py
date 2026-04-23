@@ -5,6 +5,7 @@ import inspect
 import json
 import os
 import time
+import traceback
 from datetime import datetime
 from urllib.parse import parse_qs, urlsplit
 
@@ -162,7 +163,8 @@ class WebSocketPlatform(Platform):
                                 action = message.get_action()
                                 history_payload = Payload(action=action,
                                                           message=message.content,
-                                                          history=True
+                                                          history=True,
+                                                          timestamp=message.timestamp
                                                           )
                                 self._send(session.id, history_payload)
                         except Exception as e:
@@ -179,7 +181,7 @@ class WebSocketPlatform(Platform):
                         message = self._agent.nlp_engine.speech2text(session, audio_bytes)
 
                         # Send transcribed message back to the client
-                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message, history=True)
+                        payload = Payload(action=PayloadAction.USER_MESSAGE, message=message, history=True, timestamp=datetime.now())
                         self._send(session.id, payload)
 
                         event: ReceiveMessageEvent = ReceiveMessageEvent.create_event_from(
@@ -212,6 +214,7 @@ class WebSocketPlatform(Platform):
                 logger.info('Client connection closed unexpectedly')
             except Exception as e:
                 logger.error(f"Server Error: {e}")
+                traceback.print_exc()
             finally:
                 # Remove connection from tracking
                 if session:
@@ -343,10 +346,11 @@ class WebSocketPlatform(Platform):
     def reply(self, session: Session, message: str) -> None:
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
-        session.save_message(Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.STR, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_STR,
                           message=message,
-                          )
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -359,9 +363,11 @@ class WebSocketPlatform(Platform):
         """
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
-        session.save_message(Message(t=MessageType.MARKDOWN, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.MARKDOWN, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_MARKDOWN,
-                          message=message)
+                          message=message,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -374,9 +380,11 @@ class WebSocketPlatform(Platform):
         """
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
-        session.save_message(Message(t=MessageType.HTML, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.HTML, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_HTML,
-                          message=message)
+                          message=message,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
         
@@ -389,9 +397,11 @@ class WebSocketPlatform(Platform):
         """
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
-        session.save_message(Message(t=MessageType.FILE, content=file.get_json_string(), is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.FILE, content=file.get_json_string(), is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_FILE,
-                          message=file.to_dict())
+                          message=file.to_dict(),
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -409,9 +419,11 @@ class WebSocketPlatform(Platform):
             raise PlatformMismatchError(self, session)
         retval, buffer = cv2.imencode('.jpg', img)  # Encode as JPEG
         base64_img = base64.b64encode(buffer).decode('utf-8')
-        session.save_message(Message(t=MessageType.FILE, content=base64_img, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.FILE, content=base64_img, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE,
-                          message=base64_img)
+                          message=base64_img,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -426,9 +438,11 @@ class WebSocketPlatform(Platform):
             raise PlatformMismatchError(self, session)
         message = df.to_json() 
         #TODO processor will check for JSON instead of Dataframe, so the processor needs to convert to DF
-        session.save_message(Message(t=MessageType.DATAFRAME, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.DATAFRAME, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_DF,
-                          message=message)
+                          message=message,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -446,9 +460,11 @@ class WebSocketPlatform(Platform):
             d[i] = button
         #TODO processor should also process the individual strings in the list of strings
         message = json.dumps(d)
-        session.save_message(Message(t=MessageType.OPTIONS, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.OPTIONS, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_OPTIONS,
-                          message=message)
+                          message=message,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -462,9 +478,11 @@ class WebSocketPlatform(Platform):
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
         message = plotly.io.to_json(plot)
-        session.save_message(Message(t=MessageType.PLOTLY, content=message, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.PLOTLY, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_PLOTLY,
-                          message=message)
+                          message=message,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -479,9 +497,11 @@ class WebSocketPlatform(Platform):
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
         location_dict = {'latitude': latitude, 'longitude': longitude}
-        session.save_message(Message(t=MessageType.LOCATION, content=location_dict, is_user=False, timestamp=datetime.now()))
+        message_obj: Message = Message(t=MessageType.LOCATION, content=location_dict, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_LOCATION,
-                          message=location_dict)
+                          message=location_dict,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -495,9 +515,12 @@ class WebSocketPlatform(Platform):
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
         rag_message_dict = rag_message.to_dict()
-        session.save_message(Message(t=MessageType.RAG_ANSWER, content=rag_message_dict, is_user=False, timestamp=datetime.now()))
+        print(rag_message_dict)
+        message_obj: Message = Message(t=MessageType.RAG_ANSWER, content=rag_message_dict, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_RAG,
-                          message=rag_message_dict)
+                          message=rag_message_dict,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
@@ -564,8 +587,12 @@ class WebSocketPlatform(Platform):
             }
         }
 
-        session.save_message(Message(t=MessageType.AUDIO, content=message, is_user=False, timestamp=datetime.now()))
-        payload = Payload(action=PayloadAction.AGENT_REPLY_AUDIO, message=message)
+        message_obj: Message = Message(t=MessageType.AUDIO, content=message, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
+        payload = Payload(action=PayloadAction.AGENT_REPLY_AUDIO, message=message, timestamp=message_obj.timestamp)
+        payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
+        self._send(session.id, payload)
+
     def reply_ui(self, session: Session, ui: GUIModel) -> None:
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
