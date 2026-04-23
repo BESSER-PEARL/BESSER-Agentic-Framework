@@ -90,6 +90,8 @@ class MonitoringDB:
             id = Column(Integer, primary_key=True, autoincrement=True)
             agent_name = Column(String, nullable=False)
             session_id = Column(String, nullable=False)
+            session_name = Column(String, nullable=True)
+            username = Column(String, nullable=True)
             platform_name = Column(String, nullable=False)
             timestamp = Column(DateTime, nullable=False)
             variables = Column(String, nullable=True)
@@ -100,7 +102,7 @@ class MonitoringDB:
         class TableIntentPrediction(Base):
             __tablename__ = TABLE_INTENT_PREDICTION
             id = Column(Integer, primary_key=True, autoincrement=True)
-            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=False)
+            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id', ondelete='CASCADE'), nullable=False)
             message = Column(String, nullable=False)
             timestamp = Column(DateTime, nullable=False)
             intent_classifier = Column(String, nullable=False)
@@ -110,7 +112,7 @@ class MonitoringDB:
         class TableParameter(Base):
             __tablename__ = TABLE_PARAMETER
             id = Column(Integer, primary_key=True, autoincrement=True)
-            intent_prediction_id = Column(Integer, ForeignKey(f'{TABLE_INTENT_PREDICTION}.id'), nullable=False)
+            intent_prediction_id = Column(Integer, ForeignKey(f'{TABLE_INTENT_PREDICTION}.id', ondelete='CASCADE'), nullable=False)
             name = Column(String, nullable=False)
             value = Column(String)
             info = Column(String)
@@ -118,7 +120,7 @@ class MonitoringDB:
         class TableTransition(Base):
             __tablename__ = TABLE_TRANSITION
             id = Column(Integer, primary_key=True, autoincrement=True)
-            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=False)
+            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id', ondelete='CASCADE'), nullable=False)
             source_state = Column(String, nullable=False)
             dest_state = Column(String, nullable=False)
             event = Column(String, nullable=True)
@@ -128,7 +130,7 @@ class MonitoringDB:
         class TableChat(Base):
             __tablename__ = TABLE_CHAT
             id = Column(Integer, primary_key=True, autoincrement=True)
-            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=False)
+            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id', ondelete='CASCADE'), nullable=False)
             type = Column(String, nullable=False)
             content = Column(JSONB, nullable=False)  # JSONB allows to handle the dictionary (TTS messages)
             is_user = Column(Boolean, nullable=False)
@@ -137,7 +139,7 @@ class MonitoringDB:
         class TableEvent(Base):
             __tablename__ = TABLE_EVENT
             id = Column(Integer, primary_key=True, autoincrement=True)
-            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id'), nullable=True)
+            session_id = Column(Integer, ForeignKey(f'{TABLE_SESSION}.id', ondelete='CASCADE'), nullable=True)
             event = Column(String, nullable=False)
             info = Column(String, nullable=True)
             timestamp = Column(DateTime, nullable=False)
@@ -153,6 +155,8 @@ class MonitoringDB:
         """
         table = Table(TABLE_SESSION, MetaData(), autoload_with=self.conn)
         stmt = insert(table).values(
+            username=session._username,
+            session_name=session._session_name,
             agent_name=session._agent.name,
             session_id=session.id,
             platform_name=session.platform.__class__.__name__,

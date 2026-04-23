@@ -62,7 +62,7 @@ class TransitionBuilder:
         if len(func_params) == 1:
             # session param
             condition_function = function
-        elif len(func_params) == 2 and params:
+        elif len(func_params) == 2 and params is not None:
             # (session, params) param
             condition_function = partial(function, params=params)
         else:
