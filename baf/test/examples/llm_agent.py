@@ -19,7 +19,7 @@ logger.setLevel(logging.INFO)
 # Create the agent
 agent = Agent('llm_agent')
 # Load agent properties stored in a dedicated file
-agent.load_properties('config_marcos.yaml')
+agent.load_properties('config.yaml')
 # Define the platform your agent will use
 websocket_platform = agent.use_websocket_platform(use_ui=True)
 
