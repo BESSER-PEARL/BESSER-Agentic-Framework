@@ -419,7 +419,7 @@ class WebSocketPlatform(Platform):
             raise PlatformMismatchError(self, session)
         retval, buffer = cv2.imencode('.jpg', img)  # Encode as JPEG
         base64_img = base64.b64encode(buffer).decode('utf-8')
-        message_obj: Message = Message(t=MessageType.FILE, content=base64_img, is_user=False, timestamp=datetime.now())
+        message_obj: Message = Message(t=MessageType.IMAGE, content=base64_img, is_user=False, timestamp=datetime.now())
         session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE,
                           message=base64_img,
