@@ -13,10 +13,12 @@ import subprocess
 import threading
 from typing import TYPE_CHECKING
 
+from besser.BUML.metamodel.gui import GUIModel
 from pandas import DataFrame
 from websockets.exceptions import ConnectionClosedError
 from websockets.sync.server import ServerConnection, WebSocketServer, serve
 
+from baf.core.gui import gui_to_json
 from baf.library.transition.events.base_events import ReceiveMessageEvent, ReceiveFileEvent
 from baf.core.message import Message, MessageType
 from baf.core.session import Session
@@ -151,8 +153,9 @@ class WebSocketPlatform(Platform):
                     if not self.running:
                         raise ConnectionClosedError(None, None)
                     payload: Payload = Payload.decode(payload_str)
-
-                    if payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
+                    if payload.action == PayloadAction.USER_UPDATE_UI.value:
+                        logger.info(f'Received event: {payload_str}')  # TODO: Not implemented
+                    elif payload.action == PayloadAction.FETCH_USER_MESSAGES.value:
                         try:
                             chat_history = session.get_chat_history(until_timestamp=current_time)
                             for message in chat_history:
@@ -563,5 +566,14 @@ class WebSocketPlatform(Platform):
 
         session.save_message(Message(t=MessageType.AUDIO, content=message, is_user=False, timestamp=datetime.now()))
         payload = Payload(action=PayloadAction.AGENT_REPLY_AUDIO, message=message)
+    def reply_ui(self, session: Session, ui: GUIModel) -> None:
+        if session.platform is not self:
+            raise PlatformMismatchError(self, session)
+        ui_json = gui_to_json(ui)
+        message_obj: Message = Message(t=MessageType.UI, content=ui_json, is_user=False, timestamp=datetime.now())
+        session.save_message(message_obj)
+        payload = Payload(action=PayloadAction.AGENT_REPLY_UI,
+                          message=ui_json,
+                          timestamp=message_obj.timestamp)
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
