@@ -141,6 +141,17 @@ class Session:
 
         def start_event_loop():
             logger.debug(f'Starting Event Loop for session: {self.id}')
+            # Wait for the platform to finish starting before running the agent.
+            # Platforms run in their own threads and may not be ready immediately.
+            timeout = 30  # seconds
+            elapsed = 0.0
+            interval = 0.05  # 50ms polling interval
+            while not self._platform.running:
+                if elapsed >= timeout:
+                    logger.error(f'Platform did not start within {timeout}s for session {self.id}. Aborting session start.')
+                    return
+                time.sleep(interval)
+                elapsed += interval
             asyncio.set_event_loop(self._event_loop)
             asyncio.get_event_loop().call_soon(self.manage_transition)
             self._event_loop.run_forever()
