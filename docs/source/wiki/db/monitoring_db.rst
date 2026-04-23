@@ -40,6 +40,8 @@ This table stores a record for each new session.
         id INTEGER NOT NULL DEFAULT nextval('session_id_seq1'::regclass),
         agent_name CHARACTER VARYING NOT NULL,
         session_id CHARACTER VARYING NOT NULL,
+        session_name CHARACTER VARYING,
+        username CHARACTER VARYING,
         platform_name CHARACTER VARYING NOT NULL,
         "timestamp" TIMESTAMP without time zone NOT NULL,
         variables CHARACTER VARYING,
@@ -56,6 +58,8 @@ This table stores a record for each new session.
     * - id
       - agent_name
       - session_id
+      - session_name
+      - username
       - platform_name
       - timestamp
       - variables
@@ -63,6 +67,8 @@ This table stores a record for each new session.
     * - 1
       - greetings_agent
       - aaddaab5-o065-40f4-a996-b584d63b0k0d
+      - Saying hello to my agent
+      - john
       - WebSocketPlatform
       - 2024-05-02 14:52:47
       - {"name": "John", "age": "30"}
@@ -70,6 +76,8 @@ This table stores a record for each new session.
     * - 2
       - greetings_agent
       - 6642498531
+      - Saying hello to my agent
+      - john
       - TelegramPlatform
       - 2024-05-02 14:53:46
       - {}
@@ -77,6 +85,8 @@ This table stores a record for each new session.
     * - 3
       - weather_agent
       - 6ff6cf75-d6ea-495b-a465-fe4856e1b5f9
+      - Ask weather
+      - john
       - WebSocketPlatform
       - 2024-05-02 14:53:50
       - {}
