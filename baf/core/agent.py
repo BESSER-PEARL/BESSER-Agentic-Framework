@@ -24,7 +24,7 @@ from baf.db.monitoring_db import MonitoringDB
 from baf.exceptions.exceptions import AgentNotTrainedError, DuplicatedEntityError, DuplicatedInitialStateError, \
     DuplicatedIntentError, DuplicatedStateError, InitialStateNotFound
 from baf.exceptions.logger import logger
-from baf.library.transition.events.base_events import ReceiveMessageEvent, ReceiveJSONEvent
+from baf.library.transition.events.base_events import ReceiveMessageEvent, ReceiveJSONEvent, ReceiveFileEvent
 from baf.nlp.intent_classifier.intent_classifier_configuration import IntentClassifierConfiguration, \
     SimpleIntentClassifierConfiguration
 from baf.nlp.intent_classifier.intent_classifier_prediction import IntentClassifierPrediction
@@ -534,6 +534,9 @@ class Agent:
             else:
                 t = MessageType.STR
             session.save_message(Message(t=t, content=event.message, is_user=True, timestamp=datetime.now()))
+        if isinstance(event, ReceiveFileEvent):
+            session.save_message(Message(t=MessageType.FILE, content=event.file.get_json_string(), is_user=True, timestamp=datetime.now()))
+
         logger.info(f'Received event: {event.log()}')
 
     def process(self, session: Session, message: Any, is_user_message: bool) -> Any:
