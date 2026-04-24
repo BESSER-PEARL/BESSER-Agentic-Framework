@@ -1,10 +1,18 @@
 from setuptools import setup
 import os
 
-# Function to read dependencies from a requirements file
+# Function to read dependencies from a requirements file.
+# Skips blank lines, comments and pip directives (e.g. --extra-index-url),
+# which are not valid PEP 508 requirement specifiers for setuptools.
 def read_requirements(file_path):
     with open(file_path, "r") as f:
-        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        return [
+            line.strip()
+            for line in f
+            if line.strip()
+            and not line.startswith("#")
+            and not line.startswith("-")
+        ]
 
 # Define paths to requirements files
 requirements_dir = "requirements"

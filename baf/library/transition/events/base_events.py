@@ -71,12 +71,15 @@ class ReceiveMessageEvent(Event):
         message = session._agent.process(session=session, message=message, is_user_message=human)
         
         try:
-            payload = json.loads(message)
-            if isinstance(payload, dict):
-                event = ReceiveJSONEvent(payload, session_id, human)
+            if isinstance(message, dict):
+                event = ReceiveJSONEvent(message, session_id, human)
             else:
-                event = ReceiveTextEvent(message, session_id, human)
-        except json.JSONDecodeError:
+                payload = json.loads(message)
+                if isinstance(payload, dict):
+                    event = ReceiveJSONEvent(payload, session_id, human)
+                else:
+                    event = ReceiveTextEvent(message, session_id, human)
+        except Exception as e:
             event = ReceiveTextEvent(message, session_id, human)
         finally:
             return event

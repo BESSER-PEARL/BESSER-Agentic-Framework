@@ -1,0 +1,8 @@
+Version 4.3.3
+=============
+
+Key improvements
+~~~~~~~~~~~~~~~~
+- Updated dependencies and requirements to run the framework on Python 3.13.
+- Added a set of tests for the dependencies and main framework components
+- Fix minor issues

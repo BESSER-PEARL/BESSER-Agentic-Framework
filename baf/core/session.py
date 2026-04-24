@@ -39,9 +39,13 @@ class Session:
         session_id (str): The session id, which must unique among all agent sessions
         agent (Agent): The agent the session belongs to
         platform (Platform): The platform where the session has been created
+        username (str): the name of the session user (optional)
+        session_name (str): the name of the session (optional)
 
     Attributes:
         _id (str): The session id, which must unique among all agent sessions
+        _username (str): the name of the session user (optional)
+        _session_name (str): the name of the session (optional)
         _agent (str): The agent the session belongs to
         _platform (str): The platform where the session has been created
         _current_state (str): The current state in the agent for this session
@@ -60,8 +64,12 @@ class Session:
             session_id: str,
             agent: 'Agent',
             platform: 'Platform',
+            username: str or None = None,
+            session_name: str or None = None
     ):
         self._id: str = session_id
+        self._username: str = username
+        self._session_name: str = session_name
         self._agent: 'Agent' = agent
         self._platform: 'Platform' = platform
         self._current_state: 'State' = self._agent.initial_state()

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from enum import Enum
 
@@ -18,6 +19,9 @@ class PayloadAction(Enum):
     USER_SET_VARIABLE = 'user_set_variable'
     """PayloadAction: Indicates that the user intends to set a session variable. The payload must include a dictionary containing the variable name and its value, sent as a Payload message.
     """
+
+    USER_UPDATE_UI = 'user_update_ui'
+    """PayloadAction: Indicates that the payload's purpose is to send a UI update from the user."""
 
     RESET = 'reset'
     """PayloadAction: Use the :class:`~baf.platforms.websocket.websocket_platform.WebSocketPlatform` on this
@@ -74,6 +78,11 @@ class PayloadAction(Enum):
     dictionary containing the audio data (as a base 64 String) and the metadata to reconstruct the audio array, composed
     of sample_rate, dtype and shape."""
 
+    AGENT_REPLY_UI = 'agent_reply_ui'
+    """PayloadAction: Indicates that the payload's purpose is to send an agent reply containing a UI, which is based on
+    the GUI metamodel in :class:`besser.BUML.metamodel.gui.graphical_ui.GUIModel`.
+    """
+
     FETCH_USER_MESSAGES = 'fetch_user_messages'
     """PayloadAction: Request to fetch old messages for a given user."""
 
@@ -103,10 +112,11 @@ class Payload:
                 return Payload(action, payload_message, history=history)
         return None
 
-    def __init__(self, action: PayloadAction, message: str or dict = None, history: bool = False):
+    def __init__(self, action: PayloadAction, message: str or dict = None, history: bool = False, timestamp: datetime = None):
         self.action: str = action.value
         self.message: str or dict = message
         self.history: bool = history
+        self.timestamp: datetime = timestamp
 
 
 class PayloadEncoder(json.JSONEncoder):
@@ -130,10 +140,14 @@ class PayloadEncoder(json.JSONEncoder):
         """
         if isinstance(obj, Payload):
             # Convert the Payload object to a dictionary
+            timestamp = getattr(obj, 'timestamp', None)
+            if timestamp:
+                timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
             payload_dict = {
                 'action': obj.action,
                 'message': obj.message,
                 'history': getattr(obj, 'history', None),
+                'timestamp': timestamp
             }
             return payload_dict
         return super().default(obj)
