@@ -290,16 +290,17 @@ class Agent:
                 return concrete_entity
         return None
 
-    def new_abstract_entity(self, name: str, attributes: dict[str, Any] = {}) -> AbstractEntity:
+    def new_abstract_entity(self, name: str, contextual_factor: str | None = None, attributes: dict[str, Any] = {}) -> AbstractEntity:
         """Create a new abstract image entity in the agent.
 
         Args:
             name (str): the abstract image entity name. It must be unique in the agent
+            contextual_factor (str | None): optional contextual factor type (e.g. 'TIME', 'SPATIAL', 'AMBIENT', 'PRESENCE')
 
         Returns:
             AbstractEntity: the entity
         """
-        new_abstract_entity = AbstractEntity(name, attributes)
+        new_abstract_entity = AbstractEntity(name, contextual_factor, attributes)
         if new_abstract_entity in self.abstract_entities:
             raise DuplicatedAbstractEntityError(self, new_abstract_entity)
         self.abstract_entities.append(new_abstract_entity)

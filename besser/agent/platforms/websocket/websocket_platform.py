@@ -107,7 +107,10 @@ class WebSocketPlatform(Platform):
                         decoded_data = base64.b64decode(payload.message)  # Decode base64 back to bytes
                         np_data = np.frombuffer(decoded_data, np.uint8)  # Convert bytes to numpy array
                         img = cv2.imdecode(np_data, cv2.IMREAD_COLOR)  # Decode numpy array back to image
-                        self._agent.receive_image(session.id, img)
+                        try:
+                            self._agent.receive_image(session.id, img)
+                        except Exception as e:
+                            logger.error(f'Error processing image: {e}')
                         # To display detected objects, optional
                         payload = Payload(action=PayloadAction.AGENT_REPLY_IMAGE_PREDICTION,
                                           message=json.dumps(session.image_prediction, cls=ImagePredictionEncoder))

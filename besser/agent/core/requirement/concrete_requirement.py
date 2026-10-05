@@ -31,10 +31,12 @@ class ConcreteRequirement(SimpleRequirement):
             self,
             name: str,
             concrete_entity: ConcreteEntity,
+            modality: str,
             attributes: dict[str, Any]
     ):
 
         super().__init__(name, attributes['confidence'])
+        self.modality: str = modality
         self.concrete_entity: ConcreteEntity = concrete_entity
         self.attributes: list[ConcreteEntityAttribute] = []
         for attr_name, attr_value in attributes.items():

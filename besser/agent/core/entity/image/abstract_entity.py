@@ -30,8 +30,9 @@ class AbstractEntity(Entity):
         name (str): The abstract entity's name
     """
 
-    def __init__(self, name: str, attributes: dict[str, Any] = {}):
+    def __init__(self, name: str, contextual_factor: str | None = None, attributes: dict[str, Any] = {}):
         super().__init__(name)
+        self.contextual_factor: str | None = contextual_factor
         self.attributes: list[AbstractEntityAttribute] = []
         for attr_name, attr_value in attributes.items():
             self.attributes.append(AbstractEntityAttribute(attr_name, attr_value))

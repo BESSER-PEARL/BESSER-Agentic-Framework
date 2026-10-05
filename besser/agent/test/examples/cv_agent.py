@@ -37,9 +37,9 @@ vllm = VLLMOpenAI(agent, 'gpt-4o', {})
 requirement = agent.new_requirement('scenario1')
 requirement.set(
     AND([
-        AbstractRequirement(name='iphone', abstract_entity=iphone, attributes={'confidence': 0.5}),
-        ConcreteRequirement(name='person', concrete_entity=person, attributes={'max': 3, 'confidence': 0.3}),  # choose which model to use at property level or requirement level
-        ConcreteRequirement(name='phone', concrete_entity=phone, attributes={'confidence': 0.5})
+        AbstractRequirement(name='iphone', abstract_entity=iphone, modality='IMAGE', attributes={'confidence': 0.5}),
+        ConcreteRequirement(name='person', concrete_entity=person, modality='IMAGE', attributes={'max': 3, 'confidence': 0.3}),  # choose which model to use at property level or requirement level
+        ConcreteRequirement(name='phone', concrete_entity=phone, modality='IMAGE', attributes={'confidence': 0.5})
     ])
 )
 initial_state = agent.new_state('initial_state', initial=True)

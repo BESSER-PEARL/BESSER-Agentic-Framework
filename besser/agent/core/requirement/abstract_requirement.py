@@ -27,10 +27,12 @@ class AbstractRequirement(SimpleRequirement):
             self,
             name: str,
             abstract_entity: AbstractEntity,
+            modality: str,
             attributes: dict[str, Any]
     ):
 
         super().__init__(name, attributes['confidence'])
+        self.modality: str = modality
         self.abstract_entity: AbstractEntity = abstract_entity
         self.attributes: list[AbstractRequirementAttribute] = []
         for attr_name, attr_value in attributes.items():

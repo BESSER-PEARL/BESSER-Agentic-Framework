@@ -8,6 +8,7 @@ from besser.agent.core.property import Property
 from besser.agent.cv.prediction.image_prediction import ImagePrediction
 from besser.agent.cv.object_detection.object_detector import ObjectDetector
 from besser.agent.cv.vllm.vllm import VLLM
+from besser.agent.exceptions.logger import logger
 
 if TYPE_CHECKING:
     from besser.agent.core.agent import Agent
@@ -86,5 +87,8 @@ class CVEngine:
         for object_detector in self._object_detectors:
             prediction.image_object_predictions.extend(object_detector.predict(img))
         for vllm_name, vllm in self._vllms.items():
-            prediction.image_property_predictions.extend(vllm.predict_image_properties(img))
+            try:
+                prediction.image_property_predictions.extend(vllm.predict_image_properties(img))
+            except Exception as e:
+                logger.error(f'VLLM {vllm_name} prediction failed: {e}')
         return prediction
