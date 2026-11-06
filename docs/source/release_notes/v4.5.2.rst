@@ -1,0 +1,20 @@
+Version 4.5.2
+=============
+
+Released: September 24th, 2026
+
+This release fixes a transition evaluation bug that could leave unmatched
+message events queued after a fallback ran, causing the same state to loop
+indefinitely.
+
+Bug Fixes
+---------
+
+Fallback event handling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+When a state checks event-based transitions before condition-based transitions,
+unmatched human message events are now only preserved while there are more
+event-based transitions left to evaluate. This prevents condition-only paths
+from re-queueing the same event after the fallback body executes and avoids an
+infinite loop in mixed transition configurations.

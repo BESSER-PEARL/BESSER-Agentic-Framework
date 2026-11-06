@@ -355,8 +355,10 @@ class State:
                     if (isinstance(session.event, ReceiveTextEvent) and session.event.human) or (isinstance(session.event, ReceiveJSONEvent) and session.event.contains_message and session.event.human):
                         # There is a ReceiveTextEvent or ReceiveJSONEvent (with message) and we couldn't match any transition so far
                         run_fallback = True
-                        if i < len(self.transitions)-1:
-                            # We only append ReceiveTextEvent or ReceiveJSONEvent (human with message) if we didn't finish checking all transitions
+                        if any(t.is_event() for t in self.transitions[i+1:]):
+                            # Only preserve the event if there are more event-based transitions left to check.
+                            # Condition-based transitions don't consume events, so preserving the event for them
+                            # would cause it to remain in the queue after the fallback fires, creating an infinite loop.
                             fallback_deque.appendleft(session.event)
                     else:
                         fallback_deque.appendleft(session.event)
