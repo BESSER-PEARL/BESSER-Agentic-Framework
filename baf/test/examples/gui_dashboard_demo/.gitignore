@@ -1,0 +1,14 @@
+# Holds a real API key — copy config.yaml.example instead.
+config.yaml
+
+# Local environment shim: pins `baf` to this checkout and merges the machine's
+# trust store. Specific to one developer's setup, not part of the demo.
+_bootstrap.py
+.ca-bundle.pem
+
+# Video production material, kept out of the repository.
+DEMO_SCRIPT.md
+slide_intro.svg
+
+__pycache__/
+application.log

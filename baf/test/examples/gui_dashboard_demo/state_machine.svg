@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 684" width="1120" height="684" role="img" aria-label="State machine of the Nova Analytics agent">
+  <title>Nova Analytics agent — state machine</title>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f46e5"/>
+    </marker>
+    <marker id="arrow-auto" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .bg      { fill: #f8fafc; }
+      .node    { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+      .node-hub{ fill: #ffffff; stroke: #4f46e5; stroke-width: 2.5; }
+      .name    { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+                 fill: #0f172a; font-weight: 600; text-anchor: middle; }
+      .desc    { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 fill: #64748b; font-size: 10.5px; text-anchor: middle; }
+      .edge    { stroke: #4f46e5; stroke-width: 1.8; fill: none; }
+      .edge-auto { stroke: #94a3b8; stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+      .lbl     { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 font-size: 11px; fill: #4f46e5; text-anchor: middle; font-weight: 600; }
+      .lbl-sub { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 font-size: 10px; fill: #64748b; text-anchor: middle; }
+      .lbl-auto{ font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 font-size: 10px; fill: #94a3b8; text-anchor: middle; font-style: italic; }
+      .halo    { fill: #f8fafc; }
+      .head    { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 fill: #0f172a; font-size: 15px; font-weight: 700; }
+      .sub     { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 fill: #64748b; font-size: 11.5px; }
+      .phase   { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 fill: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; }
+      .prio    { font-family: ui-monospace, Menlo, Consolas, monospace;
+                 font-size: 9.5px; fill: #ffffff; text-anchor: middle; font-weight: 700; }
+      /* CSS beats presentation attributes, so left-aligned text needs its own class
+         rather than a text-anchor="start" attribute. */
+      .note    { font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+                 font-size: 10.5px; fill: #64748b; text-anchor: start; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1120" height="684"/>
+
+  <text class="head" x="40" y="34">Nova Analytics — agent state machine</text>
+  <text class="sub"  x="40" y="54">Solid arrows are triggered transitions; dashed arrows fire automatically when the state body returns.</text>
+
+  <!-- ─── Intake chain ─────────────────────────────────────────────────── -->
+  <text class="phase" x="40" y="88">INTAKE</text>
+
+  <!-- initial marker -->
+  <circle cx="30" cy="124" r="6" fill="#0f172a"/>
+  <path class="edge" d="M 38 124 H 54" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="node" x="60" y="98" width="200" height="52" rx="10"/>
+    <text class="name" x="160" y="120" font-size="12px">welcome_state</text>
+    <text class="desc" x="160" y="136">set_gui(upload screen)</text>
+  </g>
+
+  <path class="edge-auto" d="M 260 124 H 332" marker-end="url(#arrow-auto)"/>
+  <text class="lbl-auto" x="296" y="118">auto</text>
+
+  <g>
+    <rect class="node" x="340" y="98" width="200" height="52" rx="10"/>
+    <text class="name" x="440" y="120" font-size="12px">awaiting_upload_state</text>
+    <text class="desc" x="440" y="136">waits for the file</text>
+  </g>
+
+  <path class="edge" d="M 540 124 H 672" marker-end="url(#arrow)"/>
+  <rect class="halo" x="552" y="104" width="108" height="14"/>
+  <text class="lbl"     x="606" y="115">GUIEvent</text>
+  <text class="lbl-sub" x="606" y="143">elementId = csv_upload</text>
+
+  <g>
+    <rect class="node" x="680" y="98" width="210" height="52" rx="10"/>
+    <text class="name" x="785" y="120" font-size="12px">build_dashboard_state</text>
+    <text class="desc" x="785" y="136">parse CSV · set_gui(dashboard)</text>
+  </g>
+
+  <!-- build_dashboard → hub -->
+  <path class="edge-auto" d="M 785 150 V 186 Q 785 206 765 206 H 700" marker-end="url(#arrow-auto)"/>
+  <text class="lbl-auto" x="812" y="172">auto</text>
+
+  <!-- ─── Hub ──────────────────────────────────────────────────────────── -->
+  <text class="phase" x="40" y="212">EXPLORATION LOOP</text>
+
+  <g>
+    <rect class="node-hub" x="440" y="206" width="250" height="66" rx="12"/>
+    <text class="name" x="565" y="234" font-size="14px">dashboard_state</text>
+    <text class="desc" x="565" y="252">idle hub — the dashboard stays on screen</text>
+  </g>
+
+  <!-- ─── Fan out to the five handler states ───────────────────────────── -->
+
+  <!-- 1. form submitted → apply_filter_state  (exit x=470) -->
+  <path class="edge"      d="M 470 272 L 356 462" marker-end="url(#arrow)"/>
+  <path class="edge-auto" d="M 380 462 L 494 272" marker-end="url(#arrow-auto)"/>
+
+  <!-- 2. GUIEvent → handle_interaction_state  (exit x=452) -->
+  <path class="edge"      d="M 452 272 L 140 462" marker-end="url(#arrow)"/>
+  <path class="edge-auto" d="M 164 462 L 476 272" marker-end="url(#arrow-auto)"/>
+
+  <!-- 3. intent: add widget → generate_widget_state -->
+  <path class="edge"      d="M 660 272 L 788 462" marker-end="url(#arrow)"/>
+  <path class="edge-auto" d="M 764 462 L 636 272" marker-end="url(#arrow-auto)"/>
+
+  <!-- 4. intent: refine → offer_filter_state -->
+  <path class="edge"      d="M 678 272 L 1002 462" marker-end="url(#arrow)"/>
+  <path class="edge-auto" d="M 978 462 L 654 272" marker-end="url(#arrow-auto)"/>
+
+  <!-- 5. intent: data question → answer_state -->
+  <path class="edge"      d="M 553 272 V 462" marker-end="url(#arrow)"/>
+  <path class="edge-auto" d="M 577 462 V 272" marker-end="url(#arrow-auto)"/>
+
+  <!-- Trigger labels, sitting just above each handler state -->
+  <g>
+    <rect class="halo" x="36" y="404" width="190" height="42"/>
+    <circle cx="52" cy="416" r="8" fill="#4f46e5"/><text class="prio" x="52" y="419.5">2</text>
+    <text class="lbl"     x="140" y="420">GUIEvent</text>
+    <text class="lbl-sub" x="130" y="436">bar · slice · dropdown · row · Reset</text>
+  </g>
+  <g>
+    <rect class="halo" x="256" y="404" width="178" height="42"/>
+    <circle cx="272" cy="416" r="8" fill="#4f46e5"/><text class="prio" x="272" y="419.5">1</text>
+    <text class="lbl"     x="352" y="420">form submitted</text>
+    <text class="lbl-sub" x="345" y="436">form_id = nova_filter_form</text>
+  </g>
+  <g>
+    <rect class="halo" x="474" y="404" width="172" height="42"/>
+    <circle cx="490" cy="416" r="8" fill="#4f46e5"/><text class="prio" x="490" y="419.5">5</text>
+    <text class="lbl"     x="568" y="420">intent matched</text>
+    <text class="lbl-sub" x="560" y="436">data_question_intent</text>
+  </g>
+  <g>
+    <rect class="halo" x="688" y="404" width="174" height="42"/>
+    <circle cx="704" cy="416" r="8" fill="#4f46e5"/><text class="prio" x="704" y="419.5">3</text>
+    <text class="lbl"     x="782" y="420">intent matched</text>
+    <text class="lbl-sub" x="775" y="436">add_widget_intent</text>
+  </g>
+  <g>
+    <rect class="halo" x="902" y="404" width="178" height="42"/>
+    <circle cx="918" cy="416" r="8" fill="#4f46e5"/><text class="prio" x="918" y="419.5">4</text>
+    <text class="lbl"     x="996" y="420">intent matched</text>
+    <text class="lbl-sub" x="990" y="436">refine_intent</text>
+  </g>
+
+  <!-- ─── Handler states ───────────────────────────────────────────────── -->
+  <g>
+    <rect class="node" x="40" y="462" width="180" height="52" rx="10"/>
+    <text class="name" x="130" y="484" font-size="11px">handle_interaction_state</text>
+    <text class="desc" x="130" y="500">route event · refresh</text>
+  </g>
+  <g>
+    <rect class="node" x="255" y="462" width="180" height="52" rx="10"/>
+    <text class="name" x="345" y="484" font-size="11px">apply_filter_state</text>
+    <text class="desc" x="345" y="500">read gui_inputs · refresh</text>
+  </g>
+  <g>
+    <rect class="node" x="470" y="462" width="180" height="52" rx="10"/>
+    <text class="name" x="560" y="484" font-size="11px">answer_state</text>
+    <text class="desc" x="560" y="500">LLM answer from live figures</text>
+  </g>
+  <g>
+    <rect class="node" x="685" y="462" width="180" height="52" rx="10"/>
+    <text class="name" x="775" y="484" font-size="11px">generate_widget_state</text>
+    <text class="desc" x="775" y="500">LLM edit plan · patch the model</text>
+  </g>
+  <g>
+    <rect class="node" x="900" y="462" width="180" height="52" rx="10"/>
+    <text class="name" x="990" y="484" font-size="11px">offer_filter_state</text>
+    <text class="desc" x="990" y="500">LLM picks fields · reply_gui(form)</text>
+  </g>
+
+  <!-- ─── Legend ───────────────────────────────────────────────────────── -->
+  <line x1="40" y1="552" x2="1080" y2="552" stroke="#e2e8f0" stroke-width="1"/>
+
+  <path class="edge" d="M 44 582 H 84" marker-end="url(#arrow)"/>
+  <text class="note" x="94" y="586">triggered transition</text>
+
+  <path class="edge-auto" d="M 240 582 H 280" marker-end="url(#arrow-auto)"/>
+  <text class="note" x="290" y="586">automatic — fires as soon as the state body returns</text>
+
+  <circle cx="52" cy="610" r="8" fill="#4f46e5"/><text class="prio" x="52" y="613.5">n</text>
+  <text class="note" x="68" y="614">registration order on dashboard_state: transitions are checked in this order, so the specific form matcher must precede the catch-all GUIEvent.</text>
+
+  <text class="note" x="40" y="642">Every handler state patches the model and calls session.set_gui(session.gui), which is what pushes the updated dashboard to the client.</text>
+  <text class="note" x="40" y="660">offer_filter_state is the exception: it sends a Form as a GUI Reply into the chat thread, and that form&#8217;s submission re-enters through transition 1.</text>
+</svg>
