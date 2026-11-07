@@ -85,6 +85,10 @@ class TransitionBuilder:
         if dest not in self.source._agent.states:
             raise StateNotFound(self.source._agent, dest)
 
+        # An auto transition is exclusive in either registration order.
+        if self.event is None and self.condition is None and self.source.transitions:
+            raise ConflictingAutoTransitionError(self.source._agent, self.source)
+
         for transition in self.source.transitions:
             if transition.is_auto():
                 raise ConflictingAutoTransitionError(self.source._agent, self.source)
