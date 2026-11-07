@@ -1,0 +1,22 @@
+# Copy to config.yaml and fill in your own key. config.yaml is gitignored.
+agent:
+  check_transitions_delay: 5
+
+nlp:
+  language: en
+  region: US
+  timezone: Europe/Madrid
+  pre_processing: True
+  intent_threshold: 0.4
+  openai:
+    api_key: YOUR-OPENAI-API-KEY
+
+platforms:
+  websocket:
+    host: localhost
+    # The demo overrides this with agent.set_property(WEBSOCKET_PORT, 8777).
+    port: 8765
+
+db:
+  monitoring:
+    enabled: False

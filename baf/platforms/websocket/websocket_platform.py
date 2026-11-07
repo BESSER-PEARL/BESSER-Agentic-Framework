@@ -148,6 +148,18 @@ class WebSocketPlatform(Platform):
             session_name = query_session_name
             self._connections[str(session_key)] = conn
             session = self._agent.get_or_create_session(session_key, self, username, session_name)
+            # If this session has a GUI model, send it immediately on connection
+            if session.gui is not None:
+                try:
+                    ui_json = gui_to_json(session.gui)
+                    # GUI Mode action: the session GUI owns the full-page panel and must
+                    # not enter the conversation history the way a GUI Reply does.
+                    init_payload = Payload(action=PayloadAction.AGENT_REPLY_GUI_UPDATE,
+                                           message=ui_json,
+                                           timestamp=datetime.now())
+                    self._send(session.id, init_payload)
+                except Exception as e:
+                    logger.error(f"Failed to send initial GUI model: {e}")
             try:
 
                 for payload_str in conn:

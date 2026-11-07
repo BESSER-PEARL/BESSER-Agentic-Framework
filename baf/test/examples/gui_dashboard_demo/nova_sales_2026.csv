@@ -1,0 +1,901 @@
+order_id,date,region,category,channel,rep,units,unit_price,discount,revenue
+NR-26520,2026-01-01,LATAM,Professional Services,Partner,K. Mensah,1,2116.48,0.15,951.5
+NR-26050,2026-01-02,APAC,Support Plan,Direct,H. Petrov,11,606.33,0.05,5824.31
+NR-26443,2026-01-02,APAC,Professional Services,Direct,H. Petrov,3,2864.3,0.15,6713.95
+NR-26493,2026-01-02,APAC,Support Plan,Direct,H. Petrov,1,326.12,0,299.78
+NR-26585,2026-01-02,LATAM,Platform License,Direct,K. Mensah,2,1914.4,0,2778.56
+NR-26877,2026-01-03,EMEA,Analytics Add-on,Partner,D. Lindqvist,4,1083.36,0,3819.93
+NR-26048,2026-01-04,EMEA,Platform License,Direct,D. Lindqvist,1,3404.42,0,4117.65
+NR-26468,2026-01-04,North America,Support Plan,Direct,D. Lindqvist,13,682.87,0,9878.14
+NR-26111,2026-01-05,EMEA,Analytics Add-on,Direct,A. Moreau,5,624.07,0,3774.06
+NR-26334,2026-01-05,North America,Platform License,Direct,D. Lindqvist,7,3452.0,0.1,24199.42
+NR-26589,2026-01-05,LATAM,Analytics Add-on,Direct,J. Nowak,9,930.12,0,6074.89
+NR-26593,2026-01-05,LATAM,Analytics Add-on,Direct,K. Mensah,11,647.73,0.05,4912.1
+NR-26001,2026-01-06,APAC,Training,Direct,H. Petrov,10,285.64,0,2625.66
+NR-26312,2026-01-06,North America,Analytics Add-on,Partner,G. Haddad,14,1578.84,0.15,15236.85
+NR-26223,2026-01-08,APAC,Analytics Add-on,Direct,J. Nowak,12,1260.78,0.05,13211.85
+NR-26177,2026-01-09,APAC,Analytics Add-on,Partner,K. Mensah,7,1092.0,0.15,4352.87
+NR-26299,2026-01-09,North America,Support Plan,Partner,G. Haddad,10,450.21,0,3651.11
+NR-26403,2026-01-09,LATAM,Platform License,Partner,J. Nowak,9,4128.11,0,19650.22
+NR-26534,2026-01-09,APAC,Professional Services,Partner,H. Petrov,4,1480.72,0,3967.97
+NR-26650,2026-01-10,LATAM,Support Plan,Direct,K. Mensah,7,704.14,0.1,3219.26
+NR-26524,2026-01-11,North America,Analytics Add-on,Partner,D. Lindqvist,4,1245.1,0,4039.0
+NR-26832,2026-01-11,APAC,Platform License,Direct,K. Mensah,14,3171.39,0,40812.87
+NR-26860,2026-01-12,North America,Support Plan,Partner,H. Petrov,4,413.99,0,1342.95
+NR-26079,2026-01-13,LATAM,Support Plan,Direct,J. Nowak,10,489.93,0,3555.42
+NR-26152,2026-01-13,EMEA,Professional Services,Direct,A. Moreau,9,1543.84,0.1,15124.92
+NR-26317,2026-01-13,APAC,Platform License,Direct,J. Nowak,8,3332.93,0,24509.57
+NR-26710,2026-01-14,North America,Platform License,Direct,F. Tanaka,7,3776.64,0,29416.93
+NR-26888,2026-01-14,North America,Support Plan,Partner,D. Lindqvist,7,447.68,0,2541.42
+NR-26890,2026-01-14,APAC,Analytics Add-on,Direct,G. Haddad,1,751.51,0.05,656.26
+NR-26419,2026-01-15,EMEA,Professional Services,Direct,B. Keller,10,2192.51,0.1,23866.57
+NR-26759,2026-01-15,APAC,Analytics Add-on,Direct,K. Mensah,7,1010.29,0,6500.75
+NR-26484,2026-01-16,EMEA,Analytics Add-on,Direct,D. Lindqvist,2,1171.7,0.05,2692.63
+NR-26552,2026-01-16,EMEA,Platform License,Direct,D. Lindqvist,1,3777.26,0,4568.6
+NR-26700,2026-01-16,EMEA,Analytics Add-on,Direct,E. Navarro,14,807.78,0,13678.14
+NR-26178,2026-01-17,North America,Platform License,Partner,F. Tanaka,14,1830.45,0.15,17665.05
+NR-26646,2026-01-17,EMEA,Training,Direct,A. Moreau,12,235.74,0.1,3079.38
+NR-26432,2026-01-18,APAC,Support Plan,Direct,K. Mensah,3,685.99,0.05,1797.14
+NR-26461,2026-01-18,EMEA,Analytics Add-on,Partner,B. Keller,12,1271.38,0,13448.66
+NR-26749,2026-01-19,North America,Analytics Add-on,Partner,G. Haddad,3,1032.71,0,2512.52
+NR-26539,2026-01-20,LATAM,Professional Services,Partner,J. Nowak,8,1751.19,0,7409.64
+NR-26545,2026-01-20,North America,Training,Direct,G. Haddad,1,692.97,0.05,732.54
+NR-26876,2026-01-20,EMEA,Professional Services,Direct,C. Okafor,9,2495.52,0.1,24448.48
+NR-26215,2026-01-21,North America,Platform License,Direct,H. Petrov,13,3316.91,0,47981.16
+NR-26234,2026-01-21,EMEA,Training,Direct,A. Moreau,3,323.66,0.1,1056.96
+NR-26724,2026-01-21,APAC,Platform License,Partner,K. Mensah,6,2408.51,0.1,8713.21
+NR-26288,2026-01-22,North America,Support Plan,Partner,D. Lindqvist,12,536.87,0,5224.69
+NR-26343,2026-01-22,North America,Support Plan,Partner,G. Haddad,10,484.68,0.15,3341.06
+NR-26102,2026-01-23,APAC,Support Plan,Direct,J. Nowak,2,814.47,0.15,1272.75
+NR-26116,2026-01-23,EMEA,Professional Services,Partner,A. Moreau,12,2884.32,0,30510.34
+NR-26218,2026-01-24,North America,Professional Services,Direct,G. Haddad,10,1611.79,0.1,16141.53
+NR-26515,2026-01-24,North America,Support Plan,Partner,G. Haddad,4,345.67,0.05,1065.26
+NR-26582,2026-01-24,EMEA,Platform License,Direct,C. Okafor,11,3366.51,0,44789.73
+NR-26610,2026-01-24,EMEA,Training,Partner,C. Okafor,2,599.92,0.05,1004.78
+NR-26427,2026-01-25,APAC,Analytics Add-on,Partner,K. Mensah,2,1581.04,0.1,1906.56
+NR-26809,2026-01-25,North America,Professional Services,Direct,G. Haddad,9,1448.48,0,14506.03
+NR-26241,2026-01-26,North America,Professional Services,Direct,E. Navarro,9,2121.52,0.05,20183.99
+NR-26495,2026-01-26,APAC,Analytics Add-on,Partner,K. Mensah,6,654.54,0,2631.02
+NR-26737,2026-01-26,EMEA,Platform License,Direct,A. Moreau,10,3041.04,0,36781.38
+NR-26797,2026-01-26,EMEA,Analytics Add-on,Partner,E. Navarro,10,1151.61,0,10151.44
+NR-26885,2026-01-28,North America,Analytics Add-on,Direct,F. Tanaka,3,1544.45,0,5155.71
+NR-26666,2026-01-29,North America,Analytics Add-on,Partner,D. Lindqvist,13,1494.36,0,15754.65
+NR-26873,2026-01-29,North America,Platform License,Partner,E. Navarro,9,2443.93,0,17837.81
+NR-26184,2026-01-30,EMEA,Training,Direct,A. Moreau,11,393.93,0.1,4716.94
+NR-26366,2026-01-30,North America,Professional Services,Direct,G. Haddad,5,1753.49,0,9755.89
+NR-26587,2026-01-30,LATAM,Professional Services,Direct,L. Rossi,7,2566.29,0,13036.5
+NR-26678,2026-01-30,EMEA,Training,Direct,A. Moreau,11,413.29,0,5498.62
+NR-26130,2026-01-31,APAC,Analytics Add-on,Direct,K. Mensah,9,1181.71,0.05,9287.45
+NR-26254,2026-02-01,North America,Training,Partner,D. Lindqvist,4,681.2,0.1,2134.3
+NR-26046,2026-02-03,LATAM,Platform License,Direct,K. Mensah,14,2244.8,0.15,20804.18
+NR-26465,2026-02-03,LATAM,Platform License,Direct,J. Nowak,3,3127.16,0.05,6940.98
+NR-26801,2026-02-04,North America,Platform License,Partner,D. Lindqvist,5,3158.3,0.1,12369.29
+NR-26053,2026-02-05,EMEA,Professional Services,Partner,E. Navarro,5,1367.25,0.1,5820.38
+NR-26081,2026-02-06,APAC,Analytics Add-on,Partner,I. Ferreira,10,830.76,0,5972.83
+NR-26331,2026-02-06,EMEA,Analytics Add-on,Direct,C. Okafor,12,1080.49,0.05,15988.23
+NR-26507,2026-02-06,APAC,Platform License,Partner,I. Ferreira,4,3632.74,0.05,9924.82
+NR-26782,2026-02-06,APAC,Training,Partner,K. Mensah,5,370.21,0,1330.83
+NR-26115,2026-02-08,APAC,Analytics Add-on,Partner,H. Petrov,6,1592.29,0.1,6181.88
+NR-26649,2026-02-08,EMEA,Platform License,Partner,D. Lindqvist,11,3589.53,0.15,31749.75
+NR-26213,2026-02-09,APAC,Training,Direct,H. Petrov,6,301.05,0,1781.88
+NR-26374,2026-02-09,North America,Professional Services,Partner,E. Navarro,3,1354.36,0,3536.18
+NR-26107,2026-02-10,EMEA,Platform License,Partner,B. Keller,8,3360.99,0,25435.97
+NR-26024,2026-02-12,North America,Support Plan,Direct,E. Navarro,2,689.21,0.15,1399.15
+NR-26250,2026-02-12,LATAM,Analytics Add-on,Direct,K. Mensah,5,1540.88,0,6000.19
+NR-26319,2026-02-12,EMEA,Analytics Add-on,Direct,B. Keller,3,1097.7,0.05,4060.72
+NR-26594,2026-02-12,LATAM,Platform License,Partner,K. Mensah,7,4148.49,0.15,14010.36
+NR-26871,2026-02-12,North America,Support Plan,Direct,D. Lindqvist,5,818.97,0.15,4156.42
+NR-26346,2026-02-13,EMEA,Support Plan,Partner,E. Navarro,7,347.97,0.15,1958.62
+NR-26576,2026-02-13,North America,Platform License,Direct,H. Petrov,14,2529.16,0,42283.1
+NR-26643,2026-02-13,EMEA,Platform License,Direct,B. Keller,1,3088.53,0,4008.91
+NR-26301,2026-02-14,EMEA,Training,Partner,E. Navarro,8,343.69,0,2601.05
+NR-26690,2026-02-14,EMEA,Support Plan,Partner,B. Keller,2,847.88,0,1604.19
+NR-26034,2026-02-15,EMEA,Professional Services,Partner,B. Keller,6,2131.97,0.1,10890.96
+NR-26398,2026-02-15,EMEA,Professional Services,Partner,B. Keller,5,2454.0,0.1,10446.68
+NR-26302,2026-02-16,EMEA,Platform License,Partner,D. Lindqvist,1,2068.68,0.1,1761.27
+NR-26232,2026-02-17,North America,Support Plan,Partner,H. Petrov,6,642.25,0.1,3018.4
+NR-26277,2026-02-18,APAC,Training,Direct,G. Haddad,14,294.66,0.15,3459.05
+NR-26413,2026-02-18,LATAM,Support Plan,Direct,J. Nowak,14,438.77,0,4784.0
+NR-26562,2026-02-18,APAC,Professional Services,Direct,I. Ferreira,12,1435.45,0,16992.51
+NR-26564,2026-02-18,APAC,Platform License,Direct,J. Nowak,8,2910.62,0.1,20673.13
+NR-26544,2026-02-19,APAC,Professional Services,Partner,G. Haddad,7,2412.62,0.1,10927.84
+NR-26702,2026-02-19,EMEA,Professional Services,Direct,D. Lindqvist,3,2376.17,0.15,7864.89
+NR-26843,2026-02-19,LATAM,Professional Services,Partner,L. Rossi,10,1227.19,0,6965.53
+NR-26867,2026-02-19,LATAM,Training,Partner,K. Mensah,14,322.93,0,2566.13
+NR-26402,2026-02-20,APAC,Training,Partner,J. Nowak,3,273.86,0,590.68
+NR-26699,2026-02-20,EMEA,Analytics Add-on,Partner,A. Moreau,8,1032.73,0,7815.7
+NR-26751,2026-02-20,North America,Training,Partner,D. Lindqvist,11,302.36,0.1,2605.18
+NR-26840,2026-02-20,North America,Support Plan,Partner,G. Haddad,14,844.84,0,10293.94
+NR-26663,2026-02-21,APAC,Professional Services,Partner,G. Haddad,14,1487.05,0,14967.81
+NR-26406,2026-02-23,APAC,Training,Partner,G. Haddad,12,456.36,0,3937.26
+NR-26573,2026-02-23,EMEA,Platform License,Direct,C. Okafor,9,2923.7,0,34154.66
+NR-26868,2026-02-23,APAC,Professional Services,Direct,K. Mensah,13,2694.21,0,34551.2
+NR-26321,2026-02-24,North America,Analytics Add-on,Partner,E. Navarro,12,1558.92,0.1,14653.0
+NR-26613,2026-02-24,North America,Analytics Add-on,Direct,G. Haddad,8,1251.08,0.05,11354.32
+NR-26685,2026-02-24,LATAM,Professional Services,Direct,L. Rossi,9,2139.65,0,14997.23
+NR-26812,2026-02-24,EMEA,Analytics Add-on,Direct,B. Keller,4,765.89,0,3976.5
+NR-26415,2026-02-25,North America,Analytics Add-on,Direct,E. Navarro,1,993.0,0,1185.8
+NR-26375,2026-02-27,EMEA,Platform License,Partner,E. Navarro,7,3736.93,0.05,23508.65
+NR-26806,2026-02-28,North America,Analytics Add-on,Partner,G. Haddad,4,895.5,0,3117.49
+NR-26452,2026-03-01,North America,Professional Services,Direct,F. Tanaka,9,1802.25,0.05,21955.85
+NR-26457,2026-03-01,North America,Professional Services,Direct,G. Haddad,6,2150.41,0,18384.07
+NR-26599,2026-03-02,EMEA,Training,Partner,B. Keller,11,345.0,0,4283.61
+NR-26743,2026-03-02,LATAM,Professional Services,Direct,J. Nowak,1,1472.75,0,1368.55
+NR-26762,2026-03-02,EMEA,Professional Services,Direct,E. Navarro,1,2905.81,0.1,4050.34
+NR-26049,2026-03-03,North America,Professional Services,Direct,H. Petrov,4,1806.18,0,10294.14
+NR-26068,2026-03-03,APAC,Analytics Add-on,Direct,I. Ferreira,9,1056.05,0,11187.21
+NR-26428,2026-03-03,North America,Platform License,Direct,H. Petrov,4,2656.81,0,15142.22
+NR-26325,2026-03-04,EMEA,Professional Services,Direct,A. Moreau,9,2048.89,0.1,25703.07
+NR-26838,2026-03-04,EMEA,Support Plan,Partner,C. Okafor,10,679.93,0,7674.71
+NR-26200,2026-03-05,North America,Support Plan,Partner,F. Tanaka,12,650.64,0,8107.89
+NR-26571,2026-03-05,EMEA,Analytics Add-on,Partner,E. Navarro,5,852.63,0.1,4330.83
+NR-26073,2026-03-06,APAC,Support Plan,Direct,H. Petrov,9,784.01,0.15,7059.57
+NR-26197,2026-03-06,EMEA,Platform License,Direct,E. Navarro,13,3954.72,0.05,75642.18
+NR-26287,2026-03-06,LATAM,Professional Services,Partner,K. Mensah,2,2317.88,0,3139.57
+NR-26417,2026-03-06,APAC,Platform License,Partner,I. Ferreira,5,3991.49,0.1,15408.45
+NR-26540,2026-03-06,EMEA,Support Plan,Partner,C. Okafor,10,735.83,0.15,7059.83
+NR-26766,2026-03-06,EMEA,Support Plan,Direct,B. Keller,9,614.97,0.05,8143.32
+NR-26817,2026-03-06,North America,Support Plan,Direct,G. Haddad,8,567.78,0.05,6148.41
+NR-26635,2026-03-08,North America,Platform License,Partner,H. Petrov,3,3227.89,0,10056.01
+NR-26022,2026-03-09,North America,Support Plan,Direct,F. Tanaka,13,802.44,0,14863.64
+NR-26258,2026-03-09,APAC,Professional Services,Partner,J. Nowak,3,2984.53,0.1,6912.75
+NR-26087,2026-03-10,North America,Support Plan,Direct,H. Petrov,10,896.66,0.15,10859.65
+NR-26282,2026-03-10,EMEA,Analytics Add-on,Direct,A. Moreau,5,745.08,0.1,5192.74
+NR-26328,2026-03-10,EMEA,Analytics Add-on,Direct,E. Navarro,14,849.39,0.1,16575.21
+NR-26824,2026-03-10,North America,Platform License,Direct,H. Petrov,1,2726.22,0,3884.45
+NR-26377,2026-03-11,North America,Platform License,Direct,D. Lindqvist,6,2777.58,0,23745.81
+NR-26447,2026-03-11,LATAM,Analytics Add-on,Direct,L. Rossi,13,1219.64,0.15,12523.52
+NR-26633,2026-03-11,North America,Professional Services,Direct,H. Petrov,6,2852.37,0,24385.2
+NR-26856,2026-03-11,EMEA,Training,Direct,A. Moreau,13,491.05,0,9886.68
+NR-26072,2026-03-12,EMEA,Platform License,Partner,D. Lindqvist,13,2071.77,0.1,27360.57
+NR-26174,2026-03-13,EMEA,Support Plan,Partner,C. Okafor,8,412.49,0,3724.78
+NR-26550,2026-03-13,North America,Analytics Add-on,Direct,D. Lindqvist,8,1227.46,0.1,12592.41
+NR-26340,2026-03-14,EMEA,Support Plan,Direct,E. Navarro,6,686.04,0.05,6056.28
+NR-26421,2026-03-14,North America,Professional Services,Partner,D. Lindqvist,14,2925.3,0.1,38276.0
+NR-26758,2026-03-14,EMEA,Analytics Add-on,Direct,A. Moreau,4,974.73,0.05,5736.53
+NR-26140,2026-03-15,APAC,Professional Services,Direct,I. Ferreira,11,1341.28,0.1,15629.66
+NR-26155,2026-03-15,North America,Professional Services,Direct,E. Navarro,6,1829.04,0,15636.65
+NR-26256,2026-03-15,EMEA,Professional Services,Direct,B. Keller,9,2601.81,0,36265.98
+NR-26431,2026-03-15,EMEA,Professional Services,Partner,C. Okafor,7,2127.73,0,16811.73
+NR-26723,2026-03-15,North America,Training,Partner,D. Lindqvist,2,278.51,0.05,549.52
+NR-26728,2026-03-15,North America,Training,Direct,H. Petrov,1,467.4,0.1,599.38
+NR-26750,2026-03-15,APAC,Support Plan,Partner,K. Mensah,10,783.18,0,6718.51
+NR-26787,2026-03-15,EMEA,Platform License,Partner,C. Okafor,6,2076.68,0.15,11954.67
+NR-26032,2026-03-16,North America,Platform License,Direct,H. Petrov,1,3696.77,0.15,4477.24
+NR-26454,2026-03-16,North America,Analytics Add-on,Partner,H. Petrov,12,1491.61,0,18587.55
+NR-26745,2026-03-17,North America,Platform License,Direct,D. Lindqvist,6,3467.57,0.15,25197.91
+NR-26846,2026-03-17,North America,Analytics Add-on,Partner,F. Tanaka,2,645.33,0,1340.29
+NR-26897,2026-03-17,EMEA,Platform License,Direct,D. Lindqvist,14,3888.57,0,84313.92
+NR-26735,2026-03-18,APAC,Support Plan,Partner,I. Ferreira,10,835.13,0.1,6447.75
+NR-26255,2026-03-19,North America,Training,Partner,E. Navarro,10,261.21,0.15,2305.65
+NR-26537,2026-03-19,EMEA,Support Plan,Direct,B. Keller,7,704.83,0,7641.24
+NR-26778,2026-03-19,North America,Analytics Add-on,Direct,E. Navarro,4,1454.49,0.15,7046.26
+NR-26099,2026-03-20,North America,Analytics Add-on,Direct,F. Tanaka,5,1334.79,0.15,8082.97
+NR-26440,2026-03-20,EMEA,Platform License,Direct,E. Navarro,12,4080.9,0,75843.53
+NR-26030,2026-03-21,LATAM,Platform License,Direct,L. Rossi,6,3550.53,0.05,18806.18
+NR-26554,2026-03-21,EMEA,Platform License,Partner,A. Moreau,1,3402.77,0.05,3648.83
+NR-26620,2026-03-21,APAC,Platform License,Direct,H. Petrov,5,2576.09,0,15160.93
+NR-26714,2026-03-21,North America,Training,Direct,E. Navarro,5,556.91,0,3967.57
+NR-26790,2026-03-21,EMEA,Training,Direct,D. Lindqvist,14,686.36,0.1,13393.8
+NR-26404,2026-03-22,APAC,Analytics Add-on,Partner,H. Petrov,11,645.6,0.05,5787.5
+NR-26501,2026-03-22,North America,Analytics Add-on,Partner,E. Navarro,11,866.26,0.15,8410.96
+NR-26654,2026-03-22,EMEA,Professional Services,Direct,D. Lindqvist,12,1878.66,0.1,31423.41
+NR-26429,2026-03-23,North America,Analytics Add-on,Direct,H. Petrov,10,1326.81,0,18905.05
+NR-26583,2026-03-23,North America,Professional Services,Partner,H. Petrov,9,2599.16,0.15,20648.1
+NR-26864,2026-03-23,LATAM,Platform License,Direct,L. Rossi,3,4131.44,0,11517.42
+NR-26154,2026-03-24,APAC,Training,Direct,I. Ferreira,10,558.13,0,6569.47
+NR-26796,2026-03-25,North America,Support Plan,Partner,F. Tanaka,4,541.56,0.1,2024.58
+NR-26442,2026-03-26,EMEA,Professional Services,Direct,B. Keller,10,1226.85,0.1,17100.76
+NR-26640,2026-03-26,EMEA,Support Plan,Partner,A. Moreau,2,718.82,0.15,1379.33
+NR-26362,2026-03-27,LATAM,Analytics Add-on,Partner,L. Rossi,13,760.57,0,6696.25
+NR-26532,2026-03-27,EMEA,Training,Direct,C. Okafor,5,238.82,0.1,1664.43
+NR-26129,2026-03-28,APAC,Professional Services,Partner,J. Nowak,13,1344.68,0,14995.94
+NR-26267,2026-03-28,APAC,Professional Services,Direct,K. Mensah,7,1823.74,0,15026.43
+NR-26327,2026-03-28,North America,Analytics Add-on,Partner,D. Lindqvist,13,604.27,0,8157.55
+NR-26788,2026-03-28,North America,Professional Services,Direct,G. Haddad,11,1903.5,0.15,25359.09
+NR-26151,2026-03-29,North America,Platform License,Direct,D. Lindqvist,9,3330.14,0.05,40569.32
+NR-26802,2026-03-29,EMEA,Training,Direct,E. Navarro,9,369.32,0,5147.86
+NR-26884,2026-03-29,APAC,Analytics Add-on,Partner,H. Petrov,6,1073.82,0,5527.06
+NR-26630,2026-03-30,North America,Platform License,Direct,F. Tanaka,3,2410.57,0,10304.1
+NR-26889,2026-03-30,EMEA,Support Plan,Direct,E. Navarro,3,489.16,0,2272.76
+NR-26625,2026-03-31,LATAM,Analytics Add-on,Direct,L. Rossi,9,1317.09,0.05,10464.4
+NR-26628,2026-03-31,North America,Platform License,Partner,H. Petrov,5,4112.61,0,21353.7
+NR-26668,2026-03-31,APAC,Professional Services,Direct,H. Petrov,4,2581.84,0.1,10940.24
+NR-26434,2026-04-01,North America,Analytics Add-on,Partner,E. Navarro,8,654.83,0.15,4315.79
+NR-26588,2026-04-02,APAC,Platform License,Partner,I. Ferreira,5,4170.7,0.15,14192.08
+NR-26720,2026-04-03,APAC,Professional Services,Direct,K. Mensah,4,2309.27,0,10147.67
+NR-26651,2026-04-04,APAC,Support Plan,Partner,G. Haddad,4,337.86,0,1082.04
+NR-26697,2026-04-04,EMEA,Support Plan,Direct,A. Moreau,14,612.91,0,12403.46
+NR-26597,2026-04-05,APAC,Platform License,Partner,G. Haddad,7,1992.05,0,11164.68
+NR-26825,2026-04-05,North America,Platform License,Direct,G. Haddad,2,1863.94,0.1,4461.8
+NR-26204,2026-04-07,APAC,Support Plan,Direct,J. Nowak,4,551.86,0,2425.05
+NR-26010,2026-04-08,LATAM,Support Plan,Partner,K. Mensah,13,819.05,0.05,6393.86
+NR-26379,2026-04-08,EMEA,Training,Direct,C. Okafor,12,434.81,0,7542.21
+NR-26816,2026-04-08,APAC,Training,Partner,K. Mensah,13,609.0,0,6338.83
+NR-26219,2026-04-09,EMEA,Professional Services,Direct,B. Keller,5,2959.51,0.15,18181.38
+NR-26634,2026-04-09,EMEA,Training,Direct,B. Keller,5,545.55,0.05,3745.81
+NR-26712,2026-04-09,EMEA,Professional Services,Partner,A. Moreau,8,2662.58,0.05,21318.21
+NR-26156,2026-04-10,LATAM,Analytics Add-on,Direct,L. Rossi,7,1534.37,0,9315.31
+NR-26389,2026-04-10,EMEA,Platform License,Direct,D. Lindqvist,1,2413.04,0.05,3313.65
+NR-26435,2026-04-10,APAC,Professional Services,Partner,H. Petrov,4,1610.28,0,5157.15
+NR-26511,2026-04-10,EMEA,Platform License,Partner,B. Keller,2,3862.0,0,8137.23
+NR-26893,2026-04-10,North America,Professional Services,Direct,G. Haddad,9,1430.18,0.05,16261.58
+NR-26430,2026-04-12,EMEA,Training,Partner,C. Okafor,12,567.93,0.15,6102.81
+NR-26478,2026-04-12,APAC,Platform License,Direct,K. Mensah,12,2598.51,0,34256.05
+NR-26614,2026-04-12,APAC,Training,Partner,H. Petrov,11,444.06,0.1,3519.86
+NR-26680,2026-04-13,North America,Professional Services,Direct,E. Navarro,9,1334.62,0.05,15175.03
+NR-26086,2026-04-15,APAC,Professional Services,Partner,G. Haddad,9,2636.17,0,18996.08
+NR-26446,2026-04-15,North America,Training,Direct,G. Haddad,14,361.16,0,6724.09
+NR-26709,2026-04-15,APAC,Training,Partner,I. Ferreira,11,502.82,0,4428.47
+NR-26271,2026-04-16,EMEA,Support Plan,Partner,B. Keller,9,518.1,0,4912.37
+NR-26364,2026-04-16,North America,Professional Services,Direct,D. Lindqvist,6,1960.28,0,15641.39
+NR-26401,2026-04-17,LATAM,Professional Services,Partner,K. Mensah,3,2052.23,0.05,3697.06
+NR-26008,2026-04-18,EMEA,Analytics Add-on,Direct,D. Lindqvist,5,1106.95,0.15,6800.41
+NR-26096,2026-04-18,APAC,Training,Direct,I. Ferreira,6,367.15,0.15,2057.05
+NR-26118,2026-04-18,APAC,Professional Services,Partner,I. Ferreira,14,1949.38,0,21851.07
+NR-26236,2026-04-18,LATAM,Training,Partner,L. Rossi,10,352.72,0,2229.54
+NR-26878,2026-04-18,North America,Analytics Add-on,Partner,E. Navarro,8,1436.57,0,11138.82
+NR-26517,2026-04-19,North America,Professional Services,Partner,F. Tanaka,10,2308.56,0.1,20137.52
+NR-26207,2026-04-20,North America,Analytics Add-on,Partner,F. Tanaka,11,1223.13,0,13040.3
+NR-26311,2026-04-20,North America,Professional Services,Direct,F. Tanaka,10,1235.03,0,16424.17
+NR-26353,2026-04-20,LATAM,Support Plan,Direct,J. Nowak,10,776.66,0,6735.97
+NR-26090,2026-04-21,North America,Professional Services,Direct,H. Petrov,1,1214.12,0,1614.61
+NR-26805,2026-04-21,LATAM,Analytics Add-on,Direct,K. Mensah,7,932.04,0.15,4809.73
+NR-26360,2026-04-22,EMEA,Platform License,Direct,C. Okafor,13,2536.57,0.1,42899.36
+NR-26769,2026-04-22,APAC,Analytics Add-on,Partner,G. Haddad,7,1252.11,0.05,6666.72
+NR-26106,2026-04-23,APAC,Analytics Add-on,Direct,I. Ferreira,3,856.8,0.05,2682.6
+NR-26441,2026-04-23,APAC,Professional Services,Direct,K. Mensah,6,1307.65,0.05,8188.38
+NR-26097,2026-04-24,North America,Training,Partner,F. Tanaka,13,357.84,0.15,3832.42
+NR-26895,2026-04-24,North America,Support Plan,Direct,G. Haddad,10,751.42,0,9992.83
+NR-26159,2026-04-25,APAC,Support Plan,Partner,G. Haddad,5,565.5,0.05,2150.67
+NR-26190,2026-04-25,APAC,Platform License,Direct,K. Mensah,1,2866.31,0,3148.87
+NR-26289,2026-04-25,LATAM,Training,Partner,J. Nowak,11,516.38,0.1,3231.4
+NR-26222,2026-04-26,EMEA,Platform License,Direct,D. Lindqvist,13,2697.81,0,50695.9
+NR-26602,2026-04-26,EMEA,Platform License,Direct,B. Keller,4,2846.53,0,16458.64
+NR-26686,2026-04-26,North America,Support Plan,Direct,H. Petrov,14,395.21,0.15,6254.33
+NR-26169,2026-04-28,EMEA,Platform License,Direct,D. Lindqvist,11,4184.59,0.1,59883.37
+NR-26880,2026-04-28,EMEA,Professional Services,Partner,C. Okafor,11,1879.11,0.15,18509.66
+NR-26891,2026-04-28,EMEA,Analytics Add-on,Direct,B. Keller,7,1335.8,0,13516.29
+NR-26565,2026-04-29,EMEA,Analytics Add-on,Direct,D. Lindqvist,13,1116.23,0.05,19926.85
+NR-26894,2026-04-29,EMEA,Platform License,Direct,A. Moreau,14,2667.21,0,53976.33
+NR-26322,2026-04-30,EMEA,Platform License,Direct,B. Keller,8,2149.16,0.15,21124.95
+NR-26059,2026-05-01,LATAM,Platform License,Partner,K. Mensah,7,4061.56,0.15,15899.0
+NR-26098,2026-05-01,EMEA,Analytics Add-on,Partner,A. Moreau,11,834.51,0,10065.44
+NR-26230,2026-05-01,LATAM,Training,Partner,L. Rossi,4,224.82,0,591.64
+NR-26839,2026-05-01,APAC,Analytics Add-on,Direct,J. Nowak,5,1152.99,0.15,5603.0
+NR-26291,2026-05-02,EMEA,Support Plan,Partner,B. Keller,12,306.73,0,4035.95
+NR-26629,2026-05-02,North America,Support Plan,Direct,G. Haddad,1,375.99,0,520.42
+NR-26671,2026-05-02,North America,Analytics Add-on,Partner,D. Lindqvist,3,1112.7,0.05,3199.04
+NR-26058,2026-05-03,EMEA,Analytics Add-on,Direct,B. Keller,7,678.62,0.1,6432.2
+NR-26078,2026-05-03,LATAM,Analytics Add-on,Partner,L. Rossi,11,600.06,0,4342.57
+NR-26621,2026-05-03,APAC,Platform License,Partner,J. Nowak,11,2949.82,0.1,24336.21
+NR-26741,2026-05-03,EMEA,Analytics Add-on,Partner,A. Moreau,12,1169.9,0.05,14623.87
+NR-26793,2026-05-03,North America,Support Plan,Partner,D. Lindqvist,11,798.81,0,8864.06
+NR-26738,2026-05-04,EMEA,Platform License,Partner,B. Keller,3,2757.63,0.15,7710.54
+NR-26522,2026-05-05,APAC,Platform License,Direct,I. Ferreira,3,4080.03,0,13995.56
+NR-26228,2026-05-06,EMEA,Platform License,Partner,C. Okafor,13,2872.62,0.05,38900.37
+NR-26814,2026-05-06,EMEA,Analytics Add-on,Direct,E. Navarro,5,689.39,0.05,4926.64
+NR-26171,2026-05-07,EMEA,Platform License,Partner,A. Moreau,9,4098.35,0.1,36400.11
+NR-26543,2026-05-07,North America,Support Plan,Partner,E. Navarro,2,350.15,0.05,671.13
+NR-26695,2026-05-07,North America,Platform License,Direct,F. Tanaka,2,2423.17,0,6708.01
+NR-26837,2026-05-07,EMEA,Platform License,Partner,B. Keller,4,2760.06,0,12105.62
+NR-26268,2026-05-08,APAC,Analytics Add-on,Direct,I. Ferreira,1,1381.39,0,1579.51
+NR-26568,2026-05-08,EMEA,Training,Direct,B. Keller,14,449.37,0,9465.08
+NR-26732,2026-05-08,North America,Training,Direct,D. Lindqvist,5,240.97,0.05,1584.3
+NR-26791,2026-05-08,North America,Training,Partner,D. Lindqvist,6,583.79,0.1,3180.14
+NR-26794,2026-05-08,EMEA,Training,Partner,A. Moreau,6,218.23,0.05,1363.95
+NR-26381,2026-05-09,APAC,Analytics Add-on,Direct,I. Ferreira,11,1544.76,0,19429.4
+NR-26016,2026-05-10,EMEA,Support Plan,Direct,A. Moreau,9,735.26,0.15,8462.42
+NR-26149,2026-05-10,LATAM,Professional Services,Direct,J. Nowak,14,1802.4,0,22778.37
+NR-26143,2026-05-11,APAC,Analytics Add-on,Direct,G. Haddad,4,1554.88,0.05,6755.95
+NR-26455,2026-05-11,EMEA,Training,Direct,A. Moreau,5,416.52,0,3133.27
+NR-26881,2026-05-11,APAC,Support Plan,Direct,G. Haddad,13,619.39,0.15,7825.86
+NR-26089,2026-05-12,North America,Platform License,Direct,E. Navarro,10,2160.75,0,29907.81
+NR-26644,2026-05-12,APAC,Analytics Add-on,Direct,J. Nowak,14,1099.55,0,17601.46
+NR-26074,2026-05-13,North America,Professional Services,Direct,E. Navarro,4,1258.91,0,6970.03
+NR-26831,2026-05-13,North America,Platform License,Partner,E. Navarro,7,3335.57,0.05,22376.29
+NR-26535,2026-05-15,EMEA,Platform License,Direct,D. Lindqvist,12,3638.83,0,65695.44
+NR-26570,2026-05-15,EMEA,Professional Services,Partner,A. Moreau,5,1513.51,0.05,7882.93
+NR-26827,2026-05-15,APAC,Training,Direct,G. Haddad,3,633.41,0.15,1846.85
+NR-26041,2026-05-16,North America,Support Plan,Direct,F. Tanaka,12,837.68,0,13913.6
+NR-26061,2026-05-16,APAC,Analytics Add-on,Direct,K. Mensah,14,815.21,0.15,11092.32
+NR-26852,2026-05-16,EMEA,Professional Services,Direct,D. Lindqvist,4,2582.94,0.15,13212.51
+NR-26037,2026-05-17,EMEA,Platform License,Direct,C. Okafor,14,2813.83,0,59267.7
+NR-26246,2026-05-17,North America,Training,Partner,H. Petrov,2,681.28,0,1374.52
+NR-26279,2026-05-18,North America,Platform License,Partner,G. Haddad,1,2552.63,0,2575.04
+NR-26361,2026-05-19,North America,Platform License,Direct,F. Tanaka,10,4109.05,0.15,48343.75
+NR-26422,2026-05-19,EMEA,Professional Services,Direct,D. Lindqvist,12,2908.78,0,52515.11
+NR-26486,2026-05-20,North America,Professional Services,Partner,G. Haddad,4,2729.2,0.05,10462.02
+NR-26161,2026-05-22,North America,Platform License,Partner,H. Petrov,5,4071.74,0.15,17456.83
+NR-26370,2026-05-23,North America,Professional Services,Partner,G. Haddad,9,1757.06,0.05,15154.76
+NR-26526,2026-05-23,EMEA,Analytics Add-on,Partner,A. Moreau,3,1037.16,0,3411.74
+NR-26601,2026-05-23,EMEA,Analytics Add-on,Direct,D. Lindqvist,5,714.75,0,5376.71
+NR-26754,2026-05-23,North America,Professional Services,Partner,E. Navarro,2,2871.75,0.1,5214.54
+NR-26020,2026-05-24,North America,Professional Services,Direct,E. Navarro,3,1944.28,0.15,6862.45
+NR-26150,2026-05-24,APAC,Platform License,Partner,H. Petrov,12,2850.38,0.1,25653.63
+NR-26437,2026-05-24,North America,Support Plan,Direct,F. Tanaka,10,894.8,0.1,11146.76
+NR-26023,2026-05-25,APAC,Training,Partner,I. Ferreira,3,461.03,0,1152.58
+NR-26094,2026-05-25,APAC,Platform License,Direct,K. Mensah,1,2659.55,0.15,2584.84
+NR-26567,2026-05-25,APAC,Support Plan,Partner,H. Petrov,13,482.88,0,5231.24
+NR-26485,2026-05-27,APAC,Platform License,Partner,I. Ferreira,14,2180.4,0.15,21622.47
+NR-26531,2026-05-27,EMEA,Analytics Add-on,Direct,B. Keller,9,1335.26,0,18080.09
+NR-26653,2026-05-27,LATAM,Support Plan,Direct,J. Nowak,1,713.62,0,644.18
+NR-26854,2026-05-27,North America,Support Plan,Partner,E. Navarro,11,631.5,0,7007.49
+NR-26013,2026-05-28,North America,Training,Partner,G. Haddad,11,544.93,0.05,5744.52
+NR-26295,2026-05-28,EMEA,Analytics Add-on,Direct,B. Keller,12,1221.31,0,22049.53
+NR-26703,2026-05-28,North America,Support Plan,Partner,H. Petrov,10,619.5,0.15,5311.98
+NR-26780,2026-05-28,APAC,Support Plan,Direct,G. Haddad,6,425.65,0.1,2628.16
+NR-26045,2026-05-29,EMEA,Platform License,Direct,D. Lindqvist,9,3501.26,0,47408.81
+NR-26135,2026-05-29,North America,Support Plan,Direct,D. Lindqvist,5,478.75,0,3313.29
+NR-26612,2026-05-29,North America,Platform License,Direct,D. Lindqvist,4,3715.72,0.1,18515.08
+NR-26627,2026-05-29,APAC,Professional Services,Partner,J. Nowak,6,2667.3,0.1,12002.95
+NR-26857,2026-05-29,North America,Analytics Add-on,Partner,E. Navarro,2,836.21,0,1687.1
+NR-26863,2026-05-29,LATAM,Analytics Add-on,Direct,K. Mensah,8,1351.76,0,9761.87
+NR-26490,2026-05-30,APAC,Support Plan,Direct,J. Nowak,4,630.79,0,2885.03
+NR-26025,2026-05-31,EMEA,Analytics Add-on,Partner,A. Moreau,6,963.74,0,6340.45
+NR-26181,2026-05-31,EMEA,Platform License,Direct,E. Navarro,8,2216.33,0,26675.75
+NR-26202,2026-05-31,EMEA,Analytics Add-on,Direct,E. Navarro,10,1039.85,0.15,13297.86
+NR-26269,2026-06-01,EMEA,Analytics Add-on,Partner,C. Okafor,14,1562.98,0,25875.13
+NR-26688,2026-06-01,APAC,Analytics Add-on,Direct,G. Haddad,6,911.47,0,6743.6
+NR-26770,2026-06-01,North America,Support Plan,Direct,G. Haddad,13,572.52,0,11109.81
+NR-26855,2026-06-01,EMEA,Professional Services,Direct,C. Okafor,11,2063.48,0.1,33145.16
+NR-26405,2026-06-02,APAC,Professional Services,Partner,I. Ferreira,2,2260.99,0,4063.9
+NR-26138,2026-06-03,EMEA,Analytics Add-on,Partner,C. Okafor,3,846.98,0.05,2854.43
+NR-26384,2026-06-03,EMEA,Platform License,Direct,B. Keller,13,3740.9,0.05,74959.69
+NR-26121,2026-06-04,EMEA,Professional Services,Partner,E. Navarro,3,1599.5,0.05,5390.51
+NR-26344,2026-06-04,EMEA,Platform License,Direct,D. Lindqvist,8,3441.91,0,44675.99
+NR-26473,2026-06-04,EMEA,Platform License,Direct,C. Okafor,5,2938.25,0,23836.55
+NR-26284,2026-06-05,EMEA,Analytics Add-on,Direct,C. Okafor,2,1520.1,0,4932.72
+NR-26407,2026-06-05,EMEA,Professional Services,Partner,C. Okafor,14,2728.66,0,45172.97
+NR-26675,2026-06-05,EMEA,Platform License,Direct,E. Navarro,4,3922.13,0.15,21636.43
+NR-26684,2026-06-05,North America,Support Plan,Direct,F. Tanaka,2,418.51,0,1249.42
+NR-26896,2026-06-06,APAC,Professional Services,Partner,H. Petrov,12,2469.36,0,26630.57
+NR-26063,2026-06-07,APAC,Professional Services,Direct,H. Petrov,9,2545.49,0.15,24012.15
+NR-26303,2026-06-07,North America,Training,Partner,E. Navarro,7,343.69,0,2617.3
+NR-26785,2026-06-07,LATAM,Support Plan,Direct,J. Nowak,3,393.45,0.1,1034.16
+NR-26278,2026-06-08,APAC,Platform License,Partner,K. Mensah,8,2587.02,0.1,16739.68
+NR-26729,2026-06-08,EMEA,Professional Services,Partner,B. Keller,1,1401.98,0.05,1574.95
+NR-26211,2026-06-09,APAC,Platform License,Partner,K. Mensah,6,4156.35,0.15,19050.09
+NR-26316,2026-06-09,North America,Platform License,Direct,E. Navarro,11,3430.65,0,56330.24
+NR-26518,2026-06-09,North America,Analytics Add-on,Direct,D. Lindqvist,8,719.42,0,8591.03
+NR-26822,2026-06-09,North America,Analytics Add-on,Direct,H. Petrov,10,1284.88,0,19179.4
+NR-26862,2026-06-09,APAC,Platform License,Direct,J. Nowak,13,4129.29,0,66193.76
+NR-26676,2026-06-11,North America,Platform License,Partner,F. Tanaka,14,3587.96,0.05,51914.44
+NR-26692,2026-06-11,EMEA,Support Plan,Direct,B. Keller,5,771.05,0.05,5942.39
+NR-26508,2026-06-12,LATAM,Analytics Add-on,Partner,J. Nowak,13,803.88,0.1,6673.13
+NR-26606,2026-06-12,North America,Analytics Add-on,Direct,G. Haddad,5,1590.52,0.1,10683.76
+NR-26836,2026-06-12,LATAM,Platform License,Direct,K. Mensah,8,3242.19,0.05,23987.67
+NR-26548,2026-06-13,APAC,Analytics Add-on,Direct,H. Petrov,5,808.78,0.15,4238.55
+NR-26865,2026-06-13,North America,Analytics Add-on,Partner,D. Lindqvist,4,1569.04,0.1,6145.05
+NR-26167,2026-06-14,North America,Support Plan,Partner,E. Navarro,6,413.32,0.05,2563.01
+NR-26499,2026-06-14,EMEA,Professional Services,Partner,A. Moreau,6,2217.71,0.15,13374.45
+NR-26756,2026-06-14,EMEA,Analytics Add-on,Partner,C. Okafor,5,730.8,0.05,4104.81
+NR-26764,2026-06-14,EMEA,Professional Services,Direct,D. Lindqvist,7,2076.0,0.05,22399.26
+NR-26354,2026-06-15,North America,Analytics Add-on,Direct,F. Tanaka,7,1383.46,0.1,13010.07
+NR-26483,2026-06-15,North America,Platform License,Direct,D. Lindqvist,9,2302.31,0.15,26290.43
+NR-26462,2026-06-16,LATAM,Support Plan,Direct,K. Mensah,12,589.61,0.1,6199.04
+NR-26315,2026-06-17,EMEA,Professional Services,Direct,B. Keller,13,2326.73,0,49076.55
+NR-26333,2026-06-17,North America,Platform License,Direct,F. Tanaka,11,3163.27,0,51939.94
+NR-26220,2026-06-18,APAC,Analytics Add-on,Direct,I. Ferreira,4,1421.81,0,7012.94
+NR-26892,2026-06-18,North America,Training,Partner,E. Navarro,5,619.53,0,3369.93
+NR-26661,2026-06-19,APAC,Platform License,Direct,H. Petrov,2,2248.59,0,5545.47
+NR-26739,2026-06-20,LATAM,Platform License,Partner,K. Mensah,7,2924.38,0,14523.93
+NR-26753,2026-06-20,LATAM,Support Plan,Direct,L. Rossi,2,894.38,0.15,1480.15
+NR-26870,2026-06-20,EMEA,Platform License,Direct,E. Navarro,4,2921.82,0.1,17066.35
+NR-26137,2026-06-22,North America,Professional Services,Direct,G. Haddad,7,2327.01,0,24314.69
+NR-26373,2026-06-22,North America,Training,Partner,D. Lindqvist,8,289.78,0.15,2143.71
+NR-26656,2026-06-22,APAC,Analytics Add-on,Partner,H. Petrov,13,1335.15,0.05,14818.76
+NR-26002,2026-06-23,LATAM,Platform License,Partner,L. Rossi,2,3014.83,0.1,3850.24
+NR-26109,2026-06-23,North America,Support Plan,Direct,F. Tanaka,8,697.76,0,8332.37
+NR-26264,2026-06-23,North America,Training,Direct,H. Petrov,13,221.59,0.1,3869.98
+NR-26397,2026-06-23,APAC,Support Plan,Partner,I. Ferreira,6,825.33,0,4450.34
+NR-26811,2026-06-23,EMEA,Professional Services,Direct,B. Keller,14,1215.89,0.1,24857.05
+NR-26845,2026-06-23,LATAM,Platform License,Partner,J. Nowak,10,4017.34,0,28503.03
+NR-26209,2026-06-24,North America,Professional Services,Partner,G. Haddad,9,2752.1,0.1,24251.48
+NR-26639,2026-06-24,LATAM,Professional Services,Direct,J. Nowak,7,2221.69,0,15139.71
+NR-26192,2026-06-25,APAC,Analytics Add-on,Direct,G. Haddad,2,826.43,0,2038.14
+NR-26618,2026-06-25,APAC,Professional Services,Direct,J. Nowak,13,1625.22,0,26052.76
+NR-26009,2026-06-26,LATAM,Analytics Add-on,Partner,L. Rossi,7,624.44,0.05,2946.22
+NR-26339,2026-06-26,North America,Training,Direct,D. Lindqvist,14,464.75,0,9712.25
+NR-26514,2026-06-26,North America,Platform License,Partner,H. Petrov,10,3061.16,0,33302.36
+NR-26566,2026-06-26,North America,Platform License,Direct,E. Navarro,1,3749.96,0.15,4757.93
+NR-26578,2026-06-26,APAC,Training,Partner,J. Nowak,13,432.54,0.1,4548.07
+NR-26642,2026-06-26,North America,Platform License,Partner,D. Lindqvist,9,2582.36,0.05,24019.94
+NR-26139,2026-06-27,North America,Analytics Add-on,Direct,E. Navarro,8,869.8,0,10386.8
+NR-26337,2026-06-27,APAC,Professional Services,Direct,K. Mensah,8,1324.97,0.15,11109.98
+NR-26590,2026-06-27,EMEA,Training,Direct,E. Navarro,1,576.81,0,935.87
+NR-26641,2026-06-27,APAC,Platform License,Partner,K. Mensah,12,2682.95,0,28934.01
+NR-26757,2026-06-27,APAC,Professional Services,Direct,K. Mensah,4,2834.9,0.05,13283.72
+NR-26761,2026-06-27,North America,Professional Services,Direct,D. Lindqvist,2,1248.66,0.1,3354.97
+NR-26844,2026-06-27,EMEA,Training,Direct,C. Okafor,3,374.51,0,1822.93
+NR-26850,2026-06-27,EMEA,Support Plan,Partner,B. Keller,5,875.65,0,5177.28
+NR-26512,2026-06-28,EMEA,Support Plan,Partner,E. Navarro,7,684.69,0.15,4817.39
+NR-26538,2026-06-28,North America,Support Plan,Direct,F. Tanaka,1,747.22,0,1115.38
+NR-26572,2026-06-28,North America,Professional Services,Direct,E. Navarro,3,2059.92,0.1,8302.07
+NR-26108,2026-06-29,APAC,Support Plan,Direct,J. Nowak,3,643.94,0,2382.13
+NR-26527,2026-06-29,LATAM,Analytics Add-on,Direct,L. Rossi,6,754.65,0,4407.91
+NR-26746,2026-06-29,North America,Platform License,Partner,G. Haddad,10,2374.59,0,25833.16
+NR-26858,2026-06-29,APAC,Support Plan,Direct,H. Petrov,10,835.13,0.15,8753.29
+NR-26193,2026-06-30,EMEA,Professional Services,Partner,D. Lindqvist,8,2759.98,0.15,22193.0
+NR-26237,2026-06-30,North America,Analytics Add-on,Direct,G. Haddad,2,1517.78,0.05,4304.62
+NR-26698,2026-06-30,APAC,Platform License,Partner,K. Mensah,2,2705.98,0,4863.73
+NR-26740,2026-06-30,LATAM,Analytics Add-on,Partner,L. Rossi,3,789.34,0.05,1596.1
+NR-26028,2026-07-01,APAC,Analytics Add-on,Direct,H. Petrov,5,1525.67,0.15,5378.82
+NR-26482,2026-07-01,EMEA,Platform License,Partner,D. Lindqvist,14,2271.53,0,25298.03
+NR-26830,2026-07-01,LATAM,Professional Services,Partner,J. Nowak,3,2527.15,0,3618.63
+NR-26011,2026-07-02,APAC,Professional Services,Partner,G. Haddad,8,2974.2,0.05,13665.88
+NR-26378,2026-07-02,EMEA,Training,Direct,C. Okafor,12,451.97,0.1,5327.91
+NR-26842,2026-07-02,EMEA,Support Plan,Partner,D. Lindqvist,14,336.82,0,3751.16
+NR-26833,2026-07-03,North America,Professional Services,Direct,D. Lindqvist,11,2977.65,0.05,31246.51
+NR-26874,2026-07-03,North America,Support Plan,Direct,H. Petrov,3,711.49,0,2143.39
+NR-26095,2026-07-04,EMEA,Analytics Add-on,Direct,B. Keller,12,1267.09,0.1,14936.71
+NR-26164,2026-07-04,North America,Platform License,Partner,H. Petrov,5,2414.42,0,8835.09
+NR-26176,2026-07-05,LATAM,Support Plan,Direct,K. Mensah,6,461.6,0.15,1541.74
+NR-26305,2026-07-05,APAC,Training,Direct,I. Ferreira,2,351.64,0,583.4
+NR-26460,2026-07-05,North America,Platform License,Partner,G. Haddad,3,3007.89,0,6604.06
+NR-26525,2026-07-05,North America,Support Plan,Partner,G. Haddad,14,488.94,0.1,4508.73
+NR-26559,2026-07-05,EMEA,Support Plan,Direct,E. Navarro,8,509.38,0,4447.91
+NR-26563,2026-07-05,EMEA,Support Plan,Partner,C. Okafor,5,896.9,0.1,3210.68
+NR-26706,2026-07-05,EMEA,Support Plan,Direct,B. Keller,12,855.41,0,11204.16
+NR-26748,2026-07-05,North America,Professional Services,Direct,F. Tanaka,7,1463.98,0.1,9261.63
+NR-26221,2026-07-06,North America,Professional Services,Partner,H. Petrov,5,2904.9,0,10629.9
+NR-26283,2026-07-06,APAC,Analytics Add-on,Direct,G. Haddad,10,1396.31,0,11582.95
+NR-26608,2026-07-06,EMEA,Analytics Add-on,Direct,D. Lindqvist,11,637.69,0.05,7273.6
+NR-26636,2026-07-06,EMEA,Platform License,Partner,E. Navarro,9,3396.99,0.05,23104.71
+NR-26771,2026-07-07,APAC,Support Plan,Partner,H. Petrov,4,644.81,0.05,1481.39
+NR-26093,2026-07-08,EMEA,Training,Direct,B. Keller,9,412.72,0.1,3648.92
+NR-26132,2026-07-08,LATAM,Support Plan,Direct,J. Nowak,13,827.05,0.1,6337.13
+NR-26436,2026-07-08,LATAM,Professional Services,Direct,J. Nowak,5,1864.37,0,6104.88
+NR-26556,2026-07-08,EMEA,Analytics Add-on,Direct,C. Okafor,5,1444.36,0.05,7488.46
+NR-26841,2026-07-08,APAC,Training,Partner,I. Ferreira,10,290.62,0.15,1493.48
+NR-26849,2026-07-08,LATAM,Training,Direct,L. Rossi,3,556.95,0,1094.24
+NR-26286,2026-07-09,North America,Analytics Add-on,Direct,D. Lindqvist,8,1293.39,0.05,9870.85
+NR-26067,2026-07-10,LATAM,Platform License,Direct,K. Mensah,14,1980.1,0.05,17247.01
+NR-26848,2026-07-10,EMEA,Support Plan,Partner,C. Okafor,9,389.79,0.15,2372.1
+NR-26510,2026-07-11,EMEA,Support Plan,Direct,C. Okafor,4,578.46,0.1,2273.0
+NR-26557,2026-07-11,APAC,Support Plan,Direct,J. Nowak,3,434.15,0,1080.43
+NR-26263,2026-07-12,APAC,Support Plan,Direct,J. Nowak,2,347.97,0,577.31
+NR-26616,2026-07-12,North America,Analytics Add-on,Direct,H. Petrov,9,1390.38,0,12565.73
+NR-26126,2026-07-13,LATAM,Professional Services,Partner,J. Nowak,2,1612.39,0.15,1308.31
+NR-26265,2026-07-13,North America,Platform License,Direct,H. Petrov,4,2907.36,0.15,9926.34
+NR-26239,2026-07-14,APAC,Platform License,Direct,K. Mensah,12,3480.04,0,34641.99
+NR-26580,2026-07-14,APAC,Professional Services,Partner,G. Haddad,3,1616.99,0.15,2492.88
+NR-26060,2026-07-15,LATAM,Support Plan,Direct,L. Rossi,1,410.31,0,268.71
+NR-26212,2026-07-15,EMEA,Platform License,Partner,D. Lindqvist,13,2527.95,0.1,23528.52
+NR-26711,2026-07-15,LATAM,Professional Services,Partner,L. Rossi,14,2735.73,0,18280.7
+NR-26719,2026-07-15,EMEA,Support Plan,Partner,A. Moreau,3,342.92,0,818.38
+NR-26308,2026-07-16,EMEA,Training,Partner,A. Moreau,3,679.65,0,1621.98
+NR-26500,2026-07-16,EMEA,Analytics Add-on,Partner,C. Okafor,11,765.43,0.1,6028.11
+NR-26505,2026-07-16,EMEA,Support Plan,Direct,B. Keller,5,328.48,0.15,1523.78
+NR-26605,2026-07-16,North America,Platform License,Partner,G. Haddad,10,2440.56,0,17861.48
+NR-26637,2026-07-16,North America,Platform License,Direct,G. Haddad,4,2443.96,0,9816.7
+NR-26064,2026-07-17,EMEA,Analytics Add-on,Direct,B. Keller,5,1092.07,0.15,5065.98
+NR-26091,2026-07-18,APAC,Support Plan,Partner,J. Nowak,9,712.14,0,3874.91
+NR-26367,2026-07-18,APAC,Professional Services,Partner,I. Ferreira,6,1304.36,0,4731.54
+NR-26487,2026-07-18,LATAM,Support Plan,Direct,J. Nowak,2,746.87,0,978.25
+NR-26029,2026-07-19,EMEA,Support Plan,Direct,D. Lindqvist,14,863.88,0.1,11880.86
+NR-26201,2026-07-19,North America,Training,Partner,E. Navarro,13,221.29,0,2105.39
+NR-26492,2026-07-19,North America,Analytics Add-on,Partner,H. Petrov,13,1293.36,0.05,11690.0
+NR-26682,2026-07-19,APAC,Support Plan,Partner,G. Haddad,4,659.29,0,1594.37
+NR-26783,2026-07-19,APAC,Support Plan,Direct,J. Nowak,6,861.9,0.05,4075.39
+NR-26792,2026-07-19,North America,Support Plan,Direct,G. Haddad,4,808.93,0.05,3086.78
+NR-26352,2026-07-20,LATAM,Professional Services,Direct,L. Rossi,3,1671.13,0,3283.27
+NR-26818,2026-07-20,APAC,Support Plan,Partner,J. Nowak,4,855.02,0,2067.71
+NR-26056,2026-07-21,APAC,Analytics Add-on,Partner,H. Petrov,5,695.16,0,2101.4
+NR-26693,2026-07-21,LATAM,Training,Direct,J. Nowak,11,581.3,0,4187.63
+NR-26716,2026-07-21,EMEA,Support Plan,Partner,D. Lindqvist,11,574.13,0,5023.92
+NR-26463,2026-07-22,APAC,Training,Direct,I. Ferreira,8,344.64,0.15,1944.07
+NR-26038,2026-07-23,APAC,Platform License,Direct,G. Haddad,11,4018.2,0,36665.83
+NR-26416,2026-07-23,EMEA,Analytics Add-on,Direct,C. Okafor,13,789.1,0.1,10077.24
+NR-26765,2026-07-23,APAC,Training,Direct,K. Mensah,11,211.06,0.1,1733.32
+NR-26280,2026-07-24,EMEA,Platform License,Direct,E. Navarro,10,3997.4,0,43631.62
+NR-26304,2026-07-24,EMEA,Analytics Add-on,Partner,A. Moreau,14,1525.25,0.15,14438.7
+NR-26114,2026-07-25,EMEA,Analytics Add-on,Direct,E. Navarro,5,1326.53,0,7239.54
+NR-26145,2026-07-25,LATAM,Analytics Add-on,Direct,J. Nowak,11,883.22,0.05,6044.5
+NR-26158,2026-07-25,LATAM,Professional Services,Direct,L. Rossi,6,2806.92,0,11029.51
+NR-26324,2026-07-26,North America,Platform License,Direct,D. Lindqvist,6,3767.67,0,22700.51
+NR-26448,2026-07-26,EMEA,Professional Services,Direct,E. Navarro,12,1943.29,0.15,21635.23
+NR-26166,2026-07-27,LATAM,Platform License,Partner,J. Nowak,7,3992.75,0,13340.18
+NR-26528,2026-07-27,North America,Analytics Add-on,Partner,G. Haddad,13,1097.46,0.05,9919.36
+NR-26673,2026-07-27,EMEA,Platform License,Direct,A. Moreau,11,3656.64,0,43903.45
+NR-26357,2026-07-28,EMEA,Analytics Add-on,Partner,B. Keller,8,1114.8,0,7094.59
+NR-26388,2026-07-28,EMEA,Support Plan,Direct,A. Moreau,11,626.42,0,7521.11
+NR-26494,2026-07-28,EMEA,Support Plan,Partner,E. Navarro,6,690.8,0,3297.19
+NR-26553,2026-07-28,APAC,Support Plan,Direct,G. Haddad,6,775.95,0,3862.09
+NR-26670,2026-07-28,EMEA,Platform License,Partner,B. Keller,14,1901.12,0.15,17996.86
+NR-26744,2026-07-28,LATAM,Support Plan,Partner,L. Rossi,8,316.92,0,1210.13
+NR-26014,2026-07-29,APAC,Platform License,Direct,K. Mensah,9,2839.74,0,21201.1
+NR-26070,2026-07-29,North America,Analytics Add-on,Partner,G. Haddad,4,1553.47,0,4547.69
+NR-26092,2026-07-29,EMEA,Platform License,Direct,B. Keller,4,3244.31,0.1,12748.19
+NR-26414,2026-07-29,North America,Training,Direct,H. Petrov,8,280.66,0.05,2141.93
+NR-26125,2026-07-30,APAC,Support Plan,Partner,G. Haddad,7,494.03,0,2090.76
+NR-26418,2026-07-30,North America,Analytics Add-on,Direct,D. Lindqvist,10,607.34,0,6098.79
+NR-26638,2026-07-30,EMEA,Training,Direct,A. Moreau,4,481.12,0.1,1890.51
+NR-26679,2026-07-30,EMEA,Training,Direct,C. Okafor,12,350.04,0.05,4355.58
+NR-26004,2026-08-02,North America,Professional Services,Direct,G. Haddad,5,1361.09,0,6464.5
+NR-26879,2026-08-02,EMEA,Training,Direct,D. Lindqvist,11,485.25,0,5511.23
+NR-26015,2026-08-03,APAC,Training,Direct,H. Petrov,2,583.9,0.1,824.74
+NR-26084,2026-08-03,APAC,Training,Partner,G. Haddad,12,676.24,0,4640.9
+NR-26189,2026-08-03,North America,Support Plan,Direct,E. Navarro,10,791.0,0,7513.71
+NR-26195,2026-08-03,North America,Analytics Add-on,Direct,F. Tanaka,5,653.76,0,3105.03
+NR-26216,2026-08-03,North America,Training,Direct,F. Tanaka,12,264.29,0,3012.59
+NR-26451,2026-08-03,EMEA,Support Plan,Direct,E. Navarro,8,689.3,0.15,4839.58
+NR-26332,2026-08-04,APAC,Professional Services,Direct,H. Petrov,14,2264.05,0.05,23628.78
+NR-26726,2026-08-04,North America,Training,Partner,E. Navarro,13,462.05,0,4158.4
+NR-26767,2026-08-04,LATAM,Training,Direct,K. Mensah,12,240.45,0,1787.51
+NR-26122,2026-08-05,EMEA,Support Plan,Partner,E. Navarro,13,416.39,0.05,3869.67
+NR-26127,2026-08-05,EMEA,Analytics Add-on,Partner,C. Okafor,2,670.81,0,1009.57
+NR-26502,2026-08-05,APAC,Platform License,Direct,H. Petrov,11,3355.86,0,28966.78
+NR-26795,2026-08-05,APAC,Support Plan,Partner,J. Nowak,13,375.93,0.05,2655.18
+NR-26069,2026-08-06,EMEA,Analytics Add-on,Direct,B. Keller,5,1092.4,0,5639.51
+NR-26076,2026-08-06,North America,Training,Partner,G. Haddad,5,584.46,0.05,1921.95
+NR-26085,2026-08-06,EMEA,Analytics Add-on,Partner,D. Lindqvist,2,1535.87,0.1,2080.34
+NR-26194,2026-08-06,North America,Support Plan,Direct,H. Petrov,10,527.78,0.1,4512.04
+NR-26575,2026-08-06,APAC,Professional Services,Direct,H. Petrov,4,2349.08,0,7373.29
+NR-26652,2026-08-06,LATAM,Professional Services,Direct,J. Nowak,10,1489.45,0.15,7843.07
+NR-26469,2026-08-07,EMEA,Support Plan,Direct,C. Okafor,4,325.67,0,1345.02
+NR-26471,2026-08-07,EMEA,Training,Partner,D. Lindqvist,8,221.35,0,1332.53
+NR-26569,2026-08-07,EMEA,Analytics Add-on,Partner,D. Lindqvist,4,928.21,0.15,2374.83
+NR-26217,2026-08-08,APAC,Support Plan,Direct,G. Haddad,12,521.66,0.15,4175.34
+NR-26592,2026-08-08,North America,Platform License,Partner,F. Tanaka,8,2717.02,0.15,12790.75
+NR-26731,2026-08-08,APAC,Support Plan,Partner,K. Mensah,8,347.87,0.05,1512.0
+NR-26144,2026-08-09,North America,Platform License,Direct,F. Tanaka,7,2805.49,0,18654.54
+NR-26498,2026-08-09,North America,Platform License,Partner,H. Petrov,7,3367.94,0.15,13873.17
+NR-26408,2026-08-10,EMEA,Support Plan,Partner,C. Okafor,9,577.9,0,3913.83
+NR-26481,2026-08-10,APAC,Support Plan,Direct,I. Ferreira,11,705.99,0,6093.89
+NR-26516,2026-08-10,EMEA,Professional Services,Direct,D. Lindqvist,13,2124.77,0.15,24241.77
+NR-26607,2026-08-10,EMEA,Platform License,Partner,A. Moreau,13,2680.4,0,26221.01
+NR-26294,2026-08-11,APAC,Professional Services,Partner,I. Ferreira,8,2307.98,0.15,8975.55
+NR-26803,2026-08-11,EMEA,Platform License,Partner,D. Lindqvist,9,2502.08,0,16945.34
+NR-26883,2026-08-11,EMEA,Platform License,Direct,B. Keller,8,2012.39,0.15,14128.99
+NR-26249,2026-08-12,EMEA,Support Plan,Direct,C. Okafor,7,784.7,0,5671.42
+NR-26136,2026-08-13,EMEA,Support Plan,Direct,D. Lindqvist,12,515.28,0.15,5426.67
+NR-26162,2026-08-13,North America,Training,Direct,D. Lindqvist,1,448.91,0,426.42
+NR-26262,2026-08-13,North America,Analytics Add-on,Direct,F. Tanaka,6,1032.32,0.1,5295.24
+NR-26423,2026-08-13,North America,Platform License,Partner,H. Petrov,5,3985.71,0,13796.54
+NR-26581,2026-08-13,EMEA,Support Plan,Direct,C. Okafor,10,386.94,0,3995.16
+NR-26648,2026-08-13,APAC,Training,Direct,G. Haddad,9,550.37,0.15,3303.85
+NR-26226,2026-08-14,North America,Support Plan,Direct,E. Navarro,7,695.97,0.15,3933.56
+NR-26385,2026-08-15,EMEA,Analytics Add-on,Direct,D. Lindqvist,2,1057.98,0.15,1857.02
+NR-26387,2026-08-15,North America,Professional Services,Partner,E. Navarro,6,2715.83,0.15,9588.86
+NR-26560,2026-08-15,EMEA,Professional Services,Direct,D. Lindqvist,10,2798.59,0,28895.44
+NR-26694,2026-08-15,LATAM,Platform License,Direct,L. Rossi,13,1939.12,0,15616.7
+NR-26240,2026-08-17,North America,Platform License,Direct,G. Haddad,6,2826.77,0,16110.89
+NR-26247,2026-08-17,EMEA,Training,Partner,A. Moreau,3,275.71,0.05,591.29
+NR-26395,2026-08-17,North America,Training,Partner,G. Haddad,1,622.84,0,431.19
+NR-26704,2026-08-17,APAC,Analytics Add-on,Direct,I. Ferreira,5,1579.76,0,6198.19
+NR-26773,2026-08-17,North America,Platform License,Direct,H. Petrov,8,3871.54,0,29420.61
+NR-26491,2026-08-18,EMEA,Training,Direct,C. Okafor,14,659.17,0.05,9051.89
+NR-26006,2026-08-19,APAC,Support Plan,Partner,H. Petrov,7,516.33,0,2067.02
+NR-26131,2026-08-19,LATAM,Platform License,Partner,L. Rossi,12,2523.6,0.1,12305.58
+NR-26261,2026-08-19,LATAM,Platform License,Direct,K. Mensah,2,2220.94,0.05,2614.16
+NR-26558,2026-08-19,LATAM,Professional Services,Direct,L. Rossi,2,1543.01,0,1911.79
+NR-26604,2026-08-19,LATAM,Analytics Add-on,Direct,L. Rossi,1,1150.96,0.05,677.37
+NR-26834,2026-08-19,LATAM,Support Plan,Direct,L. Rossi,7,642.47,0,2786.07
+NR-26345,2026-08-20,APAC,Support Plan,Direct,G. Haddad,8,325.69,0,2044.55
+NR-26409,2026-08-20,EMEA,Analytics Add-on,Direct,B. Keller,4,982.29,0.15,3448.33
+NR-26826,2026-08-20,EMEA,Analytics Add-on,Direct,A. Moreau,10,770.27,0.1,7157.73
+NR-26235,2026-08-21,APAC,Analytics Add-on,Partner,I. Ferreira,12,1456.36,0.1,8995.24
+NR-26055,2026-08-22,APAC,Platform License,Direct,G. Haddad,3,4091.26,0.15,8186.55
+NR-26808,2026-08-22,North America,Platform License,Direct,D. Lindqvist,8,3741.62,0,28433.32
+NR-26134,2026-08-23,EMEA,Platform License,Partner,C. Okafor,12,2866.66,0,25885.94
+NR-26281,2026-08-24,EMEA,Analytics Add-on,Direct,B. Keller,11,808.55,0,9183.11
+NR-26326,2026-08-24,EMEA,Professional Services,Partner,A. Moreau,9,1248.82,0.05,8034.75
+NR-26799,2026-08-24,EMEA,Support Plan,Direct,D. Lindqvist,9,423.3,0,3933.52
+NR-26036,2026-08-25,EMEA,Professional Services,Partner,E. Navarro,7,1260.05,0.15,5641.72
+NR-26088,2026-08-25,APAC,Professional Services,Direct,J. Nowak,1,2234.71,0,1753.58
+NR-26574,2026-08-25,EMEA,Analytics Add-on,Direct,B. Keller,4,1534.3,0,6336.66
+NR-26701,2026-08-25,LATAM,Training,Direct,L. Rossi,6,233.05,0.05,822.93
+NR-26018,2026-08-26,LATAM,Support Plan,Direct,K. Mensah,6,381.06,0.05,1345.58
+NR-26187,2026-08-27,APAC,Training,Partner,G. Haddad,6,588.34,0,2018.83
+NR-26399,2026-08-27,North America,Professional Services,Direct,F. Tanaka,4,2204.03,0.05,7955.71
+NR-26529,2026-08-27,EMEA,Analytics Add-on,Partner,B. Keller,9,1294.53,0.15,7452.12
+NR-26101,2026-08-28,North America,Analytics Add-on,Direct,F. Tanaka,8,951.17,0,7228.13
+NR-26392,2026-08-29,LATAM,Support Plan,Partner,L. Rossi,10,867.76,0.1,3526.14
+NR-26472,2026-08-29,North America,Training,Direct,D. Lindqvist,2,328.78,0.05,593.39
+NR-26007,2026-08-30,EMEA,Support Plan,Direct,A. Moreau,10,524.95,0,5420.11
+NR-26027,2026-08-30,EMEA,Support Plan,Direct,B. Keller,10,861.26,0.15,7558.63
+NR-26611,2026-08-30,EMEA,Platform License,Direct,C. Okafor,9,2337.76,0,21723.63
+NR-26273,2026-08-31,APAC,Training,Partner,G. Haddad,14,513.29,0.15,3493.25
+NR-26300,2026-08-31,APAC,Support Plan,Direct,G. Haddad,3,726.93,0,1711.27
+NR-26449,2026-08-31,APAC,Platform License,Partner,I. Ferreira,9,4042.54,0,20807.36
+NR-26120,2026-09-01,EMEA,Platform License,Direct,D. Lindqvist,3,2378.16,0.05,10796.97
+NR-26358,2026-09-02,APAC,Platform License,Direct,I. Ferreira,5,2754.53,0.05,15840.56
+NR-26371,2026-09-02,EMEA,Professional Services,Partner,C. Okafor,10,2399.54,0,27858.66
+NR-26667,2026-09-02,North America,Analytics Add-on,Partner,F. Tanaka,12,1025.54,0,13144.8
+NR-26019,2026-09-03,North America,Support Plan,Direct,G. Haddad,3,635.68,0.05,2655.14
+NR-26040,2026-09-03,North America,Professional Services,Partner,D. Lindqvist,4,2087.85,0,8920.3
+NR-26242,2026-09-03,North America,Platform License,Partner,H. Petrov,14,3336.79,0,49897.29
+NR-26768,2026-09-03,EMEA,Training,Partner,B. Keller,10,632.57,0.05,6976.93
+NR-26071,2026-09-04,EMEA,Support Plan,Direct,E. Navarro,14,471.11,0,10506.7
+NR-26075,2026-09-04,EMEA,Platform License,Partner,E. Navarro,2,2093.6,0.1,4375.21
+NR-26586,2026-09-04,North America,Training,Direct,D. Lindqvist,6,668.07,0.15,4993.39
+NR-26829,2026-09-04,LATAM,Analytics Add-on,Partner,J. Nowak,14,1518.97,0.05,14072.92
+NR-26229,2026-09-05,APAC,Training,Direct,I. Ferreira,1,358.12,0.15,368.53
+NR-26307,2026-09-05,North America,Analytics Add-on,Direct,E. Navarro,7,645.9,0.15,5632.3
+NR-26536,2026-09-05,EMEA,Analytics Add-on,Direct,C. Okafor,4,784.3,0,4997.56
+NR-26696,2026-09-05,APAC,Professional Services,Partner,H. Petrov,5,1515.33,0,6685.33
+NR-26669,2026-09-06,LATAM,Training,Partner,J. Nowak,5,374.27,0.15,1108.05
+NR-26044,2026-09-07,APAC,Support Plan,Direct,J. Nowak,8,372.38,0.05,3426.33
+NR-26290,2026-09-07,EMEA,Professional Services,Partner,D. Lindqvist,11,2458.62,0.05,29829.08
+NR-26497,2026-09-08,APAC,Support Plan,Partner,J. Nowak,12,808.93,0.1,7708.69
+NR-26760,2026-09-08,EMEA,Platform License,Partner,D. Lindqvist,4,4062.64,0,18866.9
+NR-26819,2026-09-08,APAC,Platform License,Partner,J. Nowak,9,2189.26,0,17385.44
+NR-26336,2026-09-09,North America,Professional Services,Partner,G. Haddad,10,1893.71,0,20227.1
+NR-26047,2026-09-10,EMEA,Platform License,Direct,C. Okafor,9,3475.6,0.1,44846.71
+NR-26313,2026-09-10,North America,Analytics Add-on,Direct,E. Navarro,13,1402.16,0,26714.34
+NR-26598,2026-09-10,North America,Support Plan,Direct,H. Petrov,8,889.19,0.05,9904.03
+NR-26128,2026-09-11,LATAM,Professional Services,Direct,K. Mensah,13,1582.49,0.05,18679.92
+NR-26450,2026-09-11,North America,Analytics Add-on,Direct,G. Haddad,4,1539.09,0,9022.51
+NR-26584,2026-09-11,EMEA,Analytics Add-on,Partner,E. Navarro,10,803.87,0,9332.93
+NR-26645,2026-09-12,APAC,Platform License,Partner,J. Nowak,3,2014.88,0,5333.55
+NR-26390,2026-09-13,LATAM,Analytics Add-on,Direct,K. Mensah,5,1017.09,0.15,4131.57
+NR-26477,2026-09-13,EMEA,Platform License,Direct,A. Moreau,10,3297.08,0.1,47270.24
+NR-26082,2026-09-14,LATAM,Training,Direct,L. Rossi,9,240.25,0.05,1963.34
+NR-26146,2026-09-14,North America,Platform License,Direct,E. Navarro,1,1836.04,0.1,2421.74
+NR-26172,2026-09-14,North America,Professional Services,Partner,D. Lindqvist,4,1623.15,0,6934.88
+NR-26238,2026-09-14,EMEA,Training,Direct,A. Moreau,9,365.71,0,5243.18
+NR-26707,2026-09-14,North America,Training,Direct,F. Tanaka,8,630.0,0.15,6278.46
+NR-26003,2026-09-15,APAC,Support Plan,Direct,H. Petrov,6,865.83,0.15,5346.04
+NR-26551,2026-09-15,EMEA,Analytics Add-on,Direct,B. Keller,5,726.23,0,5784.42
+NR-26157,2026-09-16,LATAM,Professional Services,Direct,L. Rossi,14,1783.84,0,23869.92
+NR-26208,2026-09-16,APAC,Analytics Add-on,Partner,G. Haddad,3,1249.21,0,3306.76
+NR-26227,2026-09-16,APAC,Platform License,Direct,K. Mensah,8,3436.67,0.1,29957.09
+NR-26681,2026-09-16,North America,Professional Services,Partner,D. Lindqvist,1,1774.39,0,1895.26
+NR-26182,2026-09-17,EMEA,Professional Services,Partner,C. Okafor,10,2128.02,0,24706.31
+NR-26198,2026-09-17,APAC,Platform License,Direct,G. Haddad,13,3605.97,0.1,51078.41
+NR-26318,2026-09-17,North America,Platform License,Direct,E. Navarro,7,2242.76,0.15,19557.05
+NR-26310,2026-09-18,APAC,Analytics Add-on,Partner,J. Nowak,12,806.66,0.05,8114.12
+NR-26807,2026-09-18,North America,Training,Direct,D. Lindqvist,12,204.38,0.05,3414.66
+NR-26231,2026-09-19,APAC,Support Plan,Partner,K. Mensah,7,601.35,0.05,3528.54
+NR-26363,2026-09-19,North America,Analytics Add-on,Partner,F. Tanaka,5,941.92,0,5030.42
+NR-26647,2026-09-19,APAC,Platform License,Direct,H. Petrov,13,2117.97,0,33334.39
+NR-26196,2026-09-20,APAC,Platform License,Partner,I. Ferreira,5,3417.23,0,15076.14
+NR-26579,2026-09-21,EMEA,Analytics Add-on,Direct,D. Lindqvist,9,1551.89,0.05,21136.97
+NR-26820,2026-09-21,LATAM,Analytics Add-on,Partner,K. Mensah,7,787.87,0,3841.81
+NR-26823,2026-09-21,North America,Support Plan,Partner,D. Lindqvist,11,684.57,0,8043.23
+NR-26869,2026-09-23,North America,Platform License,Partner,F. Tanaka,1,3302.08,0,3527.02
+NR-26847,2026-09-24,APAC,Training,Partner,J. Nowak,14,695.61,0.1,7733.61
+NR-26012,2026-09-25,North America,Professional Services,Direct,F. Tanaka,11,1335.27,0,21526.1
+NR-26396,2026-09-25,EMEA,Support Plan,Partner,C. Okafor,3,663.28,0,2310.2
+NR-26789,2026-09-25,EMEA,Training,Partner,A. Moreau,5,633.83,0.1,3311.44
+NR-26412,2026-09-27,North America,Support Plan,Direct,H. Petrov,10,413.63,0,6062.0
+NR-26509,2026-09-27,North America,Analytics Add-on,Direct,E. Navarro,8,982.52,0.1,10367.58
+NR-26519,2026-09-27,North America,Platform License,Partner,E. Navarro,11,3810.03,0,44765.26
+NR-26175,2026-09-28,North America,Platform License,Direct,D. Lindqvist,7,3093.84,0.05,30152.48
+NR-26186,2026-09-28,EMEA,Platform License,Direct,E. Navarro,3,2929.09,0.1,12598.31
+NR-26382,2026-09-28,North America,Support Plan,Partner,D. Lindqvist,12,634.49,0,8132.54
+NR-26600,2026-09-29,North America,Support Plan,Direct,F. Tanaka,10,824.08,0.05,11473.52
+NR-26851,2026-09-29,APAC,Professional Services,Direct,K. Mensah,3,1406.99,0,5110.24
+NR-26708,2026-09-30,North America,Platform License,Direct,H. Petrov,6,3197.51,0,28116.86
+NR-26453,2026-10-01,APAC,Analytics Add-on,Direct,H. Petrov,14,610.11,0,11011.33
+NR-26183,2026-10-02,EMEA,Support Plan,Partner,A. Moreau,7,367.16,0,3177.31
+NR-26163,2026-10-03,EMEA,Analytics Add-on,Partner,E. Navarro,14,1382.9,0.1,21541.09
+NR-26736,2026-10-03,LATAM,Professional Services,Direct,L. Rossi,10,2845.64,0,28961.5
+NR-26117,2026-10-04,APAC,Platform License,Partner,H. Petrov,7,3255.64,0,21411.86
+NR-26530,2026-10-04,North America,Analytics Add-on,Direct,F. Tanaka,1,1487.2,0.05,2204.81
+NR-26781,2026-10-04,North America,Platform License,Partner,H. Petrov,6,3344.17,0.15,19397.81
+NR-26859,2026-10-04,EMEA,Support Plan,Partner,D. Lindqvist,3,384.91,0.15,1213.4
+NR-26243,2026-10-05,LATAM,Analytics Add-on,Direct,K. Mensah,9,1530.85,0.15,11918.87
+NR-26425,2026-10-05,North America,Platform License,Direct,G. Haddad,11,4181.96,0,71787.73
+NR-26655,2026-10-05,EMEA,Professional Services,Direct,D. Lindqvist,5,1669.85,0.05,13454.29
+NR-26725,2026-10-05,North America,Training,Direct,G. Haddad,1,469.48,0,732.65
+NR-26224,2026-10-06,EMEA,Analytics Add-on,Direct,B. Keller,14,815.35,0,19362.52
+NR-26369,2026-10-06,LATAM,Analytics Add-on,Direct,K. Mensah,9,1559.94,0.05,13574.23
+NR-26410,2026-10-06,LATAM,Support Plan,Partner,J. Nowak,14,836.34,0.1,7816.48
+NR-26272,2026-10-07,EMEA,Analytics Add-on,Direct,B. Keller,8,1364.78,0.05,17594.06
+NR-26444,2026-10-07,North America,Platform License,Direct,G. Haddad,4,3753.59,0.15,19916.06
+NR-26042,2026-10-08,LATAM,Analytics Add-on,Partner,J. Nowak,6,1526.28,0,6792.71
+NR-26206,2026-10-08,EMEA,Professional Services,Partner,E. Navarro,9,2602.83,0,28959.74
+NR-26248,2026-10-08,EMEA,Analytics Add-on,Direct,A. Moreau,6,855.25,0,8704.31
+NR-26619,2026-10-08,LATAM,Platform License,Partner,K. Mensah,11,2439.89,0.1,17916.91
+NR-26170,2026-10-09,North America,Professional Services,Direct,D. Lindqvist,12,2933.06,0.15,46687.31
+NR-26251,2026-10-09,LATAM,Training,Partner,L. Rossi,7,327.86,0,1702.33
+NR-26330,2026-10-09,North America,Training,Direct,E. Navarro,2,687.67,0,2146.29
+NR-26424,2026-10-09,EMEA,Analytics Add-on,Direct,C. Okafor,7,801.82,0,9520.61
+NR-26103,2026-10-10,LATAM,Platform License,Direct,J. Nowak,13,2256.79,0.1,26873.12
+NR-26274,2026-10-10,North America,Platform License,Direct,F. Tanaka,2,1990.3,0,6211.93
+NR-26355,2026-10-10,EMEA,Platform License,Direct,A. Moreau,3,2828.86,0.1,12955.83
+NR-26561,2026-10-10,LATAM,Professional Services,Direct,J. Nowak,6,1752.92,0.1,9633.79
+NR-26591,2026-10-11,North America,Platform License,Direct,D. Lindqvist,2,2064.03,0.15,5475.74
+NR-26631,2026-10-11,LATAM,Platform License,Direct,L. Rossi,1,2790.02,0,2839.54
+NR-26875,2026-10-11,EMEA,Support Plan,Partner,D. Lindqvist,6,583.25,0.15,3677.32
+NR-26080,2026-10-12,North America,Analytics Add-on,Direct,E. Navarro,3,1169.77,0.1,4928.81
+NR-26252,2026-10-12,EMEA,Platform License,Partner,B. Keller,6,3195.33,0.05,22516.29
+NR-26433,2026-10-13,EMEA,Platform License,Direct,D. Lindqvist,14,1858.85,0.1,39728.74
+NR-26489,2026-10-13,APAC,Professional Services,Partner,K. Mensah,7,1306.33,0.1,7732.38
+NR-26721,2026-10-13,LATAM,Support Plan,Partner,J. Nowak,7,386.96,0.1,1808.27
+NR-26179,2026-10-14,APAC,Platform License,Partner,J. Nowak,12,2702.23,0.05,28943.23
+NR-26292,2026-10-14,LATAM,Support Plan,Direct,J. Nowak,11,565.65,0,6332.59
+NR-26349,2026-10-14,North America,Training,Direct,F. Tanaka,9,618.54,0,8687.36
+NR-26380,2026-10-14,LATAM,Platform License,Direct,K. Mensah,3,3854.01,0,11767.26
+NR-26733,2026-10-14,North America,Analytics Add-on,Direct,F. Tanaka,5,1317.1,0,10277.0
+NR-26747,2026-10-15,EMEA,Support Plan,Partner,E. Navarro,4,743.06,0,3674.43
+NR-26898,2026-10-15,North America,Support Plan,Partner,H. Petrov,5,782.53,0.15,3782.54
+NR-26617,2026-10-17,APAC,Professional Services,Partner,H. Petrov,12,2104.38,0.05,22539.74
+NR-26660,2026-10-17,LATAM,Analytics Add-on,Partner,K. Mensah,7,1202.65,0.05,5932.24
+NR-26755,2026-10-18,APAC,Support Plan,Direct,I. Ferreira,10,749.77,0,9665.66
+NR-26467,2026-10-19,North America,Support Plan,Direct,E. Navarro,13,404.34,0.1,7382.62
+NR-26488,2026-10-19,APAC,Professional Services,Direct,K. Mensah,1,1452.13,0,1872.01
+NR-26810,2026-10-19,LATAM,Platform License,Direct,L. Rossi,14,1801.47,0,25668.25
+NR-26835,2026-10-19,LATAM,Professional Services,Direct,L. Rossi,2,1876.06,0.1,3436.85
+NR-26866,2026-10-19,EMEA,Support Plan,Partner,D. Lindqvist,13,477.21,0.15,6518.96
+NR-26899,2026-10-19,North America,Support Plan,Direct,F. Tanaka,8,803.1,0.15,8522.29
+NR-26017,2026-10-20,North America,Professional Services,Direct,D. Lindqvist,11,1350.42,0,23181.38
+NR-26168,2026-10-20,APAC,Platform License,Partner,G. Haddad,13,3021.34,0.05,35057.94
+NR-26270,2026-10-20,North America,Support Plan,Direct,F. Tanaka,13,873.31,0,17716.97
+NR-26798,2026-10-20,North America,Analytics Add-on,Direct,H. Petrov,13,1046.01,0.15,18037.48
+NR-26329,2026-10-21,APAC,Platform License,Direct,K. Mensah,10,3161.0,0.1,36675.03
+NR-26784,2026-10-21,North America,Analytics Add-on,Partner,G. Haddad,10,1444.5,0.05,15607.57
+NR-26119,2026-10-22,EMEA,Analytics Add-on,Direct,C. Okafor,3,754.34,0.15,3262.85
+NR-26400,2026-10-22,North America,Training,Partner,G. Haddad,6,258.98,0.15,1502.21
+NR-26260,2026-10-23,North America,Platform License,Partner,H. Petrov,12,2515.75,0.1,30901.91
+NR-26541,2026-10-23,EMEA,Professional Services,Direct,C. Okafor,5,2253.54,0,19112.84
+NR-26872,2026-10-23,APAC,Professional Services,Partner,K. Mensah,6,2658.29,0,14985.58
+NR-26886,2026-10-24,North America,Analytics Add-on,Direct,F. Tanaka,4,1033.64,0.05,6129.58
+NR-26474,2026-10-25,LATAM,Analytics Add-on,Direct,K. Mensah,2,846.27,0.15,1464.2
+NR-26632,2026-10-25,APAC,Platform License,Partner,J. Nowak,13,3026.99,0.05,35123.5
+NR-26031,2026-10-26,North America,Support Plan,Direct,F. Tanaka,6,740.52,0,6933.71
+NR-26033,2026-10-26,EMEA,Professional Services,Direct,E. Navarro,5,1900.7,0,16120.31
+NR-26306,2026-10-26,EMEA,Platform License,Direct,B. Keller,13,2813.8,0.15,52740.64
+NR-26691,2026-10-26,EMEA,Support Plan,Partner,B. Keller,7,529.71,0.15,3896.38
+NR-26051,2026-10-27,APAC,Platform License,Direct,I. Ferreira,5,2858.69,0,18426.4
+NR-26185,2026-10-27,LATAM,Analytics Add-on,Direct,J. Nowak,2,847.66,0,1725.41
+NR-26348,2026-10-27,North America,Platform License,Direct,H. Petrov,6,2803.01,0,26245.42
+NR-26351,2026-10-27,EMEA,Training,Direct,D. Lindqvist,12,625.0,0.15,10813.59
+NR-26257,2026-10-28,North America,Analytics Add-on,Direct,G. Haddad,12,1253.94,0,23482.03
+NR-26356,2026-10-28,LATAM,Professional Services,Partner,J. Nowak,1,2796.2,0.15,1762.97
+NR-26466,2026-10-29,North America,Platform License,Partner,E. Navarro,4,1974.87,0,8984.47
+NR-26504,2026-10-29,EMEA,Support Plan,Direct,A. Moreau,14,409.99,0.15,8275.8
+NR-26853,2026-10-29,APAC,Platform License,Partner,H. Petrov,13,3776.3,0.05,43818.08
+NR-26035,2026-10-30,EMEA,Professional Services,Direct,C. Okafor,4,2320.06,0.1,14167.45
+NR-26506,2026-10-30,EMEA,Support Plan,Direct,B. Keller,2,754.54,0,2559.78
+NR-26533,2026-10-30,APAC,Platform License,Direct,H. Petrov,1,2811.67,0,3624.66
+NR-26657,2026-10-30,EMEA,Professional Services,Direct,E. Navarro,9,2742.57,0,41868.76
+NR-26475,2026-10-31,APAC,Training,Direct,I. Ferreira,8,567.65,0,5854.29
+NR-26626,2026-10-31,EMEA,Support Plan,Direct,C. Okafor,6,747.7,0,7609.72
+NR-26664,2026-10-31,EMEA,Analytics Add-on,Direct,C. Okafor,5,1240.64,0.15,8943.85
+NR-26052,2026-11-01,EMEA,Training,Direct,B. Keller,14,276.25,0.05,6611.59
+NR-26124,2026-11-01,EMEA,Analytics Add-on,Partner,A. Moreau,7,1245.85,0,11437.53
+NR-26372,2026-11-01,North America,Training,Partner,F. Tanaka,14,230.15,0,3887.72
+NR-26470,2026-11-01,North America,Platform License,Direct,H. Petrov,9,1989.35,0.1,26676.93
+NR-26596,2026-11-01,North America,Analytics Add-on,Direct,E. Navarro,14,835.48,0,19364.39
+NR-26821,2026-11-02,North America,Professional Services,Partner,H. Petrov,10,2779.29,0.05,31857.64
+NR-26285,2026-11-03,APAC,Platform License,Partner,K. Mensah,7,2221.53,0.1,13950.01
+NR-26464,2026-11-03,EMEA,Training,Partner,A. Moreau,3,548.97,0,2159.92
+NR-26503,2026-11-03,APAC,Professional Services,Direct,J. Nowak,4,2172.07,0,11882.27
+NR-26730,2026-11-03,APAC,Training,Partner,K. Mensah,4,513.76,0,2048.34
+NR-26323,2026-11-04,North America,Analytics Add-on,Direct,F. Tanaka,6,1506.05,0,14959.96
+NR-26722,2026-11-04,LATAM,Analytics Add-on,Partner,K. Mensah,2,890.06,0,1400.78
+NR-26828,2026-11-04,EMEA,Support Plan,Direct,D. Lindqvist,11,793.36,0.1,14133.75
+NR-26615,2026-11-05,North America,Training,Partner,G. Haddad,14,668.66,0.15,9600.82
+NR-26259,2026-11-06,North America,Professional Services,Direct,F. Tanaka,8,2562.99,0.05,32247.81
+NR-26658,2026-11-06,EMEA,Professional Services,Partner,B. Keller,7,2612.67,0.05,22786.34
+NR-26882,2026-11-07,LATAM,Analytics Add-on,Partner,J. Nowak,3,1366.5,0.05,3064.6
+NR-26296,2026-11-08,APAC,Professional Services,Partner,K. Mensah,9,2883.24,0.15,21984.88
+NR-26523,2026-11-08,APAC,Professional Services,Partner,I. Ferreira,6,2607.55,0,15594.3
+NR-26066,2026-11-09,LATAM,Platform License,Partner,K. Mensah,1,1937.47,0.1,1372.14
+NR-26624,2026-11-09,North America,Platform License,Direct,E. Navarro,4,1816.24,0.15,10223.32
+NR-26026,2026-11-10,EMEA,Support Plan,Partner,D. Lindqvist,2,365.53,0,958.79
+NR-26039,2026-11-10,North America,Analytics Add-on,Direct,G. Haddad,1,1384.07,0.15,1947.68
+NR-26689,2026-11-10,North America,Support Plan,Direct,D. Lindqvist,3,443.63,0,2203.34
+NR-26245,2026-11-11,North America,Platform License,Direct,D. Lindqvist,11,3720.78,0,67758.9
+NR-26275,2026-11-11,North America,Analytics Add-on,Partner,G. Haddad,1,1433.27,0,1729.35
+NR-26123,2026-11-12,EMEA,Professional Services,Partner,D. Lindqvist,9,1339.33,0.05,15018.34
+NR-26180,2026-11-12,North America,Professional Services,Partner,E. Navarro,11,2861.82,0.05,36084.0
+NR-26188,2026-11-12,LATAM,Platform License,Direct,J. Nowak,14,1926.46,0,29119.98
+NR-26205,2026-11-12,EMEA,Platform License,Direct,C. Okafor,9,2235.26,0.1,32581.04
+NR-26672,2026-11-12,EMEA,Support Plan,Direct,A. Moreau,1,627.8,0,1129.73
+NR-26062,2026-11-13,EMEA,Support Plan,Direct,A. Moreau,6,359.7,0,3883.68
+NR-26105,2026-11-13,APAC,Professional Services,Direct,G. Haddad,7,1926.2,0.15,15674.14
+NR-26420,2026-11-14,APAC,Professional Services,Direct,I. Ferreira,7,2933.16,0.05,26676.13
+NR-26542,2026-11-14,APAC,Analytics Add-on,Partner,I. Ferreira,9,1031.76,0,9255.57
+NR-26687,2026-11-14,EMEA,Analytics Add-on,Direct,B. Keller,2,929.04,0.15,2842.07
+NR-26718,2026-11-14,EMEA,Professional Services,Direct,B. Keller,6,2456.98,0,26528.01
+NR-26456,2026-11-15,EMEA,Support Plan,Partner,D. Lindqvist,9,456.12,0.05,5114.62
+NR-26713,2026-11-15,APAC,Platform License,Partner,I. Ferreira,3,1849.07,0.05,5252.67
+NR-26021,2026-11-16,APAC,Training,Direct,I. Ferreira,2,381.73,0,1044.12
+NR-26314,2026-11-16,North America,Platform License,Direct,F. Tanaka,1,3907.79,0,6469.5
+NR-26320,2026-11-16,APAC,Support Plan,Partner,K. Mensah,3,736.15,0,2201.25
+NR-26813,2026-11-16,APAC,Training,Direct,G. Haddad,3,452.23,0,1855.44
+NR-26887,2026-11-16,APAC,Platform License,Direct,I. Ferreira,5,3805.12,0.05,24718.8
+NR-26147,2026-11-17,LATAM,Platform License,Direct,J. Nowak,1,3097.65,0.1,3010.08
+NR-26276,2026-11-17,North America,Support Plan,Direct,H. Petrov,6,858.2,0.1,7672.24
+NR-26359,2026-11-17,EMEA,Platform License,Direct,C. Okafor,12,2923.84,0.15,53666.79
+NR-26394,2026-11-17,North America,Analytics Add-on,Partner,E. Navarro,7,1186.54,0,10021.59
+NR-26439,2026-11-18,North America,Training,Direct,E. Navarro,13,562.51,0.15,10290.4
+NR-26199,2026-11-19,APAC,Analytics Add-on,Direct,K. Mensah,10,1344.82,0.15,15633.22
+NR-26365,2026-11-19,EMEA,Platform License,Partner,A. Moreau,8,2609.83,0,27382.34
+NR-26411,2026-11-19,North America,Analytics Add-on,Direct,D. Lindqvist,3,885.09,0,4395.91
+NR-26043,2026-11-21,EMEA,Professional Services,Direct,A. Moreau,8,2485.05,0.1,32197.3
+NR-26547,2026-11-21,EMEA,Analytics Add-on,Direct,D. Lindqvist,3,1456.92,0.1,7078.66
+NR-26549,2026-11-21,North America,Analytics Add-on,Direct,D. Lindqvist,13,674.61,0.1,13067.07
+NR-26674,2026-11-21,North America,Support Plan,Partner,G. Haddad,2,626.24,0,1511.22
+NR-26309,2026-11-22,EMEA,Analytics Add-on,Partner,C. Okafor,4,1129.78,0,5926.83
+NR-26368,2026-11-22,EMEA,Analytics Add-on,Partner,D. Lindqvist,11,694.85,0.05,9523.04
+NR-26458,2026-11-22,EMEA,Training,Partner,E. Navarro,3,645.02,0,2537.83
+NR-26622,2026-11-22,EMEA,Analytics Add-on,Partner,C. Okafor,5,1205.69,0,7906.31
+NR-26665,2026-11-22,North America,Analytics Add-on,Partner,E. Navarro,6,1530.12,0.1,9969.55
+NR-26298,2026-11-23,EMEA,Support Plan,Partner,E. Navarro,6,522.72,0,4113.28
+NR-26476,2026-11-23,APAC,Analytics Add-on,Partner,K. Mensah,13,962.94,0,12477.41
+NR-26341,2026-11-24,EMEA,Professional Services,Direct,A. Moreau,12,2401.46,0.05,49264.27
+NR-26383,2026-11-24,North America,Platform License,Direct,F. Tanaka,14,4003.44,0.1,83510.97
+NR-26479,2026-11-24,EMEA,Support Plan,Direct,B. Keller,8,561.03,0,8076.59
+NR-26577,2026-11-24,APAC,Support Plan,Direct,G. Haddad,10,656.96,0,8984.72
+NR-26772,2026-11-24,APAC,Professional Services,Partner,J. Nowak,7,1545.07,0.05,10241.22
+NR-26459,2026-11-25,EMEA,Analytics Add-on,Direct,B. Keller,11,1122.25,0,22214.38
+NR-26266,2026-11-27,North America,Training,Direct,F. Tanaka,4,366.84,0,2429.27
+NR-26438,2026-11-27,EMEA,Analytics Add-on,Partner,E. Navarro,13,955.13,0,16284.49
+NR-26480,2026-11-27,EMEA,Platform License,Partner,A. Moreau,5,3208.44,0.15,17883.44
+NR-26734,2026-11-27,North America,Support Plan,Direct,F. Tanaka,6,471.95,0,4687.99
+NR-26774,2026-11-27,EMEA,Support Plan,Partner,B. Keller,10,850.69,0.1,10041.12
+NR-26445,2026-11-28,North America,Training,Partner,H. Petrov,3,638.52,0.05,2195.71
+NR-26000,2026-11-29,EMEA,Platform License,Direct,C. Okafor,5,2774.02,0.15,21215.36
+NR-26110,2026-11-29,LATAM,Professional Services,Partner,L. Rossi,11,1457.04,0.1,11350.79
+NR-26112,2026-11-29,North America,Analytics Add-on,Partner,F. Tanaka,7,1529.43,0,12917.66
+NR-26165,2026-11-29,APAC,Analytics Add-on,Partner,K. Mensah,8,1341.13,0.15,9089.95
+NR-26376,2026-11-29,North America,Support Plan,Direct,G. Haddad,7,851.38,0.1,8879.81
+NR-26779,2026-11-29,North America,Training,Partner,F. Tanaka,11,696.89,0,9249.39
+NR-26393,2026-11-30,EMEA,Platform License,Direct,D. Lindqvist,11,3415.96,0.05,64236.36
+NR-26717,2026-12-01,North America,Support Plan,Partner,E. Navarro,11,361.3,0,5699.34
+NR-26742,2026-12-01,APAC,Platform License,Direct,K. Mensah,7,2917.48,0,33195.53
+NR-26077,2026-12-03,EMEA,Platform License,Direct,A. Moreau,3,2119.77,0,13600.97
+NR-26141,2026-12-03,APAC,Support Plan,Partner,H. Petrov,9,385.56,0.05,3905.24
+NR-26338,2026-12-03,LATAM,Analytics Add-on,Partner,L. Rossi,3,1455.42,0,4083.54
+NR-26623,2026-12-03,APAC,Professional Services,Partner,G. Haddad,12,2139.02,0,30407.88
+NR-26148,2026-12-04,APAC,Analytics Add-on,Direct,I. Ferreira,10,1541.48,0,25055.99
+NR-26496,2026-12-05,LATAM,Platform License,Direct,J. Nowak,13,2251.4,0.15,31924.66
+NR-26293,2026-12-06,LATAM,Analytics Add-on,Partner,K. Mensah,8,672.83,0,5034.11
+NR-26347,2026-12-06,EMEA,Platform License,Direct,A. Moreau,11,4174.42,0.05,93298.03
+NR-26752,2026-12-06,North America,Analytics Add-on,Direct,D. Lindqvist,14,952.19,0.05,24918.57
+NR-26113,2026-12-07,EMEA,Analytics Add-on,Partner,C. Okafor,2,1377.07,0.05,4078.36
+NR-26191,2026-12-07,APAC,Platform License,Direct,J. Nowak,7,1967.12,0,22382.19
+NR-26210,2026-12-07,EMEA,Training,Partner,E. Navarro,13,534.96,0.1,9756.27
+NR-26083,2026-12-08,EMEA,Professional Services,Direct,A. Moreau,12,2724.1,0,69914.03
+NR-26244,2026-12-08,EMEA,Professional Services,Direct,A. Moreau,9,1855.62,0,35718.37
+NR-26546,2026-12-08,North America,Support Plan,Direct,D. Lindqvist,1,304.97,0,600.07
+NR-26705,2026-12-08,North America,Professional Services,Partner,D. Lindqvist,12,2611.74,0.05,42697.17
+NR-26861,2026-12-08,EMEA,Platform License,Partner,A. Moreau,13,3673.19,0,74432.6
+NR-26595,2026-12-09,North America,Professional Services,Direct,E. Navarro,6,2960.0,0,34945.46
+NR-26727,2026-12-09,LATAM,Support Plan,Partner,J. Nowak,13,382.78,0,4653.93
+NR-26133,2026-12-10,EMEA,Platform License,Direct,B. Keller,6,3130.39,0,40170.73
+NR-26786,2026-12-11,LATAM,Analytics Add-on,Partner,J. Nowak,14,1461.18,0.15,16262.17
+NR-26335,2026-12-13,EMEA,Analytics Add-on,Direct,E. Navarro,14,1208.89,0.1,32577.47
+NR-26775,2026-12-13,North America,Training,Direct,D. Lindqvist,5,682.01,0,6709.78
+NR-26815,2026-12-13,LATAM,Training,Direct,L. Rossi,3,350.98,0.05,1283.63
+NR-26100,2026-12-14,North America,Professional Services,Direct,D. Lindqvist,14,2722.55,0.1,67498.52
+NR-26225,2026-12-14,APAC,Analytics Add-on,Direct,J. Nowak,10,1376.18,0,22369.12
+NR-26297,2026-12-15,APAC,Support Plan,Direct,K. Mensah,2,367.65,0.15,1015.91
+NR-26513,2026-12-15,APAC,Platform License,Partner,J. Nowak,13,3409.47,0.05,49882.0
+NR-26214,2026-12-16,EMEA,Support Plan,Direct,A. Moreau,5,660.79,0.05,6713.01
+NR-26776,2026-12-16,APAC,Analytics Add-on,Direct,I. Ferreira,12,655.74,0,12790.47
+NR-26104,2026-12-18,North America,Analytics Add-on,Direct,G. Haddad,8,885.56,0.15,11848.81
+NR-26800,2026-12-18,North America,Professional Services,Partner,D. Lindqvist,2,1823.67,0,5230.47
+NR-26054,2026-12-19,LATAM,Platform License,Direct,K. Mensah,11,2089.34,0,29492.6
+NR-26142,2026-12-19,EMEA,Platform License,Partner,A. Moreau,14,3653.71,0,79733.09
+NR-26555,2026-12-20,North America,Training,Partner,F. Tanaka,13,661.68,0.15,10485.15
+NR-26662,2026-12-20,EMEA,Analytics Add-on,Partner,C. Okafor,9,789.32,0.15,9412.2
+NR-26715,2026-12-20,North America,Training,Direct,G. Haddad,1,433.36,0.1,767.43
+NR-26065,2026-12-21,EMEA,Platform License,Direct,B. Keller,5,3148.68,0,33671.2
+NR-26386,2026-12-21,EMEA,Support Plan,Direct,B. Keller,10,596.13,0,12749.73
+NR-26160,2026-12-22,LATAM,Professional Services,Partner,J. Nowak,7,1471.54,0,9633.8
+NR-26203,2026-12-23,EMEA,Professional Services,Partner,C. Okafor,14,1852.06,0.15,34354.09
+NR-26804,2026-12-23,EMEA,Platform License,Direct,B. Keller,11,3350.11,0,78815.53
+NR-26521,2026-12-24,EMEA,Platform License,Direct,E. Navarro,10,3760.57,0,80429.19
+NR-26659,2026-12-24,EMEA,Platform License,Direct,E. Navarro,6,3886.84,0,49877.87
+NR-26005,2026-12-25,North America,Analytics Add-on,Direct,F. Tanaka,4,1359.36,0,10698.98
+NR-26609,2026-12-25,EMEA,Professional Services,Direct,E. Navarro,10,2878.96,0.1,55416.38
+NR-26677,2026-12-25,EMEA,Professional Services,Partner,D. Lindqvist,2,2781.94,0.15,7371.79
+NR-26057,2026-12-26,North America,Support Plan,Direct,F. Tanaka,14,511.38,0.05,13382.68
+NR-26173,2026-12-26,EMEA,Analytics Add-on,Direct,C. Okafor,7,811.82,0,12153.96
+NR-26342,2026-12-26,EMEA,Professional Services,Partner,C. Okafor,4,2404.27,0,14990.62
+NR-26683,2026-12-26,EMEA,Analytics Add-on,Direct,A. Moreau,7,945.72,0.1,12742.75
+NR-26153,2026-12-27,North America,Support Plan,Direct,E. Navarro,7,810.63,0,11165.25
+NR-26603,2026-12-27,North America,Professional Services,Partner,D. Lindqvist,2,2431.61,0,6974.1
+NR-26777,2026-12-27,APAC,Training,Direct,I. Ferreira,7,422.33,0.05,4565.07
+NR-26233,2026-12-28,North America,Training,Partner,E. Navarro,13,456.97,0.15,7241.26
+NR-26426,2026-12-29,EMEA,Analytics Add-on,Partner,E. Navarro,5,780.1,0,6079.9
+NR-26391,2026-12-30,EMEA,Platform License,Partner,C. Okafor,8,2491.33,0.05,29513.54
+NR-26253,2026-12-31,LATAM,Platform License,Partner,K. Mensah,4,3050.51,0,11411.96
+NR-26350,2026-12-31,EMEA,Platform License,Partner,D. Lindqvist,10,2136.24,0,33298.64
+NR-26763,2026-12-31,EMEA,Training,Direct,E. Navarro,14,309.15,0,9256.72

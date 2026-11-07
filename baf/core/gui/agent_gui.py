@@ -254,6 +254,44 @@ class AgentGUI:
         return True
 
     # ------------------------------------------------------------------
+    # Helper: remove
+    # ------------------------------------------------------------------
+
+    def remove_component(self, component_id: str) -> bool:
+        """Remove the component with the given ``component_id`` from the model.
+
+        The counterpart of :meth:`add_component`: it lets an agent delete part of a
+        live GUI, and -- combined with ``add_component`` -- replace a component with
+        one of a different type (a pie chart with a bar chart, say), which plain
+        attribute updates cannot express.
+
+        Args:
+            component_id (str): identifies the component to remove.
+
+        Returns:
+            bool: ``True`` if the component was found and removed, ``False`` otherwise.
+        """
+        model = self._model
+        if model is None:
+            logger.warning("Cannot remove component: no GUI model set.")
+            return False
+
+        component = self.find_component('component_id', component_id)
+        if component is None:
+            logger.warning(f"Component with id '{component_id}' not found in GUI model.")
+            return False
+
+        parent = getattr(component, 'owner', None)
+        if parent is None or not hasattr(parent, 'view_elements'):
+            logger.warning(f"Component '{component_id}' has no container to remove it from.")
+            return False
+
+        # Reassign rather than mutate: the setter revalidates and fixes up back-references.
+        parent.view_elements = {el for el in parent.view_elements if el is not component}
+        component.owner = None
+        return True
+
+    # ------------------------------------------------------------------
     # Helper: screens
     # ------------------------------------------------------------------
 

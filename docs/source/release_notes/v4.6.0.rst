@@ -1,0 +1,56 @@
+Version 4.6.0
+=============
+
+Released: November 7th, 2026
+
+This release introduces **GUI mode**: agents can own a persistent, full-page
+interface that lives alongside the chat and is updated from agent logic. It
+complements the GUI replies added in 4.5.0. See the new
+:doc:`GUI mode wiki section <../wiki/core/gui/gui_mode>`.
+
+New Features
+------------
+
+GUI mode
+~~~~~~~~
+
+:meth:`~baf.core.agent.Agent.set_gui` attaches a GUI model to the agent as a
+template, and every new session receives its own deep copy in ``session.gui``.
+:meth:`~baf.core.session.Session.set_gui` replaces the session's interface at
+any point from a state body and pushes it to the client, over a dedicated
+``AGENT_REPLY_GUI_UPDATE`` action that does not appear in the conversation
+history. A session that already has a GUI receives it as soon as the client
+connects.
+
+Removing GUI components
+~~~~~~~~~~~~~~~~~~~~~~~
+
+:meth:`~baf.core.gui.agent_gui.AgentGUI.remove_component` deletes a component
+by ``component_id``, completing the find / update / add set. Combined with
+:meth:`~baf.core.gui.agent_gui.AgentGUI.add_component` it also expresses a
+change of component type — swapping a pie chart for a bar chart, for instance —
+which attribute updates alone cannot do, since a component's class cannot be
+mutated in place.
+
+Session-aware tools
+~~~~~~~~~~~~~~~~~~~
+
+A reasoning tool can now declare a parameter annotated with
+:class:`~baf.core.session.Session`. It is detected by introspection, hidden
+from the schema sent to the LLM, and injected at call time, so a tool can read
+or write session state without it becoming a model-visible argument.
+
+Fixes
+-----
+
+- The GUI sent to a client on connection used the ``AGENT_REPLY_GUI`` action,
+  the one that means a GUI reply. The two paradigms were therefore
+  indistinguishable on the wire, and a GUI reply sent while GUI mode was active
+  would replace the full-page panel. It now uses ``AGENT_REPLY_GUI_UPDATE``.
+
+Examples
+--------
+
+- ``gui_dashboard_demo`` — a data-analysis agent that builds a dashboard from an
+  uploaded CSV, drills into it from GUI events, sends filter forms as GUI
+  replies, and edits its own interface from natural language.
