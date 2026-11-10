@@ -212,6 +212,11 @@ In that scenario, the agent would run the state1's fallback body, without moving
 (see :any:`state-fallback-body` for more info).
 Thus, it is up to the agent creator to choose whether, in case no intent is matched, a transition to another state takes place or not.
 
+For example, a :doc:`RAG agent <../../examples/rag_agent>` can route unmatched text to its question-answering state.
+That state's body can read the question from ``session.event.message``. This uses
+:meth:`~baf.core.state.State.when_no_intent_matched`, which matches a received text event classified with the fallback
+intent; it does not replace file or other event transitions.
+
 Session variables
 ~~~~~~~~~~~~~~~~~
 
