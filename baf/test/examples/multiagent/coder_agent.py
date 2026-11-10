@@ -66,8 +66,7 @@ def generate_code_body(session: Session):
 
 generate_code_state.set_body(generate_code_body)
 generate_code_state.when_intent_matched(ok_intent).go_to(reply_code_state)
-# TODO : fix no_intent_matched
-generate_code_state.when_no_intent_matched().got_to(update_code_state)
+generate_code_state.when_no_intent_matched().go_to(update_code_state)
 
 
 def update_code_body(session: Session):
@@ -88,7 +87,6 @@ def update_code_body(session: Session):
 
 update_code_state.set_body(update_code_body)
 update_code_state.when_intent_matched(ok_intent).go_to(reply_code_state)
-# TODO : fix no_intent_matched
 update_code_state.when_no_intent_matched().go_to(update_code_state)
 
 
