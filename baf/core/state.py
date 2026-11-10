@@ -286,8 +286,9 @@ class State:
         """Start the definition of a "file received" transition on this state.
 
         Args:
-            allowed_types (list[str] or str): the file types to consider for this transition. List of strings or just 1
-                string are valid values
+            allowed_types (list[str] or str, optional): allowed MIME types, such as ``"audio/wav"`` or
+                ``["application/pdf", "image/png"]``. Use a single MIME type string or a list of MIME type strings.
+                If omitted or set to None, any file type is accepted.
 
         Returns:
             TransitionBuilder: the transition builder
