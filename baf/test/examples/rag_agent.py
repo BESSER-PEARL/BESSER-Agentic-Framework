@@ -64,7 +64,7 @@ rag = RAG(
 # rag.load_documents('C:/Users/chidambaram/Downloads/example', formats=['docx'])   # read all the files of the given format in the directory
 # rag.add_text('raw text to index and base your RAG on.') # add a text string directly
 
-# If not uploading at runtime, comment the following function, L84, L87 and L88, and uncomment L85. 
+# Add uploaded files to the context before handling the next question.
 def upload_file_body(session: Session):
     rag.add_file(session.event.file)
 
@@ -84,7 +84,7 @@ def initial_body(session: Session):
 
 initial_state.set_body(initial_body)
 initial_state.when_event(ReceiveFileEvent()).go_to(upload_file_state)
-# initial_state.when_no_intent_matched().go_to(ask_question_state)
+initial_state.when_no_intent_matched().go_to(ask_question_state)
 
 upload_file_state.set_body(upload_file_body)
 upload_file_state.when_no_intent_matched().go_to(ask_question_state)
