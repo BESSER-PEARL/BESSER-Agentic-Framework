@@ -77,6 +77,67 @@ Let's see how to use base entities with an example:
         session.reply('Thanks for the information')
     ...
 
+Reading date-time parameters
+----------------------------
+
+The built-in NER returns a :class:`~baf.nlp.ner.matched_parameter.MatchedParameter` for a
+``datetime_entity`` parameter. Its ``value`` is a normalized ISO 8601 **string**, not a Python
+``datetime`` object. Its ``info`` dictionary contains:
+
+- ``frag``: the original date/time fragment from the user's message, before normalization
+  (for example, ``tomorrow``).
+- ``year``, ``month``, ``day``, ``hour``, ``minute`` and ``second``: boolean flags describing
+  the components identified by the parser. They are not the numeric date/time values.
+
+Register the entity and name the parameter so that a state body can retrieve it from the
+matched intent:
+
+.. code:: python
+
+    from datetime import datetime
+
+    from baf.core.agent import Agent
+    from baf.core.session import Session
+    from baf.library.entity.base_entities import datetime_entity
+
+    agent = Agent('appointment_agent')
+    agent.add_entity(datetime_entity)
+    appointment_intent = agent.new_intent('appointment_intent', [
+        'Schedule an appointment for DATE',
+    ])
+    appointment_intent.parameter('date', 'DATE', datetime_entity)
+
+    def appointment_body(session: Session):
+        prediction = session.event.predicted_intent
+        date_param = prediction.get_parameter('date')
+        if date_param is None or date_param.value is None:
+            session.reply('Please provide a date or time for the appointment.')
+            return
+
+        requested_datetime = datetime.fromisoformat(date_param.value)
+        original_text = date_param.info['frag']
+        session.reply(f'You said: {original_text}')
+        session.reply(f'Parsed date-time: {requested_datetime.isoformat()}')
+
+        if date_param.info['year'] and date_param.info['month'] and date_param.info['day']:
+            session.set('appointment_date', requested_datetime.date().isoformat())
+        if date_param.info['hour']:
+            session.set('appointment_time', requested_datetime.timetz().isoformat())
+        else:
+            session.reply('What time should the appointment be?')
+
+Use this body in the state reached after matching ``appointment_intent`` (see
+:any:`intents-with-parameters`). ``date()`` extracts a Python date, while ``timetz()``
+extracts a time retaining the parsed UTC offset. Neither method tells you whether the user
+supplied that component; inspect ``info`` before relying on it. For example, ``tomorrow``
+sets the date flags but leaves the time flags false, although ``value`` still contains a time.
+
+Relative expressions are resolved using the current date/time and the agent's
+:any:`NLP_TIMEZONE <baf.nlp.NLP_TIMEZONE>` setting. Configure the intended timezone rather than interpreting
+a normalized value as UTC automatically. The flags are parser heuristics; in particular,
+the current parser treats a zero time (midnight) as unspecified, so do not use ``hour=False``
+to reject an otherwise valid midnight appointment. Ask the user to clarify when needed.
+
 API References
 --------------
 
