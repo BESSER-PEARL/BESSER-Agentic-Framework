@@ -19,7 +19,7 @@ Here is an example of how to create a custom processor that processes both user 
 
     from baf.core.agent import Agent
     from baf.core.session import Session
-    from baf.processors.processor import Processor
+    from baf.core.processors.processor import Processor
 
     class MyCustomProcessor(Processor):
         def __init__(self, agent):
@@ -112,11 +112,81 @@ UserAdaptationProcessor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :class:`UserAdaptationProcessor <baf.core.processors.user_adaptation_processor.UserAdaptationProcessor>`
-attempts to adapt the agent's responses based on the user's profile. The user profile can be added using the following call:
+uses an LLM to rewrite outgoing text for a user's profile, such as their experience level
+or preferred explanation style. It registers itself with the agent automatically and targets
+agent messages, not incoming user messages.
+
+First configure an LLM API key in ``config.yaml`` (see :doc:`../configuration_properties`):
+
+.. code:: yaml
+
+    nlp:
+      openai:
+        api_key: YOUR-OPENAI-API-KEY
+
+The following example registers an LLM and uses its name in the processor. The state body
+sets a profile for the current session **before the first reply**, then sends an ordinary
+``session.reply()``. The WebSocket platform passes that text through the processor before
+delivering it to the user.
 
 .. code:: python
 
-    processor.add_user_model(user_model)
+    from baf.core.agent import Agent
+    from baf.core.session import Session
+    from baf.core.processors.user_adaptation_processor import UserAdaptationProcessor
+    from baf.nlp.llm.llm_openai_api import LLMOpenAI
+
+    agent = Agent('adaptive_agent')
+    agent.load_properties('config.yaml')
+    websocket_platform = agent.use_websocket_platform(use_ui=True)
+    llm = LLMOpenAI(agent=agent, name='gpt-4o-mini', parameters={})
+    processor = UserAdaptationProcessor(
+        agent=agent,
+        llm_name=llm.name,
+        context='You explain how conversational agents work.',
+    )
+
+    def introduction_body(session: Session):
+        processor.add_user_model(
+            session=session,
+            user_model={
+                'experience': 'beginner',
+                'preferred_style': 'plain language with a short example',
+            },
+        )
+        session.reply('An intent represents the goal of a user message.')
+
+    introduction_state = agent.new_state('introduction', initial=True)
+    introduction_state.set_body(introduction_body)
+
+    if __name__ == '__main__':
+        agent.run()
+
+``llm_name`` must match a registered LLM. Profiles are stored by ``session.id`` in the
+processor; they are not loaded automatically from ``Agent.user_profiles``. Initialize one
+for each session before any outgoing text is processed, otherwise the current implementation
+raises ``KeyError`` for the missing profile.
+
+Call ``add_user_model()`` again to replace a session's profile. For example, a later state
+body could use a different explanation style:
+
+.. code:: python
+
+    def advanced_explanation_body(session: Session):
+        processor.add_user_model(
+            session=session,
+            user_model={
+                'experience': 'advanced',
+                'preferred_style': 'concise technical terminology',
+            },
+        )
+        session.reply('Intent classification maps a message to an intent.')
+
+The next reply uses the replacement profile; other sessions retain their own profiles.
+These profiles live in the processor's memory, so initialize them again after a restart.
+Each outgoing string processed this way makes an LLM prediction, even when the profile
+has not changed. The profile and original message are included in that request. The example
+requests a particular style; the exact wording still depends on the model.
 
 
 API References
@@ -125,5 +195,7 @@ API References
 - Agent: :class:`baf.core.agent.Agent`
 - Processor: :class:`baf.core.processors.processor.Processor`
 - Processor.process(): :meth:`baf.core.processors.processor.Processor.process`
+- UserAdaptationProcessor: :class:`baf.core.processors.user_adaptation_processor.UserAdaptationProcessor`
+- UserAdaptationProcessor.add_user_model(): :meth:`baf.core.processors.user_adaptation_processor.UserAdaptationProcessor.add_user_model`
 - Session: :class:`baf.core.session.Session`
 - ProcessorTargetUndefined: :class:`baf.exceptions.exceptions.ProcessorTargetUndefined`
