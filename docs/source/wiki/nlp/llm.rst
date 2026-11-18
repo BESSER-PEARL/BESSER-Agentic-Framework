@@ -33,18 +33,25 @@ We are going to create an LLMOpenAI:
 
 .. code:: python
 
+    from baf.core.agent import Agent
+    from baf.core.session import Session
     from baf.nlp.llm.llm_openai_api import LLMOpenAI
 
     agent = Agent('example_agent')
 
-    gpt = LLMOpenAI(agent=agent, name='gpt-4o-mini')
+    gpt = LLMOpenAI(agent=agent, name='gpt-4o-mini', parameters={})
+
+``parameters`` is required, even when no model-specific options are needed; pass an empty
+dictionary in that case. Configure ``nlp.openai.api_key`` before running the agent (see
+:doc:`../configuration_properties`). The constructor registers the LLM with the agent;
+the provider client is initialized when the agent is trained or run.
 
 This LLM can be used within any agent state (in both the body and the fallback body):
 
 .. code:: python
 
     def answer_body(session: Session):
-        answer = gpt.predict(session.message) # Predicts the output for the given input (the user message)
+        answer = gpt.predict(message=session.event.message, session=session)
         session.reply(answer)
 
 There are plenty of possibilities to take advantage of LLMs in an agent. The previous is a very simple use case, but
@@ -65,28 +72,40 @@ Here an example where we extend the previous LLMOpenAI instance:
 .. code:: python
 
     # adding this global_context will cause the LLM to only answer in english.
-    gpt = LLMOpenAI(agent=agent, name='gpt-4o-mini', global_context='You only speak english.')
+    gpt = LLMOpenAI(
+        agent=agent,
+        name='gpt-4o-mini',
+        parameters={},
+        global_context='You only speak english.',
+    )
 
 Let's now suppose we have access to the user's name while executing the body of the current state:
 
 .. code:: python
 
     def answer_body(session: Session):
-        user_name = session.message
+        user_name = session.event.message
         # For this specific session, the LLM will always be given the "context" string as additional information.
         gpt.add_user_context(session=session, context=f"The user is called {user_name}", context_name="user_name_context") 
-        answer = gpt.predict(session.message) # Predicts the output for the given input (the user message)
+        answer = gpt.predict(message=session.event.message, session=session)
         # It's also possible to remove context elements from the user specific context. 
         gpt.remove_user_context(session=session, context_name="user_name_context")
         session.reply(answer)
+
+Pass the actual ``Session`` as ``session=session`` so that the wrapper includes that user's
+context in the request. The current user's text is available as ``session.event.message``.
 
 It is also possible to only add context information for a specific prompt:
 
 .. code:: python
 
     def answer_body(session: Session):
-        user_name = session.message
-        answer = gpt.predict(session=session.message, system_message=f'Start your response using the name of the user which is {user_name}')
+        user_name = session.event.message
+        answer = gpt.predict(
+            message=session.event.message,
+            session=session,
+            system_message=f'Start your response using the name of the user which is {user_name}',
+        )
         session.reply(answer)
 
 Available LLMs
