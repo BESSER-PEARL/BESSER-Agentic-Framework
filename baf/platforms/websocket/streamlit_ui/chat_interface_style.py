@@ -192,7 +192,7 @@ def apply_chat_interface_style() -> None:
     st.markdown(
         f"""
 <style>
-div[data-testid="stChatMessage"] *,
+div[data-testid="stChatMessage"] *:not([data-testid="stIconMaterial"]),
 div[data-testid="stChatInput"] textarea {{
     font-size: {normalized['size']}px !important;
     font-family: {normalized['fontFamily']} !important;
