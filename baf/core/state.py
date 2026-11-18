@@ -254,6 +254,20 @@ class State:
         transition_builder.go_to(dest)
 
     def when_no_intent_matched(self) -> TransitionBuilder:
+        """Start a transition for received text that does not match an intent.
+
+        The transition matches the fallback intent assigned by the intent classifier. Complete the builder with
+        :meth:`~baf.core.transition.transition_builder.TransitionBuilder.go_to` to choose the destination state.
+        If no transition handles the unmatched text, the current state's fallback body runs without changing state.
+
+        Returns:
+            TransitionBuilder: the transition builder
+
+        Example:
+            Route unmatched text to a state that answers free-form questions::
+
+                waiting_state.when_no_intent_matched().go_to(answer_state)
+        """
         event: ReceiveTextEvent = ReceiveTextEvent()
         condition: Condition = IntentMatcher(fallback_intent)
         transition_builder: TransitionBuilder = TransitionBuilder(source=self, event=event, condition=condition)
