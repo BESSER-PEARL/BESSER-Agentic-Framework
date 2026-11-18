@@ -9,14 +9,14 @@ class UserAdaptationProcessor(Processor):
     """The UserAdaptationProcessor takes into account the user's profile and adapts the agent's responses to fit the
     profile. The goal is to increase the user experience.
 
-    This processor leverages LLMs to adapt the messages given a user profile. For static profiles, an adaptation will be
-    done once. If the profile changes, then an adapation will be triggered again.
+    This processor uses an LLM prediction for each processed message, with the current profile for the session.
+    Set the profile with :meth:`add_user_model` before processing the session's first outgoing message.
 
     Args:
         agent (Agent): The agent the processor belongs to
         llm_name (str): the name of the LLM to use.
-        context (str): additional context to improve the adaptation. should include information about the agent itself
-        and the task it should accomplish
+        context (str): additional context to improve the adaptation. Should include information about the agent itself
+            and the task it should accomplish
 
     Attributes:
         agent (Agent): The agent the processor belongs to
@@ -61,9 +61,10 @@ class UserAdaptationProcessor(Processor):
         return llm_response
 
     def add_user_model(self, session: 'Session', user_model: dict) -> None:
-        """Method to store the user model internally.
+        """Store or replace the profile used for this session's subsequent messages.
 
-        The user model shall be stored internally.
+        Profiles are kept in memory, indexed by session id. Calling this method again replaces the whole profile
+        for that session without changing other sessions' profiles.
 
         Args:
             session (Session): the current session
