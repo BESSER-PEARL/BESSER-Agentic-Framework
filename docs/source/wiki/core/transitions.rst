@@ -231,6 +231,8 @@ One must be cautious when defining these transitions. Following the previous exa
 there must be a 'money' variable in the session (that has to be added in some state body), otherwise this transition
 will never be triggered.
 
+.. _file-reception-transition:
+
 File reception
 ~~~~~~~~~~~~~~
 
@@ -242,9 +244,9 @@ It uses the :class:`~baf.library.transition.events.base_events.ReceiveFileEvent`
 
     state1.when_file_received(allowed_types=["application/pdf", "image/png"]).go_to(state2)
 
-Note that it is also possible to define a list of allowed file types, so we can impose
-restrictions to what can be sent by users to avoid unwanted file types to be processed. Don't add this parameter if you
-want to receive any kind of file.
+The allowed types are MIME type strings. Pass a single string such as ``"audio/wav"`` or a list of strings as above.
+Omit ``allowed_types`` or set it to ``None`` to receive any kind of file. See :doc:`files` for a complete
+transition example and access to the received file in the destination state.
 
 Form submitted
 ~~~~~~~~~~~~~~

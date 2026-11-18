@@ -25,6 +25,34 @@ Thus, users can choose whether to set file_base64, file_path or file_data.
 Receiving and Sending Files
 ---------------------------
 
+Define a :meth:`~baf.core.state.State.when_file_received` transition on the state that waits for a file.
+The ``allowed_types`` argument takes MIME type strings, for example ``"audio/wav"`` for a WAV audio file,
+or a list such as ``["application/pdf", "image/png"]`` to accept several types.
+
+.. code:: python
+
+    from baf.core.agent import Agent
+    from baf.core.session import Session
+
+    agent = Agent('file_receiver')
+    waiting_state = agent.new_state('waiting', initial=True)
+    received_state = agent.new_state('received')
+
+    def received_body(session: Session):
+        file = session.event.file
+        session.reply(f'Received {file.name} ({file.type})')
+
+    received_state.set_body(received_body)
+    waiting_state.when_file_received(
+        allowed_types=['application/pdf', 'image/png']
+    ).go_to(received_state)
+    received_state.go_to(waiting_state)
+
+To accept a single type, replace the list with a string, for example ``allowed_types='audio/wav'``.
+To accept any file type, omit ``allowed_types`` or set it to ``None``. The MIME type is compared with
+the received :class:`File <baf.core.file.File>` object's ``type`` attribute. See also
+:ref:`the built-in file reception transition <file-reception-transition>`.
+
 In case a file transition was specified, once it takes place the file object will be available in the
 Session's event:
 
@@ -55,6 +83,7 @@ API References
 --------------
 
 - File: :class:`baf.core.file.File`
+- State.when_file_received(): :meth:`baf.core.state.State.when_file_received`
 - ReceiveFileEvent: :class:`baf.library.transition.events.base_events.ReceiveFileEvent`
 - Session: :class:`baf.core.session.Session`
 - TelegramPlatform.reply_file(): :meth:`baf.platforms.telegram.telegram_platform.TelegramPlatform.reply_file`
