@@ -27,7 +27,7 @@ from baf.exceptions.exceptions import PlatformMismatchError, StreamlitDatabaseEx
 from baf.exceptions.logger import logger
 from baf.nlp.rag.rag import RAGMessage
 from baf.platforms import websocket
-from baf.platforms.payload import Payload, PayloadAction, PayloadEncoder
+from baf.platforms.payload import Payload, PayloadAction, PayloadEncoder, encode_options_message
 from baf.platforms.platform import Platform
 from baf.platforms.websocket.streamlit_ui import streamlit_ui
 from baf.core.file import File
@@ -496,20 +496,19 @@ class WebSocketPlatform(Platform):
         payload.message = self._agent.process(session=session, message=payload.message, is_user_message=False)
         self._send(session.id, payload)
 
-    def reply_options(self, session: Session, options: list[str]):
+    def reply_options(self, session: Session, options: list[str], label: str = None):
         """Send a list of options as a reply. They can be used to let the user choose one of them
 
         Args:
             session (Session): the user session
             options (list[str]): the list of options to send to the user
+            label (str, optional): a text shown with the options (e.g. a prompt in the agent's language).
+                If None, the UI uses its own default.
         """
         if session.platform is not self:
             raise PlatformMismatchError(self, session)
-        d = {}
-        for i, button in enumerate(options):
-            d[i] = button
         #TODO processor should also process the individual strings in the list of strings
-        message = json.dumps(d)
+        message = encode_options_message(options, label)
         message_obj: Message = Message(t=MessageType.OPTIONS, content=message, is_user=False, timestamp=datetime.now())
         session.save_message(message_obj)
         payload = Payload(action=PayloadAction.AGENT_REPLY_OPTIONS,

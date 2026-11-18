@@ -144,6 +144,43 @@ class Payload:
         self.message_id: str = message_id
 
 
+OPTIONS_LABEL_KEY = 'label'
+
+
+def encode_options_message(options: list[str], label: str = None) -> str:
+    """Encode the message of an ``AGENT_REPLY_OPTIONS`` payload.
+
+    The buttons are a JSON object keyed by position (``{"0": "Yes", "1": "No"}``). An optional
+    prompt for the buttons is stored under the extra ``label`` key, so a payload without a label
+    keeps the shape every client already reads.
+
+    Args:
+        options (list[str]): the button texts
+        label (str, optional): a text shown with the buttons (e.g. "Choose an option")
+
+    Returns:
+        str: the JSON message
+    """
+    d = {i: option for i, option in enumerate(options)}
+    if label:
+        d[OPTIONS_LABEL_KEY] = label
+    return json.dumps(d)
+
+
+def decode_options_message(message: str) -> tuple[list[str], str | None]:
+    """Decode the message of an ``AGENT_REPLY_OPTIONS`` payload.
+
+    Args:
+        message (str): the JSON message, see :func:`encode_options_message`
+
+    Returns:
+        tuple[list[str], str | None]: the button texts and the label (None if there is none)
+    """
+    d = json.loads(message)
+    label = d.pop(OPTIONS_LABEL_KEY, None)
+    return list(d.values()), label
+
+
 class PayloadEncoder(json.JSONEncoder):
     """Encoder for the :class:`Payload` class.
 

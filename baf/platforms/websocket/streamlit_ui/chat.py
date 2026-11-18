@@ -104,9 +104,10 @@ def write_message(message: Message, key_count: int, stream: bool = False):
                 except Exception as exc:
                     st.warning(f"Unable to send option: {exc}")
 
+            options_content = message.content if isinstance(message.content, dict) else {'options': message.content}
             st.pills(
-                label='Choose an option',
-                options=message.content,
+                label=options_content.get('label') or 'Choose an option',
+                options=options_content['options'],
                 selection_mode='single',
                 on_change=send_option,
                 key=key,
