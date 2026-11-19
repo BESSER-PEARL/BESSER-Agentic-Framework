@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import base64
-import json
 from datetime import datetime
 from io import StringIO
 
@@ -10,7 +9,7 @@ import pandas as pd
 
 from baf.core.message import MessageType, Message
 from baf.exceptions.logger import logger
-from baf.platforms.payload import PayloadAction, Payload
+from baf.platforms.payload import PayloadAction, Payload, decode_options_message
 from baf.platforms.websocket.streamlit_ui.reasoning import (
     append_reasoning_step,
     apply_task_list_update,
@@ -101,10 +100,8 @@ def on_message(ws, payload_str):
         t = MessageType.LOCATION
     elif payload.action == PayloadAction.AGENT_REPLY_OPTIONS.value:
         t = MessageType.OPTIONS
-        d = json.loads(payload.message)
-        content = []
-        for button in d.values():
-            content.append(button)
+        buttons, label = decode_options_message(payload.message)
+        content = {'options': buttons, 'label': label}
     elif payload.action == PayloadAction.AGENT_REPLY_RAG.value:
         t = MessageType.RAG_ANSWER
         content = payload.message

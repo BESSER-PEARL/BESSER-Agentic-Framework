@@ -110,6 +110,13 @@ After that, you can use the platform to send different kinds of messages to the 
 
     websocket.reply_options(session, ['Yes', 'No'])
 
+  The Streamlit UI shows a default prompt ("Choose an option") with the buttons. Pass ``label`` to
+  show your own text, e.g. in the agent's language:
+
+.. code:: python
+
+    websocket.reply_options(session, ['Oui', 'Non'], label='Choisissez une option')
+
 - Plotly `figure <https://plotly.com/python-api-reference/generated/plotly.graph_objects.Figure.html>`_:
 
 .. code:: python

@@ -1,0 +1,27 @@
+Version 4.6.1
+=============
+
+This release improves option prompts and fixes Streamlit chat icons.
+
+Option prompts
+--------------
+
+``WebSocketPlatform.reply_options`` accepts an optional ``label`` argument,
+allowing agents to display their own prompt above the options, for example in
+the agent's language:
+
+.. code:: python
+
+    websocket.reply_options(session, ['Oui', 'Non'], label='Choisissez une option')
+
+The Streamlit UI displays the label, or defaults to "Choose an option" when
+none is provided. The bundled chat widget also displays the label as text.
+Existing calls without a label keep their previous message format. Custom
+WebSocket clients should recognize the optional ``label`` key so they do not
+mistake the prompt for an option.
+
+Fixes
+-----
+
+- Streamlit material icons keep their icon font when a custom chat font is
+  configured.

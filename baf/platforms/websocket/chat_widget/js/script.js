@@ -215,8 +215,15 @@ function getMessageOptions(message) {
     const optionsContainer = document.createElement('div');
     optionsContainer.classList.add('options-message');
 
+    if (data.label) {
+        const label = document.createElement('p');
+        label.textContent = data.label;
+        optionsContainer.appendChild(label);
+    }
+
     // Iterate over each key-value pair in the options dictionary
     for (const [key, value] of Object.entries(data)) {
+        if (key === 'label') continue;
         // Create a button for each option
         const button = document.createElement('a');
         button.textContent = value;
