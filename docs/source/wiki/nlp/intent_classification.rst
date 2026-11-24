@@ -227,6 +227,80 @@ want to think about them all, we can simply provide an intent description and us
     # ...
     example_state.when_intent_matched(help_intent).go_to(help_state)
 
+
+.. _jev-intent-classifier:
+
+Jev Intent Classifier
+---------------------
+
+The :class:`~baf.nlp.intent_classifier.jev_intent_classifier.JevIntentClassifier` uses :doc:`Jev <jev>`, TypeSafe AI's
+typed decision model. It asks Jev a single *Choice* question whose options are the state's intents, each described by
+its description and some of its training sentences. Jev returns a calibrated probability for each intent, which becomes
+the intent score (and is compared with the :obj:`~baf.nlp.NLP_INTENT_THRESHOLD`).
+
+By default, an extra *none of the above* option is added. When the message matches none of the intents, Jev gives most
+of the probability to that option, so no intent passes the threshold and the agent falls back.
+
+Jev only chooses the intent: it does not extract the intent parameters. They are filled by the agent's
+:doc:`NER <ner>` (you can disable this with ``use_ner=False``).
+
+You can see all the configuration possibilities of this intent classifier here:
+:class:`~baf.nlp.intent_classifier.intent_classifier_configuration.JevIntentClassifierConfiguration`
+
+When to use it?
+~~~~~~~~~~~~~~~
+
+- If you want an intent classifier that understands the meaning of the messages, like the LLM Intent Classifier, but
+  faster and cheaper.
+- If you want scores you can rely on as probabilities to set thresholds.
+
+Pros
+~~~~
+
+- No need to train it. Intent descriptions are enough (you can also use training sentences as examples).
+- Understands semantic similarities.
+- Calibrated probabilities (TypeSafe calibrates them so that, for instance, 0.9 means right about 9 times out of 10).
+- Fast (around 100-300 ms per prediction) and cheap (you pay for input tokens only).
+
+Cons
+~~~~
+
+- API not free to use (and needs network access).
+- No parameter extraction (the agent's NER is used instead).
+- A state can have at most 31 intents (Jev Choice questions accept up to 32 options, including the *none* option).
+
+Example scenario
+~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    from baf.nlp.intent_classifier.intent_classifier_configuration import JevIntentClassifierConfiguration
+    from baf.nlp.jev.jev import Jev
+
+    agent = Agent('example_agent')
+    agent.load_properties('config.yaml')  # with nlp.typesafe.api_key
+    jev = Jev(agent=agent, model='jev-latest')
+
+    ic_config = JevIntentClassifierConfiguration(
+        use_intent_descriptions=True,
+        use_training_sentences=True,
+        max_training_sentences=5,
+        none_option=True
+    )
+
+    help_intent = agent.new_intent(
+        name='help_intent',
+        description='The user needs help to be able to use the agent properly or to find some information'
+    )
+
+    example_state = agent.new_state('example_state', ic_config=ic_config)
+    example_state.when_intent_matched(help_intent).go_to(help_state)
+
+.. note::
+
+    If a state uses the Jev Intent Classifier and you did not create a :class:`~baf.nlp.jev.jev.Jev` client, a default
+    one (model ``jev-latest``) is created when the agent starts.
+
 API References
 --------------
 
@@ -236,6 +310,9 @@ API References
 - Agent.set_default_ic_config(): :meth:`baf.core.agent.Agent.set_default_ic_config`
 - Intent: :class:`baf.core.intent.intent.Intent`
 - IntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.IntentClassifierConfiguration`
+- Jev: :class:`baf.nlp.jev.jev.Jev`
+- JevIntentClassifier: :class:`baf.nlp.intent_classifier.jev_intent_classifier.JevIntentClassifier`
+- JevIntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.JevIntentClassifierConfiguration`
 - LLMIntentClassifierConfiguration: :class:`baf.nlp.intent_classifier.intent_classifier_configuration.LLMIntentClassifierConfiguration`
 - LLMOpenAI: :class:`baf.nlp.llm.llm_openai_api.LLMIntentClassifierConfiguration`
 - Session: :class:`baf.core.session.Session`

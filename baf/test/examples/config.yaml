@@ -13,6 +13,8 @@ nlp:
     api_key: YOUR-API-KEY
   replicate:
     api_key: YOUR-API-KEY
+  typesafe:
+    api_key: YOUR-API-KEY
 
 platforms:
   websocket:

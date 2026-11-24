@@ -10,6 +10,7 @@ agents
    examples/greetings_agent
    examples/weather_agent
    examples/llm_agent
+   examples/jev_agent
    examples/rag_agent
    examples/reasoning_agent
    examples/telegram_agent

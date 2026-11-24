@@ -11,6 +11,7 @@ from baf.core.session import Session
 from baf.exceptions.logger import logger
 from baf.nlp.intent_classifier.intent_classifier import IntentClassifier
 from baf.nlp.intent_classifier.intent_classifier_configuration import (
+    JevIntentClassifierConfiguration,
     LLMIntentClassifierConfiguration,
     SimpleIntentClassifierConfiguration,
 )
@@ -18,7 +19,9 @@ from baf.nlp.intent_classifier.intent_classifier_prediction import (
     IntentClassifierPrediction,
     fallback_intent_prediction,
 )
+from baf.nlp.intent_classifier.jev_intent_classifier import JevIntentClassifier
 from baf.nlp.intent_classifier.llm_intent_classifier import LLMIntentClassifier
+from baf.nlp.jev.jev import Jev
 from baf.nlp.llm.llm import LLM
 from baf.nlp.ner.ner import NER
 from baf.nlp.ner.simple_ner import SimpleNER
@@ -54,6 +57,7 @@ class NLPEngine:
             system of the NLPEngine. The user language is set by the user, defaults to english. Keys are the language
             names and values are the Text2Speech system itself.
         _rag (RAG): The RAG system of the NLPEngine
+        _jev (Jev or None): The Jev client of the NLPEngine (TypeSafe AI's typed decision model)
     """
 
     def __init__(self, agent: "Agent"):
@@ -64,6 +68,12 @@ class NLPEngine:
         self._language_to_speech2text_module: dict[str, Speech2Text] = {}
         self._language_to_text2speech_module: dict[str, Text2Speech] = {}
         self._rag: RAG = None
+        self._jev: Jev or None = None
+
+    @property
+    def jev(self) -> Jev or None:
+        """Jev or None: NLPEngine Jev client."""
+        return self._jev
 
     @property
     def ner(self):
@@ -82,6 +92,13 @@ class NLPEngine:
             )
         for llm_name, llm in self._llms.items():
             self._llms[llm_name].initialize()
+        if self._jev is None and any(
+                isinstance(state.ic_config, JevIntentClassifierConfiguration) and state.intents
+                for state in self._agent.states):
+            # A state uses the Jev Intent Classifier but no Jev client was created: create a default one
+            Jev(self._agent)
+        if self._jev is not None:
+            self._jev.initialize()
         for state in self._agent.states:
             if state not in self._intent_classifiers and state.intents:
                 if isinstance(state.ic_config, SimpleIntentClassifierConfiguration):
@@ -99,6 +116,8 @@ class NLPEngine:
                         )
                 elif isinstance(state.ic_config, LLMIntentClassifierConfiguration):
                     self._intent_classifiers[state] = LLMIntentClassifier(self, state)
+                elif isinstance(state.ic_config, JevIntentClassifierConfiguration):
+                    self._intent_classifiers[state] = JevIntentClassifier(self, state)
         # TODO: Only instantiate the NER if asked (maybe an agent does not need NER), via agent properties
         self._ner = SimpleNER(self, self._agent)
 
