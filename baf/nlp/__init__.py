@@ -231,3 +231,16 @@ type: ``str``
 
 default value: ``http://localhost:11434``
 """
+
+TYPESAFE_API_KEY = Property('nlp.typesafe.api_key', str, None)
+"""
+The TypeSafe API key, necessary to use :class:`~baf.nlp.jev.jev.Jev` (including the
+:class:`~baf.nlp.intent_classifier.jev_intent_classifier.JevIntentClassifier`). You can create one at
+`console.typesafe.ai <https://console.typesafe.ai>`_.
+
+name: ``nlp.typesafe.api_key``
+
+type: ``str``
+
+default value: ``None``
+"""

@@ -124,3 +124,53 @@ class LLMIntentClassifierConfiguration(IntentClassifierConfiguration):
         self.use_training_sentences: bool = use_training_sentences
         self.use_entity_descriptions: bool = use_entity_descriptions
         self.use_entity_synonyms: bool = use_entity_synonyms
+
+
+class JevIntentClassifierConfiguration(IntentClassifierConfiguration):
+    """The Jev Intent Classifier Configuration class.
+
+    It allows the customization of a
+    :class:`~baf.nlp.intent_classifier.jev_intent_classifier.JevIntentClassifier`, which asks
+    `Jev <https://docs.typesafe.ai>`_ (TypeSafe AI) to choose the state's intent with calibrated probabilities.
+
+    Args:
+        model (str or None): the Jev model to use. If None, the model of the agent's
+            :class:`~baf.nlp.jev.jev.Jev` client is used
+        use_intent_descriptions (bool): whether to describe each intent option with its description
+        use_training_sentences (bool): whether to add training sentences to each intent option as examples
+        max_training_sentences (int): the maximum number of training sentences added to each intent option
+        none_option (bool): whether to add a 'none of the intents' option. When Jev picks it, no intent gets a high
+            score and the agent falls back (see :obj:`~baf.nlp.NLP_INTENT_THRESHOLD`)
+        instructions (str or None): the instructions of the Choice question asked to Jev. If None, a default one is
+            used
+        use_ner (bool): whether to run the agent's NER on the message to fill the intent parameters (Jev only
+            chooses the intent, it does not extract parameters)
+
+    Attributes:
+        model (str or None): the Jev model to use
+        use_intent_descriptions (bool): whether to describe each intent option with its description
+        use_training_sentences (bool): whether to add training sentences to each intent option as examples
+        max_training_sentences (int): the maximum number of training sentences added to each intent option
+        none_option (bool): whether to add a 'none of the intents' option
+        instructions (str or None): the instructions of the Choice question asked to Jev
+        use_ner (bool): whether to run the agent's NER on the message to fill the intent parameters
+    """
+
+    def __init__(
+            self,
+            model: str = None,
+            use_intent_descriptions: bool = True,
+            use_training_sentences: bool = True,
+            max_training_sentences: int = 5,
+            none_option: bool = True,
+            instructions: str = None,
+            use_ner: bool = True
+    ):
+        super().__init__()
+        self.model: str or None = model
+        self.use_intent_descriptions: bool = use_intent_descriptions
+        self.use_training_sentences: bool = use_training_sentences
+        self.max_training_sentences: int = max_training_sentences
+        self.none_option: bool = none_option
+        self.instructions: str or None = instructions
+        self.use_ner: bool = use_ner
