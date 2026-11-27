@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from baf import nlp
 from baf.core.message import MessageType
 from baf.nlp.llm.llm import LLM
 
@@ -17,7 +18,8 @@ class LLMBedrock(LLM):
     passed as Converse request fields, such as ``inferenceConfig`` and
     ``additionalModelRequestFields``. Credentials and region are resolved by
     boto3's standard configuration chain unless ``region_name`` is supplied.
-    A Bedrock API key can be supplied through ``AWS_BEARER_TOKEN_BEDROCK``.
+    A Bedrock API key can be supplied via ``nlp.bedrock.api_key`` or
+    ``AWS_BEARER_TOKEN_BEDROCK``; the config property takes precedence.
     The chosen model must support Converse and any requested system prompts.
     """
 
@@ -34,7 +36,19 @@ class LLMBedrock(LLM):
             import boto3
         except ImportError as exc:
             raise ImportError('Install boto3 with the llms extra to use LLMBedrock') from exc
-        self.client = boto3.client('bedrock-runtime', region_name=self.region_name)
+        api_key = self._nlp_engine.get_property(nlp.BEDROCK_API_KEY)
+        if api_key:
+            import botocore.session
+            from botocore.tokens import ScopedEnvTokenProvider
+
+            core_session = botocore.session.get_session()
+            provider = ScopedEnvTokenProvider(
+                core_session, environ={'AWS_BEARER_TOKEN_BEDROCK': api_key})
+            core_session.get_component('token_provider').insert_before('env', provider)
+            self.client = boto3.Session(botocore_session=core_session).client(
+                'bedrock-runtime', region_name=self.region_name)
+        else:
+            self.client = boto3.client('bedrock-runtime', region_name=self.region_name)
 
     def set_model(self, name: str) -> None:
         self.name = name

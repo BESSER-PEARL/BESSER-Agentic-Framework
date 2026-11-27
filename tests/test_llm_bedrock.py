@@ -12,7 +12,7 @@ from baf.nlp.llm.llm_bedrock_api import LLMBedrock
 
 class BedrockTests(unittest.TestCase):
     def setUp(self):
-        agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}))
+        agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}, get_property=lambda prop: None))
         self.llm = LLMBedrock(agent, 'test-model', {'inferenceConfig': {'maxTokens': 50}},
                               global_context='global', region_name='us-east-1')
         self.client = boto3.client('bedrock-runtime', region_name='us-east-1',
@@ -71,7 +71,7 @@ class BedrockAPIKeyTests(unittest.TestCase):
         environment = {'AWS_BEARER_TOKEN_BEDROCK': 'test-api-key', 'AWS_EC2_METADATA_DISABLED': 'true'}
         with patch.dict('os.environ', environment, clear=True):
             session = boto3.Session(region_name='us-east-1')
-            agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}))
+            agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}, get_property=lambda prop: None))
             llm = LLMBedrock(agent, 'test-model', region_name='us-east-1')
             with patch('boto3.client', side_effect=session.client):
                 llm.initialize()
@@ -83,6 +83,32 @@ class BedrockAPIKeyTests(unittest.TestCase):
             if isinstance(authorization, bytes):
                 authorization = authorization.decode()
             self.assertEqual(authorization, 'Bearer test-api-key')
+
+
+    def test_config_key_overrides_environment_without_mutating_it(self):
+        import json
+        import os
+        from botocore.awsrequest import AWSResponse
+
+        class Body:
+            def stream(self, amt=None):
+                yield json.dumps({'output': {'message': {'role': 'assistant', 'content': [{'text': 'ok'}]}},
+                                  'stopReason': 'end_turn', 'usage': {'inputTokens': 1, 'outputTokens': 1,
+                                  'totalTokens': 2}, 'metrics': {'latencyMs': 1}}).encode()
+
+        with patch.dict(os.environ, {'AWS_BEARER_TOKEN_BEDROCK': 'other-key',
+                                    'AWS_EC2_METADATA_DISABLED': 'true'}, clear=True):
+            agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}, get_property=lambda prop: 'config-key'))
+            llm = LLMBedrock(agent, 'test-model', region_name='us-east-1')
+            llm.initialize()
+            response = AWSResponse('https://example.invalid', 200, {}, Body())
+            with patch.object(llm.client._endpoint.http_session, 'send', return_value=response) as send:
+                self.assertEqual(llm.predict('hello'), 'ok')
+            authorization = send.call_args.args[0].headers['Authorization']
+            if isinstance(authorization, bytes):
+                authorization = authorization.decode()
+            self.assertEqual(authorization, 'Bearer config-key')
+            self.assertEqual(os.environ['AWS_BEARER_TOKEN_BEDROCK'], 'other-key')
 
 
 if __name__ == '__main__':

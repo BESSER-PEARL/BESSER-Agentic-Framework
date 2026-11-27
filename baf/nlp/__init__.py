@@ -231,3 +231,7 @@ type: ``str``
 
 default value: ``http://localhost:11434``
 """
+
+
+BEDROCK_API_KEY = Property('nlp.bedrock.api_key', str, None)
+"""Optional Amazon Bedrock API key (``nlp.bedrock.api_key``)."""

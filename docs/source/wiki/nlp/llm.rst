@@ -176,8 +176,10 @@ Bedrock Converse API, then create the wrapper before training the agent:
 passed in ``additionalModelRequestFields``. System context and chat support
 depend on the selected model's capabilities.
 
-For API key authentication, supply the Bedrock API key to the agent process
-using the ``AWS_BEARER_TOKEN_BEDROCK`` environment variable. The key must have
+For API key authentication, set ``nlp.bedrock.api_key`` in the agent YAML
+configuration, or supply the Bedrock API key to the agent process
+using the ``AWS_BEARER_TOKEN_BEDROCK`` environment variable. The configuration
+property takes precedence. The key must have
 access to the selected model. Store it in your deployment's secret manager and
 provide it to the process at runtime; do not put it in source code. API key
 authentication requires boto3 1.39.0 or later. For production on AWS, an IAM
