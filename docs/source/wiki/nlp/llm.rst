@@ -155,3 +155,23 @@ API References
 - LLMReplicate: :class:`baf.nlp.llm.llm_replicate_api.LLMReplicate`:
 - Session: :class:`baf.core.session.Session`
 - Session.reply(): :meth:`baf.core.session.Session.reply`
+
+Amazon Bedrock
+--------------
+
+Install the ``llms`` extra and configure AWS credentials and a region using the
+standard boto3 configuration chain. Enable access to a model that supports the
+Bedrock Converse API, then create the wrapper before training the agent:
+
+.. code:: python
+
+    from baf.nlp.llm.llm_bedrock_api import LLMBedrock
+
+    llm = LLMBedrock(agent, name='your-model-id', region_name='us-east-1',
+                     parameters={'inferenceConfig': {'maxTokens': 512}})
+    # After agent training initializes the client:
+    answer = llm.predict('Hello')
+
+``parameters`` contains Converse request fields; model-specific options may be
+passed in ``additionalModelRequestFields``. System context and chat support
+depend on the selected model's capabilities.
