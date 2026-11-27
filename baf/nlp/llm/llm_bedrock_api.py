@@ -17,6 +17,7 @@ class LLMBedrock(LLM):
     passed as Converse request fields, such as ``inferenceConfig`` and
     ``additionalModelRequestFields``. Credentials and region are resolved by
     boto3's standard configuration chain unless ``region_name`` is supplied.
+    A Bedrock API key can be supplied through ``AWS_BEARER_TOKEN_BEDROCK``.
     The chosen model must support Converse and any requested system prompts.
     """
 

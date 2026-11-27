@@ -107,20 +107,20 @@ These are the currently available LLM wrappers in BAF:
 :class:`~baf.nlp.llm.llm_openai_compatible.LLMOpenAICompatible`; only the ``openai``
 SDK is required):
 
-- :class:`~baf.nlp.llm.llm_openai_api.LLMOpenAI`: `OpenAI <https://platform.openai.com/docs/models>`_ (GPT-4o, GPT-4o-mini, …)
-- :class:`~baf.nlp.llm.llm_mistral.LLMMistral`: `Mistral AI <https://docs.mistral.ai/>`_ (mistral-small, mistral-large, …)
+- :class:`~baf.nlp.llm.llm_openai_api.LLMOpenAI`: `OpenAI <https://platform.openai.com/docs/models>`_ (GPT-4o, GPT-4o-mini, â€¦)
+- :class:`~baf.nlp.llm.llm_mistral.LLMMistral`: `Mistral AI <https://docs.mistral.ai/>`_ (mistral-small, mistral-large, â€¦)
 - :class:`~baf.nlp.llm.llm_deepseek.LLMDeepSeek`: `DeepSeek <https://api-docs.deepseek.com/>`_ (deepseek-chat, deepseek-reasoner)
 - :class:`~baf.nlp.llm.llm_google.LLMGoogle`: `Google Gemini <https://ai.google.dev/gemini-api/docs>`_ via the OpenAI-compatible endpoint
 - :class:`~baf.nlp.llm.llm_meta.LLMMeta`: `Meta Llama <https://llama.meta.com/>`_ via Meta's hosted API
-- :class:`~baf.nlp.llm.llm_qwen.LLMQwen`: `Alibaba Qwen <https://www.alibabacloud.com/help/en/dashscope/>`_ (qwen-max, qwen-plus, …)
-- :class:`~baf.nlp.llm.llm_xai.LLMxAI`: `xAI Grok <https://docs.x.ai/>`_ (grok-3, grok-3-mini, …)
-- :class:`~baf.nlp.llm.llm_groq.LLMGroq`: `Groq <https://console.groq.com/>`_ (llama-3.3-70b-versatile, mixtral-8x7b-32768, …)
+- :class:`~baf.nlp.llm.llm_qwen.LLMQwen`: `Alibaba Qwen <https://www.alibabacloud.com/help/en/dashscope/>`_ (qwen-max, qwen-plus, â€¦)
+- :class:`~baf.nlp.llm.llm_xai.LLMxAI`: `xAI Grok <https://docs.x.ai/>`_ (grok-3, grok-3-mini, â€¦)
+- :class:`~baf.nlp.llm.llm_groq.LLMGroq`: `Groq <https://console.groq.com/>`_ (llama-3.3-70b-versatile, mixtral-8x7b-32768, â€¦)
 - :class:`~baf.nlp.llm.llm_together.LLMTogether`: `Together AI <https://www.together.ai/>`_ (many open-weight models)
 - :class:`~baf.nlp.llm.llm_openrouter.LLMOpenRouter`: `OpenRouter <https://openrouter.ai/>`_ (unified gateway to hundreds of models)
 
 **Native SDK providers:**
 
-- :class:`~baf.nlp.llm.llm_anthropic.LLMAnthropic`: `Anthropic Claude <https://docs.anthropic.com/>`_ (claude-opus-4, claude-sonnet-4, …) — uses the ``anthropic`` SDK
+- :class:`~baf.nlp.llm.llm_anthropic.LLMAnthropic`: `Anthropic Claude <https://docs.anthropic.com/>`_ (claude-opus-4, claude-sonnet-4, â€¦) â€” uses the ``anthropic`` SDK
 - :class:`~baf.nlp.llm.llm_huggingface.LLMHuggingFace`: `HuggingFace <https://huggingface.co/>`_ models locally deployed
 - :class:`~baf.nlp.llm.llm_huggingface_api.LLMHuggingFaceAPI`: HuggingFace models via the `Inference API <https://huggingface.co/docs/api-inference>`_
 - :class:`~baf.nlp.llm.llm_replicate_api.LLMReplicate`: `Replicate <https://replicate.com/>`_ models via the Replicate API
@@ -175,3 +175,10 @@ Bedrock Converse API, then create the wrapper before training the agent:
 ``parameters`` contains Converse request fields; model-specific options may be
 passed in ``additionalModelRequestFields``. System context and chat support
 depend on the selected model's capabilities.
+
+For API key authentication, supply the Bedrock API key to the agent process
+using the ``AWS_BEARER_TOKEN_BEDROCK`` environment variable. The key must have
+access to the selected model. Store it in your deployment's secret manager and
+provide it to the process at runtime; do not put it in source code. API key
+authentication requires boto3 1.39.0 or later. For production on AWS, an IAM
+role with temporary credentials is recommended instead.

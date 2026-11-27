@@ -57,6 +57,33 @@ class BedrockTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.llm.chat(SimpleNamespace(id='user'))
 
+class BedrockAPIKeyTests(unittest.TestCase):
+    def test_api_key_is_sent_as_bearer_token(self):
+        import json
+        from botocore.awsrequest import AWSResponse
+
+        class Body:
+            def stream(self, amt=None):
+                yield json.dumps({'output': {'message': {'role': 'assistant', 'content': [{'text': 'ok'}]}},
+                                  'stopReason': 'end_turn', 'usage': {'inputTokens': 1, 'outputTokens': 1,
+                                  'totalTokens': 2}, 'metrics': {'latencyMs': 1}}).encode()
+
+        environment = {'AWS_BEARER_TOKEN_BEDROCK': 'test-api-key', 'AWS_EC2_METADATA_DISABLED': 'true'}
+        with patch.dict('os.environ', environment, clear=True):
+            session = boto3.Session(region_name='us-east-1')
+            agent = SimpleNamespace(nlp_engine=SimpleNamespace(_llms={}))
+            llm = LLMBedrock(agent, 'test-model', region_name='us-east-1')
+            with patch('boto3.client', side_effect=session.client):
+                llm.initialize()
+            response = AWSResponse('https://example.invalid', 200, {}, Body())
+            with patch.object(llm.client._endpoint.http_session, 'send', return_value=response) as send:
+                self.assertEqual(llm.predict('hello'), 'ok')
+            request = send.call_args.args[0]
+            authorization = request.headers['Authorization']
+            if isinstance(authorization, bytes):
+                authorization = authorization.decode()
+            self.assertEqual(authorization, 'Bearer test-api-key')
+
 
 if __name__ == '__main__':
     unittest.main()
